@@ -1,0 +1,4 @@
+{
+ "mongoURI": "mongodb+srv://brandon:uEVEJceTQaVued4a@taxtracktest.6g2eu39.mongodb.net/?retryWrites=true&w=majority",
+ "jwtSecret": "idfiuewryrf98wu"
+}
