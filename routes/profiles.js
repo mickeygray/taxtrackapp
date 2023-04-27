@@ -3,6 +3,7 @@ const router = express.Router();
 var fs = require("fs");
 const Profile = require("../models/Profile");
 const Zip = require("../models/Zip");
+const Rule = require("../models/Rule");
 const config = require("config");
 const db = config.get("mongoURI");
 const multer = require("multer");
@@ -154,6 +155,12 @@ router.get("/zips", async (req, res) => {
  const zipcode = await Zip.find({ "zipcode": req.query.q });
  console.log(zipcode);
  res.json(zipcode);
+});
+
+router.get("/rules", async (req, res) => {
+ const rules = await Rule.find();
+
+ res.json(rules);
 });
 //Calculator
 router.post("/calc", async (req, res) => {

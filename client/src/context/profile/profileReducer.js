@@ -16,6 +16,7 @@ import {
  GET_TASKS,
  GET_ZIP,
  CLEAR_TASK,
+ GET_RULES,
 } from "../types";
 
 export default (state, action) => {
@@ -30,6 +31,12 @@ export default (state, action) => {
    return {
     ...state,
     zipdata: action.payload,
+   };
+
+  case GET_RULES:
+   return {
+    ...state,
+    rules: action.payload,
    };
 
   case FILTER_MESSAGES:

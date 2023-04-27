@@ -31,7 +31,8 @@ router.get("/verify", async (req, res) => {
    secure: true,
    auth: {
     user: "apikey",
-    pass: process.env.SENDGRIDAPIKEY,
+    pass:
+     "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",
    },
   });
 

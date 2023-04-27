@@ -1,4 +1,4 @@
 {
- "mongoURI": "mongodb+srv://brandon:uEVEJceTQaVued4a@taxtracktest.6g2eu39.mongodb.net/?retryWrites=true&w=majority",
+ "mongoURI": "mongodb+srv://brandon:uEVEJceTQaVued4a@taxtrack.4a67tkq.mongodb.net/TaxTrackApp?retryWrites=true&w=majority",
  "jwtSecret": "idfiuewryrf98wu"
 }

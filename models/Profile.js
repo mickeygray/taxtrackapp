@@ -72,6 +72,7 @@ const profileSchema = new Schema({
  addDate: { type: String },
  interest: { type: String },
  penalties: { type: String },
+ startingBalance: { type: String },
  totalBalance: { type: String },
  penalizedYears: { type: String },
  mgi: { type: String },

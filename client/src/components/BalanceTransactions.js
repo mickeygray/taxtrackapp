@@ -21,6 +21,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import Burger from "./Burger";
+import profileContext from "../context/profile/profileContext";
 
 const BalanceTransactions = () => {
  ChartJS.register(
@@ -34,7 +35,20 @@ const BalanceTransactions = () => {
  );
 
  const { profile } = useContext(AuthContext);
- const { tasks, getTasks } = useContext(ProfileContext);
+
+ const [stoneArr, setStoneArr] = useState([
+  ...profile.milestones.map(
+   (m, i) =>
+    Number(profile.startingBalance.replace(/[^0-9.-]+/g, "")) -
+    profile.milestones
+     .slice(0, i)
+     .map(({ amount }) => parseFloat(amount))
+     .reduce((a, b) => a + b, 0)
+  ),
+ ]);
+
+ const { tasks, getTasks, getRules, rules } = useContext(ProfileContext);
+
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
 
@@ -61,7 +75,7 @@ const BalanceTransactions = () => {
     display: true,
     text: "The Track to 0",
    },
-   tooltip: {
+   /* tooltip: {
     callbacks: {
      title: function (context) {
       return `${profile.milestones[context[0].dataIndex].party} ${
@@ -74,10 +88,67 @@ const BalanceTransactions = () => {
       }`;
      },
     },
-   },
+   },*/
   },
  };
- const labels = profile.milestones
+
+ const [style, setStyle] = useState({ backgroundColor: "black" });
+ useEffect(() => {
+  getRules();
+  const interval = setInterval(() => {
+   getTasks(profile);
+  }, 5000);
+
+  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+ }, []);
+
+ const [transArr, setTransArr] = useState([]);
+
+ useEffect(() => {
+  if (rules != null) {
+   setTransArr([
+    0,
+    ...profile.accountTransactions
+     .map((transaction, i) => {
+      const type =
+       Number(transaction.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
+       rules &&
+       rules
+        .filter((f) => f.code === transaction.code)
+        .map((r) => r.type)
+        .toString();
+
+      if (type !== false) {
+       const obj = {
+        ...transaction,
+        type,
+       };
+       return obj;
+      } else {
+       return transaction;
+      }
+     })
+     .map((m) => {
+      const debit =
+       m.type &&
+       m.type.includes("debit") &&
+       Number(m.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
+       Number(m.amount.replace(/[^0-9.-]+/g, ""));
+      const credit =
+       m.type &&
+       m.type.includes("credit") &&
+       Number(m.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
+       Number(m.amount.replace(/[^0-9.-]+/g, "")) * -1;
+
+      if (credit != 0) return credit;
+      if (debit != 0) return debit;
+     })
+     .filter((e) => e !== undefined),
+   ]);
+  }
+ }, [rules, profileContext]);
+
+ const labels = profile.accountTransactions
   .map((m) => m.date)
   .sort((a, b) => Date.parse(a) - Date.parse(b));
 
@@ -86,39 +157,20 @@ const BalanceTransactions = () => {
   datasets: [
    {
     label: "Tax Track Path To 0",
-    data: profile.milestones.map((m) => {
-     const stone =
-      Number(profile.totalBalance.replace(/[^0-9.-]+/g, "")) -
-      parseFloat(m.amount);
-     return stone;
-    }),
+    data: stoneArr,
     borderColor: "rgb(255, 99, 132)",
     backgroundColor: "rgba(255, 99, 132, 0.5)",
    },
    {
     label: "IRS Correspondances",
-    data: profile.accountTransactions
-     .filter((f) => Date.parse(f.date) > Date.parse(profile.addDate))
-     .filter((f) => f.amount.length > 0)
-     .map((transaction) => {
-      const correspondance =
-       Number(profile.totalBalance.replace(/[^0-9.-]+/g, "")) -
-       Number(transaction.amount.replace(/[^0-9.-]+/g, ""));
-      return correspondance;
-     }),
+    data: transArr.map((m, i) =>
+     transArr.slice(0, i).reduce((a, b) => a + b, 0)
+    ),
     borderColor: "rgb(53, 162, 235)",
     backgroundColor: "rgba(53, 162, 235, 0.5)",
    },
   ],
  };
- const [style, setStyle] = useState({ backgroundColor: "black" });
- useEffect(() => {
-  const interval = setInterval(() => {
-   getTasks(profile);
-  }, 5000);
-
-  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
- }, []);
 
  useEffect(() => {
   if (tasks && tasks.length === 0) {
@@ -127,6 +179,7 @@ const BalanceTransactions = () => {
    setStyle({ backgroundColor: "yellow" });
   }
  }, [tasks.length]);
+
  return (
   <div className='container'>
    <Burger />

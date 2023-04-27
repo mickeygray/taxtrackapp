@@ -22,6 +22,7 @@ import {
  UPDATE_STATUS,
  GET_ZIP,
  CLEAR_TASK,
+ GET_RULES,
 } from "../types";
 
 const ProfileState = (props) => {
@@ -32,6 +33,7 @@ const ProfileState = (props) => {
   messages: [],
   task: null,
   filtered: null,
+  rules: null,
   range: null,
   tasks: [],
   zipdata: null,
@@ -63,6 +65,17 @@ const ProfileState = (props) => {
 
   const res = await axios.get(`/api/profiles/zips?q=${zip}`, config);
   dispatch({ type: GET_ZIP, payload: res.data });
+ };
+
+ const getRules = async () => {
+  const config = {
+   headers: {
+    "Content-Type": "application/json",
+   },
+  };
+
+  const res = await axios.get(`/api/profiles/rules`, config);
+  dispatch({ type: GET_RULES, payload: res.data });
  };
 
  //Get Profiles Needs a Search
@@ -303,11 +316,13 @@ const ProfileState = (props) => {
     updateStatus,
     putDocs,
     postCalc,
+    getRules,
     message: state.message,
     range: state.range,
     messages: state.messages,
     task: state.task,
     filtered: state.filtered,
+    rules: state.rules,
     tasks: state.tasks,
     client: state.client,
     clientList: state.clientList,
