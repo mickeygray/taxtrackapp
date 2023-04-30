@@ -11,7 +11,7 @@ import TaskModal from "./TaskModal";
 import Burger from "./Burger";
 
 const TaxPlanning = () => {
- const { profile } = useContext(AuthContext);
+ const { profile, logout } = useContext(AuthContext);
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
  const { getTasks, tasks } = useContext(ProfileContext);
@@ -44,6 +44,7 @@ const TaxPlanning = () => {
      />
     </Link>
     <h3>Welcome To Tax Track {profile.fullName}</h3>
+    <button onClick={() => logout()}>Log Out</button>
    </div>
    <div>
     {taskModal === true && <TaskModal tasks={tasks} />}

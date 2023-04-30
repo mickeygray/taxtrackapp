@@ -11,7 +11,7 @@ import TaskModal from "./TaskModal";
 import Burger from "./Burger";
 
 const TaxReturns = () => {
- const { profile } = useContext(AuthContext);
+ const { profile, logout } = useContext(AuthContext);
 
  const { putDocs, getTasks, tasks } = useContext(ProfileContext);
  const [messageModal, toggleMessageModal] = useState(false);
@@ -55,6 +55,7 @@ const TaxReturns = () => {
      />
     </Link>
     <h3>Welcome To Tax Track {profile.fullName}</h3>
+    <button onClick={() => logout()}>Log Out</button>
    </div>
 
    {taskModal === true && <TaskModal tasks={tasks} />}

@@ -79,6 +79,8 @@ const profileSchema = new Schema({
  rmgi: { type: String },
  totalPaymentSummary: { type: Array },
  formsFiled: { type: Array },
+ pin: { type: String },
+ ttuid: { type: String },
  caseID: {
   type: String,
   required: true,

@@ -11,7 +11,7 @@ import Burger from "./Burger";
 const Home = () => {
  const { tasks, getTasks } = useContext(ProfileContext);
 
- const { profile } = useContext(AuthContext);
+ const { profile, logout } = useContext(AuthContext);
 
  const [style, setStyle] = useState({ backgroundColor: "black" });
  useEffect(() => {
@@ -43,6 +43,7 @@ const Home = () => {
      />
     </Link>
     <h3>Welcome To Tax Track {profile.fullName}</h3>
+    <button onClick={() => logout()}>Log Out</button>
    </div>
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}

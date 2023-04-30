@@ -34,7 +34,7 @@ const BalanceTransactions = () => {
   Legend
  );
 
- const { profile } = useContext(AuthContext);
+ const { profile, logout } = useContext(AuthContext);
 
  const [stoneArr, setStoneArr] = useState([
   ...profile.milestones.map(
@@ -149,6 +149,7 @@ const BalanceTransactions = () => {
  }, [rules, profileContext]);
 
  const labels = profile.accountTransactions
+  .filter((f) => new Date(f.date) > new Date("1/1/2017"))
   .map((m) => m.date)
   .sort((a, b) => Date.parse(a) - Date.parse(b));
 
@@ -192,6 +193,7 @@ const BalanceTransactions = () => {
      />
     </Link>
     <h3>Welcome To Tax Track {profile.fullName}</h3>
+    <button onClick={() => logout()}>Log Out</button>
    </div>
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
@@ -204,25 +206,6 @@ const BalanceTransactions = () => {
       We will update your account again on {current.toLocaleDateString()}.
      </h3>
      <Line options={options} data={data} />;
-     <div className='all-center'>
-      <a onClick={() => setTransactionView((prevState) => !prevState)}>
-       <img
-        src={question}
-        alt='Tax Track'
-        style={{ height: "100px", width: "100px" }}
-       />{" "}
-       <h5>Learn More</h5>
-      </a>
-     </div>
-     <div className='grid-4'>
-      {transactionView === true &&
-       profile.accountTransactions.map((transaction) => (
-        <TransactionItem
-         transaction={transaction}
-         key={profile.accountTransactions.findIndex((x) => x === transaction)}
-        />
-       ))}
-     </div>
     </div>
    )}
    -

@@ -33,5 +33,5 @@ export const RANGE_TASKS = "RANGE_TASKS";
 export const UPDATE_STATUS = "UPDATE_STATUS";
 export const GET_ZIP = "GET_ZIP";
 export const CLEAR_TASK = "CLEAR_TASK";
-export const TOKEN_LOADED = "TOKEN_LOADED";
+export const OTP_LOADED = "TOKEN_LOADED";
 export const GET_RULES = "GET_RULES";
