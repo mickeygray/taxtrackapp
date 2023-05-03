@@ -12,6 +12,7 @@ const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
+require("dotenv").config();
 
 //Create and Send Token
 
@@ -82,8 +83,7 @@ router.get("/verify", async (req, res) => {
    secure: true,
    auth: {
     user: "apikey",
-    pass:
-     "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",
+    pass: process.env.SENDGRIDAPIKEY,
    },
   });
 

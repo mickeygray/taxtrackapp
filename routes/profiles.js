@@ -577,8 +577,7 @@ router.post("/calc", async (req, res) => {
       secure: true,
       auth: {
        user: "apikey",
-       pass:
-        "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",
+       pass: process.env.SENDGRIDAPIKEY,
       },
      });
 
