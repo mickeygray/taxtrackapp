@@ -1,6 +1,6 @@
 /* Global Styles */
 :root {
- --primary-color: #649eff;
+ --primary-color: green;
  --dark-color: #212226;
  --light-color: #f4f4f4;
  --danger-color: #cc7722;
@@ -804,6 +804,69 @@ table th {
 
 canvas {
  background-color: #afe1af;
+}
+
+.messages {
+ width: 400px;
+ margin: 0 auto;
+}
+
+.message {
+ margin: 0.5em;
+}
+
+.message.tx {
+ text-align: right;
+}
+
+.message .bubble {
+ position: relative;
+ display: inline-block;
+ vertical-align: top;
+ background: #0d47a1;
+ color: #fff;
+ padding: 0.5em 1em;
+ border-radius: 0.5em;
+}
+
+.message.rx .bubble {
+ background: white;
+ color: #212121;
+}
+
+.message .icon {
+ display: inline-block;
+ width: 2em;
+ height: 2em;
+ margin-right: 0.5em;
+ border-radius: 1em;
+ background: white;
+}
+
+.bubble.l-caret::before,
+.bubble.r-caret::before {
+ position: absolute;
+ display: block;
+ content: "";
+ top: 0;
+ width: 0;
+ height: 0;
+ border-left: 0.5em solid transparent;
+ border-right: 0.5em solid transparent;
+ border-top: 0.5em solid #0d47a1;
+}
+
+.message.rx .bubble.l-caret::before,
+.message.rx .bubble.r-caret::before {
+ border-top: 0.5em solid white;
+}
+
+.bubble.l-caret::before {
+ left: -0.5em;
+}
+
+.bubble.r-caret::before {
+ right: -0.5em;
 }
 @media (max-width: 700px) {
  .hide-sm {

@@ -1,13 +1,15 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/auth/authContext";
 import ProfileContext from "../context/profile/profileContext";
-import logo from "../images/TaxTrackLogo.jpg";
-import bubble from "../images/bubble.png";
+
 import exclamation from "../images/exclamation.png";
 import MessageModal from "./MessageModal";
 import TaskModal from "./TaskModal";
 import Navbar from "./Navbar";
+import zero from "../images/pathto0.png";
+import sherpa from "../images/sherpa.png";
+import messagesimg from "../images/messages.png";
 const Home = () => {
  const { tasks, getTasks } = useContext(ProfileContext);
 
@@ -32,25 +34,11 @@ const Home = () => {
  }, [tasks.length]);
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
- return (
-  <div>
-   <Navbar />
-   {taskModal === true && <TaskModal tasks={tasks} />}
-   {messageModal === true && <MessageModal />}
-   {messageModal === false && (
-    <div
-     className='grid-3 '
-     style={{ marginLeft: "218px", marginTop: "100px" }}>
-     <div>
-      <Link
-       to='/balancetransactions'
-       className='btn btn-primary'
-       style={{ borderRadius: "50%", height: "200px", width: "200px" }}>
-       <h3 className='all-center' style={{ marginTop: "50px" }}>
-        Path To <br /> Zero
-       </h3>
-      </Link>
-     </div>
+
+ const toggleModal = useCallback(() => {
+  toggleMessageModal((prevState) => !prevState);
+ }, []);
+ /*
      <div>
       <Link
        to='/taxreturns'
@@ -71,22 +59,43 @@ const Home = () => {
        </h3>
       </Link>
      </div>
+     */
+
+ return (
+  <div style={{ height: "100vh", backgroundColor: "#afe1af" }}>
+   <Navbar />
+   {taskModal === true && <TaskModal tasks={tasks} />}
+   {messageModal === true && <MessageModal toggleModal={toggleModal} />}
+   {messageModal === false && (
+    <div className='grid-3 all-center p-3'>
+     <div>
+      <a onClick={() => toggleTaskModal((prevState) => !prevState)}>
+       <img
+        src={sherpa}
+        style={{ borderRadius: "50%", height: "200px", width: "200px" }}
+       />
+      </a>
+     </div>
+     <div>
+      <Link to='/balancetransactions'>
+       <img
+        style={{ borderRadius: "50%", height: "200px", width: "200px" }}
+        src={zero}
+        alt='tax track path to zero'
+       />
+      </Link>
+     </div>
+     <div>
+      <a onClick={() => toggleMessageModal((prevState) => !prevState)}>
+       <img
+        src={messagesimg}
+        style={{ borderRadius: "50%", height: "200px", width: "200px" }}
+       />
+      </a>
+     </div>
     </div>
    )}
-   <div className='grid-2' style={{ marginTop: "50px" }}>
-    <div className='all-center'>
-     <a
-      style={style}
-      onClick={() => toggleTaskModal((prevState) => !prevState)}>
-      <img src={exclamation} style={{ height: "150px", width: "150px" }} />
-     </a>
-    </div>
-    <div className='all-center'>
-     <a onClick={() => toggleMessageModal((prevState) => !prevState)}>
-      <img src={bubble} style={{ height: "150px", width: "150px" }} />
-     </a>
-    </div>
-   </div>
+   <div className='grid-2' style={{ marginTop: "50px" }}></div>
   </div>
  );
 };

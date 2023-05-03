@@ -180,7 +180,18 @@ const BalanceTransactions = () => {
 
  console.log(ctx);
 
- const totalDuration = 10000;
+ const [totalDuration, setTotalDuration] = useState(0);
+
+ useEffect(() => {
+  let timer1 = setTimeout(() => setTotalDuration(10000), 20000);
+
+  // this will clear Timeout
+  // when component unmount like in willComponentUnmount
+  // and show will not change to true
+  return () => {
+   clearTimeout(timer1);
+  };
+ }, []);
  const delayBetweenPoints = totalDuration / transArr.length;
 
  const previousY = (ctx) =>
@@ -221,6 +232,7 @@ const BalanceTransactions = () => {
   options: {
    responsive: true,
    animation: {
+    initial: false,
     x: {
      type: "number",
      easing: "linear",
@@ -313,23 +325,6 @@ const BalanceTransactions = () => {
      <Line config={config} data={config.data} />
     </div>
    )}
-   -
-   <div
-    className='grid-2'
-    style={{ marginTop: "50px", backgroundColor: "#234F1E" }}>
-    <div className='all-center'>
-     <a
-      style={style}
-      onClick={() => toggleTaskModal((prevState) => !prevState)}>
-      <img src={exclamation} style={{ height: "150px", width: "150px" }} />
-     </a>
-    </div>
-    <div className='all-center'>
-     <a onClick={() => toggleMessageModal((prevState) => !prevState)}>
-      <img src={bubble} style={{ height: "150px", width: "150px" }} />
-     </a>
-    </div>
-   </div>
   </div>
  );
 };

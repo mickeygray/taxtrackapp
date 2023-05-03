@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import AuthContext from "../context/auth/authContext";
 import { encode as base64_encode } from "base-64";
+import logo from "../images/logo.png";
 
 const Login = () => {
  const authContext = useContext(AuthContext);
@@ -20,6 +21,7 @@ const Login = () => {
  const [accessCode, setAccessCode] = useState("");
  const [remember, setRemember] = useState(false);
  const [pinState, setPinstate] = useState(false);
+ const [otpState, setOtpstate] = useState(false);
  const [pin, setPin] = useState("");
  const [email, setEmail] = useState("");
 
@@ -65,11 +67,22 @@ const Login = () => {
 
  return (
   <div className='form-container all-center' style={{ width: "500px" }}>
-   <h1>Welcome To Tax Track Beta</h1>
-   {pinState === false && (
-    <button onClick={() => setPinstate((prevState) => !prevState)}>
-     Login With Pin
-    </button>
+   <h1>
+    <img src={logo} />
+   </h1>
+   {pinState === false && otpState === false && (
+    <div className='grid-2'>
+     <button
+      className='btn btn-primary btn-sm'
+      onClick={() => setPinstate((prevState) => !prevState)}>
+      Login With Pin
+     </button>
+     <button
+      className='btn btn-primary btn-sm'
+      onClick={() => setOtpstate((prevState) => !prevState)}>
+      Login With OTP
+     </button>
+    </div>
    )}
    {pinState === true && (
     <>
@@ -101,7 +114,7 @@ const Login = () => {
      <div></div>
     </>
    )}
-   {pinState === false && otp === null && (
+   {pinState === false && otpState === true && otp === null && (
     <form onSubmit={onSubmit}>
      <div className='form-group'>
       <label htmlFor='Social'>Social Secruity Number</label>
@@ -118,7 +131,7 @@ const Login = () => {
     </form>
    )}
 
-   {pinState === false && otp !== null && (
+   {pinState === false && otpState === true && otp !== null && (
     <form onSubmit={remember === true ? onSubmit3 : onSubmit2}>
      <div className='form-group'>
       <label htmlFor='Token'>Your One Time Access Code</label>
