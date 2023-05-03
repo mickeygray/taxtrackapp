@@ -10,6 +10,7 @@ const Login = () => {
   isAuthenticated,
   loadToken,
   loadProfile,
+  verifyToken,
   pinLogin,
   forgetDevice,
   rememberDevice,
@@ -18,7 +19,9 @@ const Login = () => {
  const [ssnString, setSsnString] = useState("");
  const [accessCode, setAccessCode] = useState("");
  const [remember, setRemember] = useState(false);
+ const [pinState, setPinstate] = useState(false);
  const [pin, setPin] = useState("");
+ const [email, setEmail] = useState("");
 
  const onChange = (e) => setSsnString(e.target.value);
 
@@ -34,7 +37,7 @@ const Login = () => {
     .split()
     .reverse()
     .toString();
-   loadProfile(encryptedString);
+   verifyToken(encryptedString);
   } else {
    e.preventDefault();
   }
@@ -54,22 +57,32 @@ const Login = () => {
  const onSubmit4 = (e) => {
   e.preventDefault();
   const encryptedPin = base64_encode(pin).split().reverse().toString();
-  pinLogin(encryptedPin, ttuid);
+  pinLogin(encryptedPin, email);
+  setPinstate((prevState) => !prevState);
  };
- const [ttuid, setTtuid] = useState(null);
- useEffect(() => {
-  setTtuid(localStorage.getItem("ttuid"));
- }, []);
 
  if (isAuthenticated) return <Navigate to='/' />;
 
  return (
   <div className='form-container all-center' style={{ width: "500px" }}>
    <h1>Welcome To Tax Track Beta</h1>
-   {ttuid !== null && (
+   {pinState === false && (
+    <button onClick={() => setPinstate((prevState) => !prevState)}>
+     Login With Pin
+    </button>
+   )}
+   {pinState === true && (
     <>
      <form onSubmit={onSubmit4}>
       <div className='form-group'>
+       <label htmlFor='Social'>Email Address</label>
+       <input
+        id='email'
+        type='email'
+        name='email'
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+       />
        <label htmlFor='Social'>Pin Code</label>
        <input
         id='pin'
@@ -85,13 +98,10 @@ const Login = () => {
        className='btn btn-primary btn-block'
       />
      </form>
-     <div>
-      {" "}
-      <button onClick={() => forgetDevice()}>Forget This Device</button>
-     </div>
+     <div></div>
     </>
    )}
-   {otp === null && ttuid === null && (
+   {pinState === false && otp === null && (
     <form onSubmit={onSubmit}>
      <div className='form-group'>
       <label htmlFor='Social'>Social Secruity Number</label>
@@ -108,7 +118,7 @@ const Login = () => {
     </form>
    )}
 
-   {otp !== null && ttuid === null && (
+   {pinState === false && otp !== null && (
     <form onSubmit={remember === true ? onSubmit3 : onSubmit2}>
      <div className='form-group'>
       <label htmlFor='Token'>Your One Time Access Code</label>
@@ -123,7 +133,7 @@ const Login = () => {
      </div>
 
      <label>
-      Remember This Device
+      Set a Pincode
       <input
        type='checkbox'
        checked={remember === true}
@@ -132,7 +142,7 @@ const Login = () => {
      </label>
 
      {remember === true && (
-      <div>
+      <div className='card' style={{ width: "300px" }}>
        <h2>
         Please Set A Pincode to Access Tax Track Directly From This Device
        </h2>
@@ -141,7 +151,7 @@ const Login = () => {
      )}
      <input
       type='submit'
-      value={remember === true ? "Remember Device" : "Login With OTP"}
+      value={remember === true ? "Create Pin" : "Login With OTP"}
       className='btn btn-primary btn-block'
      />
     </form>

@@ -11,29 +11,40 @@ const fs = require("fs");
 const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const auth = require("../middleware/auth");
 
 //Create and Send Token
 
-router.get("/device", async (req, res) => {
+router.put("/device", async (req, res) => {
+ const { encryptedString, encryptedPin } = req.body;
+ var bytes = base64.decode(encryptedString.split().reverse().toString());
+ var bytes2 = base64.decode(encryptedPin.split().reverse().toString());
+
+ console.log(req.body);
+
  try {
-  let profile = await User.findOne({ pinString: req.query.q });
+  let profile = await Profile.findOne({ ssn: bytes });
 
-  if (!user) {
-   return res.status(400).json({ msg: "Invalid Credentials" });
-  }
+  const salt = await bcrypt.genSalt(10);
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const pin = await bcrypt.hash(bytes2, salt);
 
-  if (!isMatch) {
-   return res.status(400).json({ msg: "Invalid Credentials" });
-  }
+  profile = await Profile.findOneAndUpdate(
+   { ssn: bytes },
+   {
+    "$set": {
+     "pin": pin,
+    },
+   }
+  );
 
   const payload = {
-   user: {
-    id: user.id,
+   profile: {
+    id: profile.id,
    },
   };
 
+  console.log(payload);
   jwt.sign(
    payload,
    config.get("jwtSecret"),
@@ -45,43 +56,6 @@ router.get("/device", async (req, res) => {
     res.json({ token });
    }
   );
- } catch (err) {
-  console.error(err.message);
-  res.status(500).send("Server Error");
- }
-});
-
-router.put("/device", async (req, res) => {
- const { encryptedString, encryptedPin, pinString } = req.body;
- var bytes = base64.decode(encryptedString.split().reverse().toString());
- var bytes2 = base64.decode(encryptedPin.split().reverse().toString());
-
- console.log(req.body);
-
- try {
-  let profile = await Profile.findOne({ ssn: bytes });
-
-  console.log(profile);
-
-  if (profile.ttuid) {
-   return res.status(400).json({ msg: "Device Already Assigned" });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-
-  const pin = await bcrypt.hash(bytes2, salt);
-
-  profile = await Profile.findOneAndUpdate(
-   { ssn: bytes },
-   {
-    "$set": {
-     "pin": pin,
-     "ttuid": pinString,
-    },
-   }
-  );
-
-  res.json(profile);
  } catch (err) {
   console.error(err.message);
   res.status(500).send("Server Error");
@@ -148,13 +122,41 @@ router.get("/verified", async (req, res) => {
  var bytes = base64.decode(req.query.q.split().reverse().toString());
  const profile = await Profile.findOne({ ssn: bytes });
 
- res.json(profile);
+ const payload = {
+  profile: {
+   id: profile.id,
+  },
+ };
+
+ jwt.sign(
+  payload,
+  config.get("jwtSecret"),
+  {
+   expiresIn: 360000,
+  },
+  (err, token) => {
+   if (err) throw err;
+   res.json({ token });
+  }
+ );
+});
+
+router.get("/", auth, async (req, res) => {
+ try {
+  const profile = await Profile.findById(req.profile.id).select("-pin");
+
+  console.log(req.profile);
+  res.json(profile);
+ } catch (err) {
+  console.error(err.message);
+  res.status(500).send("Server Error");
+ }
 });
 
 router.post("/pin", async (req, res) => {
  console.log(req.body);
  var bytes = base64.decode(req.body.encryptedPin.split().reverse().toString());
- const profile = await Profile.findOne({ ttuid: req.body.ttuid });
+ const profile = await Profile.findOne({ email: req.body.email });
 
  const isMatch = await bcrypt.compare(bytes, profile.pin);
 
@@ -162,11 +164,31 @@ router.post("/pin", async (req, res) => {
   return res.status(400).json({ msg: "Invalid Credentials" });
  }
 
- res.json(profile);
+ console.log(isMatch);
+
+ const payload = {
+  profile: {
+   id: profile.id,
+  },
+ };
+
+ jwt.sign(
+  payload,
+  config.get("jwtSecret"),
+  {
+   expiresIn: 360000,
+  },
+  (err, token) => {
+   if (err) throw err;
+   res.json({ token });
+  }
+ );
 });
 
-router.delete("/forget", async (req, res) => {
+router.put("/forget", async (req, res) => {
  try {
+  console.log(req.body);
+
   await Profile.findOneAndUpdate({ "ttuid": req.body.ttuid }, { "ttuid": "" });
 
   res.json({ msg: "Campaign removed" });

@@ -22,7 +22,7 @@ export default (state, action) => {
    localStorage.setItem("token", action.payload.token);
    return {
     ...state,
-    profile: action.payload,
+    ...action.payload,
     isAuthenticated: true,
     loading: false,
    };

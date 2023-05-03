@@ -3,6 +3,7 @@ import AuthContext from "./authContext";
 import axios from "axios";
 import authReducer from "./authReducer";
 import { encode as base64_encode } from "base-64";
+import setAuthToken from "../../utils/setAuthToken";
 import {
  PROFILE_LOADED,
  OTP_LOADED,
@@ -26,7 +27,6 @@ const AuthState = (props) => {
  const [state, dispatch] = useReducer(authReducer, initialState);
 
  const rememberDevice = async (pin, encryptedString) => {
-  console.log(pin);
   const pinString = base64_encode(parseInt(pin + Date.now()) * Math.random());
 
   localStorage.setItem("ttuid", pinString);
@@ -68,7 +68,24 @@ const AuthState = (props) => {
   dispatch({ type: OTP_LOADED, payload: res.data });
  };
 
- const loadProfile = async (encodedString) => {
+ const loadProfile = async () => {
+  setAuthToken(localStorage.token);
+
+  try {
+   const res = await axios.get("/api/auth");
+
+   dispatch({
+    type: PROFILE_LOADED,
+    payload: res.data,
+   });
+
+   console.log(res.data);
+  } catch (err) {
+   dispatch({ type: AUTH_ERROR });
+  }
+ };
+
+ const verifyToken = async (encodedString) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
@@ -77,21 +94,24 @@ const AuthState = (props) => {
 
   const res = await axios.get(`/api/auth/verified?q=${encodedString}`, config);
 
-  dispatch({ type: PROFILE_LOADED, payload: res.data });
+  dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+
+  loadProfile();
  };
 
- const pinLogin = async (encryptedPin, ttuid) => {
+ const pinLogin = async (encryptedPin, email) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
 
-  const obj = { encryptedPin, ttuid };
+  const obj = { encryptedPin, email };
 
   const res = await axios.post(`/api/auth/pin`, obj, config);
 
-  dispatch({ type: PROFILE_LOADED, payload: res.data });
+  dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+  loadProfile();
  };
 
  const logout = () => {
@@ -105,7 +125,7 @@ const AuthState = (props) => {
    },
   };
 
-  await axios.delete(`/api/auth/forget`, ttuid, config);
+  await axios.put(`/api/auth/forget`, ttuid, config);
   localStorage.removeItem("ttuid");
 
   dispatch({ type: LOGOUT });
@@ -119,6 +139,7 @@ const AuthState = (props) => {
     rememberDevice,
     pinLogin,
     forgetDevice,
+    verifyToken,
     logout,
     profile: state.profile,
     error: state.error,

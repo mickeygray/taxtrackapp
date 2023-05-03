@@ -802,6 +802,9 @@ table th {
 
 /* Mobile Styles */
 
+canvas {
+ background-color: #afe1af;
+}
 @media (max-width: 700px) {
  .hide-sm {
   display: none;

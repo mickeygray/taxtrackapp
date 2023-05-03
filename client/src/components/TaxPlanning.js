@@ -8,8 +8,7 @@ import exclamation from "../images/exclamation.png";
 import TaxCalculator from "./TaxCalculator";
 import MessageModal from "./MessageModal";
 import TaskModal from "./TaskModal";
-import Burger from "./Burger";
-
+import Navbar from "./Navbar";
 const TaxPlanning = () => {
  const { profile, logout } = useContext(AuthContext);
  const [messageModal, toggleMessageModal] = useState(false);
@@ -34,18 +33,7 @@ const TaxPlanning = () => {
  console.log(profile);
  return (
   <div className='container'>
-   <Burger />
-   <div className='all-center'>
-    <Link to='/'>
-     <img
-      src={logo}
-      alt='Tax Track'
-      style={{ height: "200px", width: "200px" }}
-     />
-    </Link>
-    <h3>Welcome To Tax Track {profile.fullName}</h3>
-    <button onClick={() => logout()}>Log Out</button>
-   </div>
+   <Navbar />
    <div>
     {taskModal === true && <TaskModal tasks={tasks} />}
     {messageModal === true && <MessageModal />}

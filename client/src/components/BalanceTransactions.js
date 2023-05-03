@@ -4,11 +4,12 @@ import AuthContext from "../context/auth/authContext";
 import ProfileContext from "../context/profile/profileContext";
 import logo from "../images/TaxTrackLogo.jpg";
 import bubble from "../images/bubble.png";
-import question from "../images/question.jpg";
+
 import exclamation from "../images/exclamation.png";
-import TransactionItem from "./TransactionItem";
+
 import MessageModal from "./MessageModal";
 import TaskModal from "./TaskModal";
+import Navbar from "./Navbar";
 import {
  Chart as ChartJS,
  CategoryScale,
@@ -19,7 +20,7 @@ import {
  Tooltip,
  Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Line, Chart } from "react-chartjs-2";
 import Burger from "./Burger";
 import profileContext from "../context/profile/profileContext";
 
@@ -47,67 +48,24 @@ const BalanceTransactions = () => {
   ),
  ]);
 
+ const [transArr, setTransArr] = useState([]);
+ // const [data, setData] = useState([]);
+ const ctx =
+  document.querySelector("#root canvas") &&
+  document.querySelector("#root canvas").getContext("2d");
+
  const { tasks, getTasks, getRules, rules } = useContext(ProfileContext);
 
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
 
  const [transactionView, setTransactionView] = useState(false);
-
- var now = new Date();
- var current;
- if (now.getMonth() == 11) {
-  current = new Date(now.getFullYear() + 1, 0, 1);
- } else {
-  current = new Date(now.getFullYear(), now.getMonth() + 1, 1);
- }
-
- const options = {
-  responsive: true,
-  interaction: {
-   mode: "index",
-  },
-  plugins: {
-   legend: {
-    position: "top",
-   },
-   title: {
-    display: true,
-    text: "The Track to 0",
-   },
-   /* tooltip: {
-    callbacks: {
-     title: function (context) {
-      return `${profile.milestones[context[0].dataIndex].party} ${
-       profile.milestones[context[0].dataIndex].action
-      }`;
-     },
-     afterTitle: function (context) {
-      return `${profile.accountTransactions[context[0].dataIndex].period} ${
-       profile.accountTransactions[context[0].dataIndex].description
-      }`;
-     },
-    },
-   },*/
-  },
- };
-
- const [style, setStyle] = useState({ backgroundColor: "black" });
  useEffect(() => {
-  getRules();
-  const interval = setInterval(() => {
-   getTasks(profile);
-  }, 5000);
-
-  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
- }, []);
-
- const [transArr, setTransArr] = useState([]);
-
- useEffect(() => {
+  function isNumber(x) {
+   return parseFloat(x) == x;
+  }
   if (rules != null) {
    setTransArr([
-    0,
     ...profile.accountTransactions
      .map((transaction, i) => {
       const type =
@@ -128,7 +86,7 @@ const BalanceTransactions = () => {
        return transaction;
       }
      })
-     .map((m) => {
+     .map((m, i) => {
       const debit =
        m.type &&
        m.type.includes("debit") &&
@@ -140,38 +98,193 @@ const BalanceTransactions = () => {
        Number(m.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
        Number(m.amount.replace(/[^0-9.-]+/g, "")) * -1;
 
-      if (credit != 0) return credit;
-      if (debit != 0) return debit;
+      if (credit != 0 && isNumber(credit)) return { x: i, y: credit };
+      if (debit != 0 && isNumber(debit)) return { x: i, y: debit };
      })
-     .filter((e) => e !== undefined),
+     .filter((e) => e != undefined),
    ]);
+   /*
+
+   */
   }
  }, [rules, profileContext]);
 
- const labels = profile.accountTransactions
-  .filter((f) => new Date(f.date) > new Date("1/1/2017"))
-  .map((m) => m.date)
+ const savings =
+  Number(profile.startingBalance.replace(/[^0-9.-]+/g, "")) -
+  Number(profile.totalBalance.replace(/[^0-9.-]+/g, ""));
+ const data = transArr.map((m, i) => {
+  const obj = {
+   x: i,
+   y: transArr
+    .map((t) => t.y)
+    .slice(0, i)
+    .reduce((a, b) => a + b, 0),
+  };
+  return obj;
+ });
+
+ const data2 = [];
+ let prev = 100;
+ let prev2 = 80;
+ for (let i = 0; i < 1000; i++) {
+  prev += 5 - Math.random() * 10;
+  data.push({ x: i, y: prev });
+  prev2 += 5 - Math.random() * 10;
+  data2.push({ x: i, y: prev2 });
+ }
+
+ const labels = [
+  ...profile.milestones.map((m) => m.date),
+  ...profile.accountTransactions
+   .filter((f) => new Date(f.date) > new Date("1/1/2013"))
+   .map((m) => m.date)
+   .filter((x, i, a) => a.indexOf(x) == i),
+ ]
+  .filter((x, i, a) => a.indexOf(x) == i)
   .sort((a, b) => Date.parse(a) - Date.parse(b));
 
- const data = {
+ const dataoptions = {
   labels,
   datasets: [
    {
-    label: "Tax Track Path To 0",
-    data: stoneArr,
-    borderColor: "rgb(255, 99, 132)",
-    backgroundColor: "rgba(255, 99, 132, 0.5)",
+    label: "Path To Zero",
+    data: data,
+    borderColor: "white",
+    radius: 0,
+    borderWidth: 10,
+    backgroundColor: "white",
+    lineTension: ".5",
+    borderDash: [10, 5],
    },
    {
     label: "IRS Correspondances",
-    data: transArr.map((m, i) =>
-     transArr.slice(0, i).reduce((a, b) => a + b, 0)
-    ),
-    borderColor: "rgb(53, 162, 235)",
+    data: data2,
+    radius: 0,
+    borderColor: "white",
+    borderWidth: 10,
+    lineTension: ".5",
     backgroundColor: "rgba(53, 162, 235, 0.5)",
    },
   ],
  };
+
+ var now = new Date();
+ var current;
+ if (now.getMonth() == 11) {
+  current = new Date(now.getFullYear() + 1, 0, 1);
+ } else {
+  current = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+ }
+
+ console.log(data);
+
+ console.log(ctx);
+
+ const totalDuration = 10000;
+ const delayBetweenPoints = totalDuration / transArr.length;
+
+ const previousY = (ctx) =>
+  ctx.index === 0
+   ? ctx.chart.scales.y.getPixelForValue(100)
+   : ctx.chart
+      .getDatasetMeta(ctx.datasetIndex)
+      .data[ctx.index - 1].getProps(["y"], true).y;
+
+ const config = {
+  type: "line",
+  data: {
+   labels: labels,
+   datasets: [
+    {
+     label: "Path To Zero",
+     data: data,
+     borderColor: "white",
+     radius: 0,
+     borderWidth: 10,
+     backgroundColor: "white",
+     lineTension: ".5",
+     //borderDash: [10, 5],
+    },
+
+    /*
+    {
+     label: "IRS Correspondances",
+     data: data2,
+     radius: 0,
+     borderColor: "white",
+     borderWidth: 10,
+     lineTension: ".5",
+     backgroundColor: "rgba(53, 162, 235, 0.5)",
+    },*/
+   ],
+  },
+  options: {
+   responsive: true,
+   animation: {
+    x: {
+     type: "number",
+     easing: "linear",
+     duration: totalDuration,
+     from: NaN,
+     delay(ctx) {
+      if (ctx.type !== "data" || ctx.yStarted) {
+       return 0;
+      }
+      ctx.yStarted = true;
+      return ctx.index * delayBetweenPoints;
+     },
+    },
+    y: {
+     type: "number",
+     easing: "linear",
+     duration: totalDuration,
+     from: previousY, // previousY,
+     delay(ctx) {
+      if (ctx.type !== "data" || ctx.yStarted) {
+       return 0;
+      }
+      ctx.yStarted = true;
+      return ctx.index * delayBetweenPoints;
+     },
+    },
+   },
+   interaction: {
+    intersect: false,
+   },
+   plugins: {
+    legend: false,
+   },
+   tooltip: {
+    callbacks: {
+     title: function (context) {
+      return `${profile.milestones[context[0].dataIndex].party} ${
+       profile.milestones[context[0].dataIndex].action
+      }`;
+     },
+     afterTitle: function (context) {
+      return `${profile.accountTransactions[context[0].dataIndex].period} ${
+       profile.accountTransactions[context[0].dataIndex].description
+      }`;
+     },
+    },
+   },
+   scales: {
+    x: {
+     type: "linear",
+    },
+   },
+  },
+ };
+
+ const [style, setStyle] = useState({ backgroundColor: "black" });
+ useEffect(() => {
+  getRules();
+  const interval = setInterval(() => {
+   getTasks(profile);
+  }, 5000);
+
+  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+ }, []);
 
  useEffect(() => {
   if (tasks && tasks.length === 0) {
@@ -182,34 +295,28 @@ const BalanceTransactions = () => {
  }, [tasks.length]);
 
  return (
-  <div className='container'>
-   <Burger />
-   <div className='all-center'>
-    <Link to='/'>
-     <img
-      src={logo}
-      alt='Tax Track'
-      style={{ height: "200px", width: "200px" }}
-     />
-    </Link>
-    <h3>Welcome To Tax Track {profile.fullName}</h3>
-    <button onClick={() => logout()}>Log Out</button>
-   </div>
+  <div>
+   <Navbar />
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
    {messageModal === false && (
     <div>
-     <h2 className='text-center'>
-      Your Current Balance Is {profile.totalBalance}.{" "}
-     </h2>
-     <h3 className='text-center'>
-      We will update your account again on {current.toLocaleDateString()}.
-     </h3>
-     <Line options={options} data={data} />;
+     <div className='all-center' style={{ backgroundColor: "#99EDC3" }}>
+      <h3 className='text-center'>
+       Your Latest Balance Is {profile.totalBalance}. <br /> So far you've
+       eliminated ${savings.toLocaleString()} in debt!
+      </h3>
+      <h3 className='text-center'>
+       We will update your account again on {current.toLocaleDateString()}.
+      </h3>
+     </div>
+     <Line config={config} data={config.data} />
     </div>
    )}
    -
-   <div className='grid-2' style={{ marginTop: "50px" }}>
+   <div
+    className='grid-2'
+    style={{ marginTop: "50px", backgroundColor: "#234F1E" }}>
     <div className='all-center'>
      <a
       style={style}

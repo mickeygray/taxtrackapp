@@ -7,11 +7,12 @@ import bubble from "../images/bubble.png";
 import exclamation from "../images/exclamation.png";
 import MessageModal from "./MessageModal";
 import TaskModal from "./TaskModal";
-import Burger from "./Burger";
+import Navbar from "./Navbar";
 const Home = () => {
  const { tasks, getTasks } = useContext(ProfileContext);
 
  const { profile, logout } = useContext(AuthContext);
+ console.log(profile);
 
  const [style, setStyle] = useState({ backgroundColor: "black" });
  useEffect(() => {
@@ -32,19 +33,8 @@ const Home = () => {
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
  return (
-  <div className='container'>
-   <Burger />
-   <div className='all-center'>
-    <Link to='/'>
-     <img
-      src={logo}
-      alt='Tax Track'
-      style={{ height: "200px", width: "200px" }}
-     />
-    </Link>
-    <h3>Welcome To Tax Track {profile.fullName}</h3>
-    <button onClick={() => logout()}>Log Out</button>
-   </div>
+  <div>
+   <Navbar />
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
    {messageModal === false && (
