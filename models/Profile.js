@@ -24,24 +24,19 @@ const profileSchema = new Schema({
   required: true,
   unique: true,
  },
- penaltyObj: {
-  type: Object,
- },
- taxReturnData: {
-  type: Array,
- },
- wageReport: {
-  type: Object,
- },
  status: { type: String },
- taxDocuments: { type: Array },
- totalBalance: { type: String },
- profileSummary: { type: Object },
  dob: { type: String },
  ssn: { type: String },
  address: { type: String },
- docs: { type: Array },
- accountTransactions: { type: Array },
+ accountTransactions: [
+  {
+   code: { type: String },
+   description: { type: String },
+   amount: { type: String },
+   date: { type: String },
+   period: { type: String },
+  },
+ ],
  messages: [
   {
    name: { type: String },
@@ -70,23 +65,14 @@ const profileSchema = new Schema({
  zip: { type: String },
  status: { type: String },
  addDate: { type: String },
- interest: { type: String },
- penalties: { type: String },
  startingBalance: { type: String },
- totalBalance: { type: String },
- penalizedYears: { type: String },
- mgi: { type: String },
- rmgi: { type: String },
- totalPaymentSummary: { type: Array },
- formsFiled: { type: Array },
+ currentBalance: { type: String },
  pin: { type: String },
- ttuid: { type: String },
  caseID: {
   type: String,
   required: true,
  },
  temp_secret: { type: Object },
- secret: { type: Object },
 });
 
 module.exports = mongoose.model("profile", profileSchema);

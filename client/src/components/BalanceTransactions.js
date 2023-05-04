@@ -49,7 +49,7 @@ const BalanceTransactions = () => {
  ]);
 
  const [transArr, setTransArr] = useState([]);
- // const [data, setData] = useState([]);
+ const [dataState, setDataState] = useState(false);
  const ctx =
   document.querySelector("#root canvas") &&
   document.querySelector("#root canvas").getContext("2d");
@@ -130,6 +130,23 @@ const BalanceTransactions = () => {
   return obj;
  });
 
+ const truncatedMappedData = transArr
+  .filter((f) => new Date(f.x) >= new Date(profile.createDate))
+  .map((t, i) => {
+   const index = transArr.indexOf(t);
+   const obj = {
+    ...t,
+    y: transArr
+     .map((t) => t.y)
+     .slice(0, index)
+     .reduce((a, b) => a + b, 0),
+    rawY: transArr[index].y,
+   };
+   return obj;
+  });
+
+ console.log(truncatedMappedData);
+
  var now = new Date();
  var current;
  if (now.getMonth() == 11) {
@@ -166,16 +183,19 @@ const BalanceTransactions = () => {
  };
 
  const data = {
-  labels: mappedData.map((m) => m.x),
+  labels:
+   dataState === false
+    ? truncatedMappedData.map((m) => m.x)
+    : mappedData.map((m) => m.x),
   datasets: [
    {
-    label: "Path To Zero",
-    data: mappedData,
+    label: "Current Balance",
+    data: dataState === false ? truncatedMappedData : mappedData,
     borderColor: "white",
-    radius: 20,
+    radius: 1.6,
     fill: false,
     borderWidth: 10,
-    backgroundColor: "white",
+    backgroundColor: "#f4f4f4",
     lineTension: ".5",
     tooltip: {
      callbacks: {
@@ -187,7 +207,7 @@ const BalanceTransactions = () => {
  };
  const options = {
   responsive: true,
-  /* animation: {
+  /*animation: {
    x: {
     type: "number",
     easing: "linear",
@@ -216,18 +236,66 @@ const BalanceTransactions = () => {
    },
   },*/
   interaction: {
-   // intersect: false,
+   //intersect: false,
    mode: "index",
   },
   plugins: {
    legend: { display: false },
    tooltip: {
+    displayColors: false,
     callbacks: {
-     title: function (context) {
-      return {};
+     title: function (chart) {
+      let title =
+       dataState === false
+        ? truncatedMappedData[chart[0].dataIndex].tooltip1
+        : mappedData[chart[0].dataIndex].tooltip1;
+      return title;
      },
-     labelTextColor: function (context) {
-      return "#543453";
+     afterTitle: function (chart) {
+      let adjustmentAmount = transArr[chart[0].dataIndex].y;
+      let truncatedAdjustedAmount =
+       truncatedMappedData &&
+       dataState === false &&
+       truncatedMappedData[chart[0].dataIndex].rawY;
+
+      //
+      let title =
+       dataState === false
+        ? truncatedMappedData[chart[0].dataIndex].tooltip2
+        : mappedData[chart[0].dataIndex].tooltip2;
+      let date =
+       dataState === false
+        ? truncatedMappedData[chart[0].dataIndex].x
+        : mappedData[chart[0].dataIndex].x;
+      let str = "";
+      const formatter = new Intl.NumberFormat("en-US", {
+       style: "currency",
+       currency: "USD",
+
+       // These options are needed to round to whole numbers if that's what you want.
+       //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+       //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+      });
+
+      const creditAmount = formatter.format(adjustmentAmount * -1);
+      const debitAmount = formatter.format(adjustmentAmount);
+      const truncatedCreditAmount = formatter.format(
+       truncatedAdjustedAmount * -1
+      );
+      const truncatedDebitAmount = formatter.format(truncatedAdjustedAmount);
+
+      console.log(truncatedAdjustedAmount);
+      if (adjustmentAmount > 0 && dataState === true) {
+       str = `Your Account Was Debited for ${debitAmount} For Tax Year ${title} on ${date}`;
+      } else if (adjustmentAmount < 0 && dataState === true) {
+       str = `Your Account Was Credited for ${creditAmount} For Tax Year ${title} on ${date}`;
+      } else if (truncatedAdjustedAmount < 0 && dataState === false) {
+       str = `Your Account Was Credited for ${truncatedCreditAmount} For Tax Year ${title} on ${date}`;
+      } else if (truncatedAdjustedAmount > 0 && dataState === false) {
+       str = `Your Account Was Debited for ${truncatedDebitAmount} For Tax Year ${title} on ${date}`;
+      }
+
+      return str;
      },
     },
    },
@@ -242,11 +310,10 @@ const BalanceTransactions = () => {
   },
  };
 
- console.log(options.plugins.tooltip.callbacks.labelTextColor);
-
  const [style, setStyle] = useState({ backgroundColor: "black" });
  useEffect(() => {
   getRules();
+
   const interval = setInterval(() => {
    getTasks(profile);
   }, 5000);
@@ -262,24 +329,34 @@ const BalanceTransactions = () => {
   }
  }, [tasks.length]);
 
- console.log(data);
-
  return (
-  <div>
+  <div className='bg-light'>
    <Navbar />
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
    {messageModal === false && (
     <div className='container grid-2c' style={{ height: "77vh" }}>
      <Line data={data} options={options} />
-     <div className='' style={{ backgroundColor: "#99EDC3" }}>
+     <div
+      className='bg-primary all-center'
+      style={{ height: "77vh", width: "14.4vw" }}>
       <h3 className='text-center'>
-       Your Latest Balance Is {profile.currentBalance}. <br /> So far you've
-       eliminated ${savings && savings.toLocaleString()} in debt!
+       Congrats {profile.firstName} <br />
+       So far you've eliminated ${savings && savings.toLocaleString()} in debt!
       </h3>
       <h3 className='text-center'>
        We will update your account again on {current.toLocaleDateString()}.
       </h3>
+      <button
+       className='btn btn-sm'
+       style={{
+        backgroundColor: "#7cde31",
+        borderRadius: "4px",
+        marginLeft: "6.5px",
+       }}
+       onClick={() => setDataState((prevState) => !prevState)}>
+       {dataState === false ? "View Entire IRS History" : "On The Right Track!"}
+      </button>
      </div>
     </div>
    )}

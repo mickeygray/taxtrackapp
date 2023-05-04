@@ -135,6 +135,7 @@ const AuthState = (props) => {
  };
 
  const loadUser = async (res) => {
+  console.log(res);
   try {
    dispatch({
     type: USER_LOADED,

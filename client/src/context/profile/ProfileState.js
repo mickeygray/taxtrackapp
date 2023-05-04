@@ -185,13 +185,13 @@ const ProfileState = (props) => {
   });
  };
 
- const putCanopy = async (formData, profile) => {
+ const putCanopy = async (data, profile) => {
   const config = {
    headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
    },
   };
-  const res = await axios.put(`/api/profiles/${profile._id}`, formData, config);
+  const res = await axios.put(`/api/profiles/${profile._id}`, data, config);
 
   dispatch({
    type: PUT_CANOPY,

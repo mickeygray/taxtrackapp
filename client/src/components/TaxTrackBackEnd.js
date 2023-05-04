@@ -36,12 +36,14 @@ const TaxTrackBackEnd = () => {
   postTHS(formData);
  };
 
+ const [putState, setPutState] = useState(false);
+
  return (
   <div>
    <LogOut />
    <div className='grid-2 all-center' style={{ width: "600px" }}>
     <div className='card' style={{ width: "300px" }}>
-     <Upload />
+     <Upload putState={putState} />
     </div>
 
     <div className='card' style={{ width: "300px" }}>

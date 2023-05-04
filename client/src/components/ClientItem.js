@@ -5,6 +5,7 @@ import AuthContext from "../context/auth/authContext";
 import TaskFilter from "./TaskFilter";
 import MessageFilter from "./MessageFilter";
 import MilestoneGenerator from "./MilestoneGenerator";
+import Upload from "./Upload";
 
 const ClientItem = ({ profile }) => {
  const {
@@ -96,6 +97,7 @@ const ClientItem = ({ profile }) => {
   }
  }, []);
 
+ const [putState, setPutState] = useState(true);
  console.log(messageBody);
  return (
   <>
@@ -122,18 +124,7 @@ const ClientItem = ({ profile }) => {
       <button onClick={() => setView((prevState) => !prevState)}>X</button>
      </span>
      <div className='all-center'>
-      {" "}
-      <form onSubmit={onSubmit}>
-       <input
-        type='file'
-        name='file'
-        onChange={(e) => setFile(e.target.files[0])}
-       />
-       <input
-        type='submit'
-        value='Update Balance and Transactions With Canopy'
-       />
-      </form>
+      <Upload putState={putState} />
      </div>
      <div className='grid-3'>
       <div className='card'>

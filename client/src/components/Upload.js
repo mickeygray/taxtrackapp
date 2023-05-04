@@ -2,7 +2,7 @@ import React, { useContext, useState, useCallback } from "react";
 import ProfileContext from "../context/profile/profileContext";
 import CSVReader from "react-csv-reader";
 
-const Upload = () => {
+const Upload = ({ putState }) => {
  const profileContext = useContext(ProfileContext);
 
  const toggleModal = useCallback(() => {
@@ -12,7 +12,7 @@ const Upload = () => {
  const [showModal, setModalState] = useState(false);
  const [caseID, setCaseID] = useState("");
  const [file, setFile] = useState("");
- const { uploadFile } = profileContext;
+ const { uploadFile, putCanopy, profile } = profileContext;
 
  const papaparseOptions = {
   header: true,
@@ -88,29 +88,46 @@ const Upload = () => {
   uploadFile(caseID, file);
  };
  return (
-  <div>
-   <h3>Create A New Client</h3>
-   <i>Please Attach The Account Transcripts CSV and include a Logics Case ID</i>
-   <form onSubmit={onSubmit}>
-    {" "}
-    <input
-     type='text'
-     name='caseID'
-     placeholder='Logics Case ID'
-     onChange={(e) => setCaseID(e.target.value)}
-    />{" "}
+  <>
+   {putState === true ? (
     <div>
+     {" "}
      <CSVReader
       label='Upload Account Transcripts'
       parserOptions={papaparseOptions}
-      onFileLoaded={(data, fileInfo) => setFile(data)}
+      onFileLoaded={(data, fileInfo) => putCanopy(data, profile)}
       inpuId='profiles'
       inputStyle={{ color: "red" }}
      />
     </div>
-    <input type='submit' value='Create Profile' />
-   </form>
-  </div>
+   ) : (
+    <div>
+     <h3>Create A New Client</h3>
+     <i>
+      Please Attach The Account Transcripts CSV and include a Logics Case ID
+     </i>
+     <form onSubmit={onSubmit}>
+      {" "}
+      <input
+       type='text'
+       name='caseID'
+       placeholder='Logics Case ID'
+       onChange={(e) => setCaseID(e.target.value)}
+      />{" "}
+      <div>
+       <CSVReader
+        label='Upload Account Transcripts'
+        parserOptions={papaparseOptions}
+        onFileLoaded={(data, fileInfo) => setFile(data)}
+        inpuId='profiles'
+        inputStyle={{ color: "red" }}
+       />
+      </div>
+      <input type='submit' value='Create Profile' />
+     </form>
+    </div>
+   )}
+  </>
  );
 };
 

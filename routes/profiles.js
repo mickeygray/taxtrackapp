@@ -228,6 +228,7 @@ router.post("/", async (req, res) => {
   addDate: Intl.DateTimeFormat("fr-ca").format(new Date()),
   temp_secret: speakeasy.generateSecret(),
   accountTransactions: req.body.data,
+  startingBalance: req.body.data.map((b) => b.amount).reduce((a, b) => a + b),
  });
 
  const profile = await newProfile.save();
@@ -235,109 +236,22 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", upload.any(), async (req, res) => {
- try {
-  if (fs.existsSync(req.files[0].path)) {
-   //Read the content of the pdf from the downloaded path
+ const transactions = req.body.data;
 
-   var pdfParser = new PDFParser(this, 1);
+ const balance = transactions.map((t) => t.amount).reduce((a, b) => a + b);
 
-   pdfParser.on("pdfParser_dataError", function (errData) {
-    console.error(errData.parserError);
-   });
+ const profileFields = {
+  currentBalance: balance,
+  accountTransactions: transactions,
+ };
 
-   pdfParser.on("pdfParser_dataReady", (pdfData) => {
-    fs.writeFile(
-     `${req.files[0].path}.txt`,
-     pdfParser.getRawTextContent(pdfData),
-     async () => {
-      var data = fs.readFileSync(`${req.files[0].path}.txt`, "utf8");
+ const profile = await Profile.findByIdAndUpdate(
+  req.params.id,
+  { $set: profileFields },
+  { new: true }
+ );
 
-      var pages = data.match(
-       /(?<=Break----------------\s+).*?(?=\s+----------------Page)/gs
-      );
-
-      const balance = pages[0].substring(
-       pages[0].lastIndexOf("$"),
-       pages[0].length
-      );
-
-      const accountStart = pages
-       .filter((f) => f.includes("\tAccount\tTransactions\r\n"))
-       .toString();
-
-      const accountFinish = pages
-       .filter((f) => f.includes("\tAssessment\tOverview\r\n"))
-       .toString();
-
-      const starInd = pages.indexOf(accountStart);
-      const finInd = pages.indexOf(accountFinish);
-
-      const accTrans = pages.slice(starInd, finInd).toString();
-
-      const newAccTrans = accTrans.split("\r\n");
-
-      const splicedAccTrans = newAccTrans.splice(1, accTrans.length);
-
-      const mappedAccTrans = splicedAccTrans.map((f) => {
-       let obj = {
-        period: f.slice(0, 4),
-        date: f.slice(5, 14),
-        code: f.slice(14, 17),
-        description: f
-         .slice(17, f.indexOf("$"))
-         .replace(/\t/g, " ")
-         .replace(/\n/g, "")
-         .replace(/\t/g, " ")
-         .replace(/\(/g, ""),
-        amount: f
-         .slice(f.indexOf("$"), f.length)
-         .replace(/\t/g, " ")
-         .replace(/\n/g, "")
-         .replace(/\t/g, " ")
-         .replace(/\)/g, ""),
-       };
-
-       return obj;
-      });
-
-      const profileFields = {
-       totalBalance: balance,
-       accountTransactions: mappedAccTrans,
-      };
-
-      const profile = await Profile.findByIdAndUpdate(
-       req.params.id,
-       { $set: profileFields },
-       { new: true }
-      );
-
-      res.json(profile);
-
-      const directory = "routes\\tmp";
-
-      fs.readdir(directory, (err, files) => {
-       if (err) throw err;
-
-       for (const file of files) {
-        fs.unlink(path.join(directory, file), (err) => {
-         if (err) throw err;
-        });
-       }
-      });
-     }
-    );
-   });
-
-   pdfParser.loadPDF(req.files[0].path);
-  } else {
-   console.log("OOPs file not present in the downloaded folder");
-   //Throw an error if the file is not found in the path mentioned
-   // browser.assert.ok(fs.existsSync(pdfFilePath));
-  }
- } catch (err) {
-  console.error(err.message);
-  res.status(500).send("Server Error");
- }
+ res.json(profile);
 });
 
 router.post("/calc", async (req, res) => {

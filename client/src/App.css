@@ -1,6 +1,6 @@
 /* Global Styles */
 :root {
- --primary-color: green;
+ --primary-color: #07bc0c;
  --dark-color: #212226;
  --light-color: #f4f4f4;
  --danger-color: #cc7722;
@@ -205,7 +205,8 @@ img {
 .grid-hero {
  display: grid;
  grid-template-columns: repeat(6, 1fr);
- grid-template-rows: repeat(4, 25vh);
+ position: absolute;
+ grid-template-rows: repeat(4, 16vh);
  grid-template-areas:
   "overlay"
   "copy";
@@ -312,14 +313,15 @@ img {
 .overlay {
  grid-area: overlay;
  display: grid;
+ position: relative;
+ top: 0;
+ height: 77vh;
 
  grid-row-start: 1;
- grid-row-end: 3;
+
  grid-column-start: 1;
- grid-column-end: 6;
- z-index: -1;
- top: 0;
- width: 100vw;
+
+ z-index: -999999;
 }
 
 .consimg {
@@ -501,8 +503,8 @@ img {
 .conscopy {
  grid-area: copy;
  display: grid;
- grid-row-start: 2;
- grid-column-start: 1;
+ grid-row-start: 1;
+ grid-column-start: 2;
  grid-column-end: 4;
  z-index: 2;
 }
@@ -510,10 +512,11 @@ img {
 .solscopy {
  grid-area: copy;
  display: grid;
- grid-row-start: 3;
- grid-column-start: 2;
+ grid-row-start: 1;
+ grid-column-start: 1;
  grid-column-end: 4;
  z-index: 2;
+ left: 20;
 }
 
 .feedbackgrid {
@@ -803,7 +806,20 @@ table th {
 /* Mobile Styles */
 
 canvas {
- background-color: #afe1af;
+ width: 800px;
+ background: linear-gradient(
+  45deg,
+  rgb(23, 167, 123) 0%,
+  rgb(116, 201, 71) 100%
+ );
+ border-radius: 10px;
+ box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 9px 0px;
+ height: 700px;
+ max-height: 700px;
+ margin: 0px auto;
+ position: relative;
+ padding: 95px 85px 75px;
+ text-align: center;
 }
 
 .messages {

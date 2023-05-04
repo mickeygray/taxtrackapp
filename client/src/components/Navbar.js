@@ -9,13 +9,13 @@ const Navbar = () => {
  return (
   <div
    className='grid-2'
-   style={{ backgroundColor: "#728C69", height: "187px" }}>
+   style={{ backgroundColor: "#7cde31", height: "187px" }}>
    <div className='m-2'>
     <Link to='/'>
      <img
       src={logo}
       alt='Tax Track'
-      style={{ height: "100px", width: "100px", backgroundColor: "#728C69" }}
+      style={{ height: "100px", width: "100px" }}
      />
     </Link>
     <h5>
