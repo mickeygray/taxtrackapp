@@ -284,7 +284,6 @@ const BalanceTransactions = () => {
       );
       const truncatedDebitAmount = formatter.format(truncatedAdjustedAmount);
 
-      console.log(truncatedAdjustedAmount);
       if (adjustmentAmount > 0 && dataState === true) {
        str = `Your Account Was Debited for ${debitAmount} For Tax Year ${title} on ${date}`;
       } else if (adjustmentAmount < 0 && dataState === true) {

@@ -32,7 +32,7 @@ const profileSchema = new Schema({
   {
    code: { type: String },
    description: { type: String },
-   amount: { type: String },
+   amount: { type: Number },
    date: { type: String },
    period: { type: String },
   },
