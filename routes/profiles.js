@@ -9,7 +9,7 @@ const db = config.get("mongoURI");
 const multer = require("multer");
 const crypto = require("crypto");
 var path = require("path");
-const fetch = require("node-fetch");
+//const fetch = require("node-fetch");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const speakeasy = require("speakeasy");
 const storage = new GridFsStorage({
@@ -168,6 +168,8 @@ router.get("/rules", async (req, res) => {
 
 router.post("/", async (req, res) => {
  console.log(req.body);
+
+ /*
  const rawResponse = await fetch(
   `https://andersontax.irslogics.com/publicapi/2020-02-22/cases/casefile?CaseID=${req.body.caseID}`,
   {
@@ -182,8 +184,8 @@ router.post("/", async (req, res) => {
  const content = await rawResponse.json();
 
  console.log(content.data);
-
- const logicsData = content.data ? JSON.parse(content.data) : null;
+*/
+ const logicsData = null; //content.data ? JSON.parse(content.data) : null;
 
  const newProfile = new Profile({
   fullName:
