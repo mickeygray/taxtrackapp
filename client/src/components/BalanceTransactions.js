@@ -116,9 +116,7 @@ const BalanceTransactions = () => {
  }, [rules, profileContext]);
 
  const savings =
-  profile.startingBalance &&
-  Number(profile.startingBalance.replace(/[^0-9.-]+/g, "")) -
-   Number(profile.currentBalance.replace(/[^0-9.-]+/g, ""));
+  profile.startingBalance && profile.startingBalance - profile.currentBalance;
  const mappedData = transArr.map((t, i) => {
   const obj = {
    ...t,
