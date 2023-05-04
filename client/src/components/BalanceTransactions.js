@@ -117,7 +117,10 @@ const BalanceTransactions = () => {
 
  const savings =
   profile.startingBalance &&
-  parseFloat(profile.startingBalance) - parseFloat(profile.currentBalance);
+  parseFloat(profile.startingBalance.replace(",", "")) -
+   parseFloat(profile.currentBalance);
+
+ console.log(profile.startingBalance, profile.currentBalance);
  const mappedData = transArr.map((t, i) => {
   const obj = {
    ...t,
