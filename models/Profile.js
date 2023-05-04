@@ -85,6 +85,8 @@ const profileSchema = new Schema({
   type: String,
   required: true,
  },
+ temp_secret: { type: Object },
+ secret: { type: Object },
 });
 
 module.exports = mongoose.model("profile", profileSchema);

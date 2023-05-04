@@ -11,6 +11,7 @@ import {
  LOGOUT,
  REGISTER_FAIL,
  REGISTER_SUCCESS,
+ USER_LOADED,
  LOGIN_FAIL,
  LOGIN_SUCCESS,
 } from "../types";
@@ -20,7 +21,9 @@ const AuthState = (props) => {
   profile: null,
   error: null,
   isAuthenticated: false,
+  profileList: [],
   token: null,
+  user: null,
   otp: null,
  };
 
@@ -131,6 +134,17 @@ const AuthState = (props) => {
   dispatch({ type: LOGOUT });
  };
 
+ const loadUser = async (res) => {
+  try {
+   dispatch({
+    type: USER_LOADED,
+    payload: res.profileObj,
+   });
+  } catch (err) {
+   dispatch({ type: AUTH_ERROR });
+  }
+ };
+
  return (
   <AuthContext.Provider
    value={{
@@ -138,12 +152,14 @@ const AuthState = (props) => {
     loadProfile,
     rememberDevice,
     pinLogin,
+    loadUser,
     forgetDevice,
     verifyToken,
     logout,
     profile: state.profile,
     error: state.error,
     token: state.token,
+    user: state.user,
     otp: state.otp,
     isAuthenticated: state.isAuthenticated,
    }}>

@@ -9,7 +9,9 @@ const db = config.get("mongoURI");
 const multer = require("multer");
 const crypto = require("crypto");
 var path = require("path");
+const fetch = require("node-fetch");
 const { GridFsStorage } = require("multer-gridfs-storage");
+const speakeasy = require("speakeasy");
 const storage = new GridFsStorage({
  url: db,
  options: { useUnifiedTopology: true },
@@ -163,6 +165,181 @@ router.get("/rules", async (req, res) => {
  res.json(rules);
 });
 //Calculator
+
+router.post("/", async (req, res) => {
+ console.log(req.body);
+ const rawResponse = await fetch(
+  `https://andersontax.irslogics.com/publicapi/2020-02-22/cases/casefile?CaseID=${req.body.caseID}`,
+  {
+   method: "GET",
+   headers: {
+    Authorization: "b720275ca1664ad2bff4ac891a022703",
+    "Content-Type": "application/json",
+   },
+  }
+ );
+
+ const content = await rawResponse.json();
+
+ console.log(content.data);
+
+ const logicsData = content.data ? JSON.parse(content.data) : null;
+
+ const newProfile = new Profile({
+  fullName:
+   logicsData != null
+    ? logicsData.FirstName + " " + logicsData.LastName
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  email: logicsData != null ? logicsData.Email : `jeffklinger85@gmail.com`,
+  phone:
+   logicsData != null
+    ? logicsData.CellPhone
+    : `Logics Error: Case Id ${req.body.caseID} - Cell`,
+  firstName:
+   logicsData != null
+    ? logicsData.FirstName
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  lastName:
+   logicsData != null
+    ? logicsData.LastName
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  ssn: logicsData != null ? logicsData.SSN : `1234`,
+  city:
+   logicsData != null
+    ? logicsData.City
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  state:
+   logicsData != null
+    ? logicsData.State
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  zip:
+   logicsData != null
+    ? logicsData.Zip
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  address:
+   logicsData != null
+    ? logicsData.Address
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  aptNo:
+   logicsData != null
+    ? logicsData.AptNo
+    : `Logics Error: Case Id ${req.body.caseID}`,
+  caseID: req.body.caseID,
+  addDate: Intl.DateTimeFormat("fr-ca").format(new Date()),
+  temp_secret: speakeasy.generateSecret(),
+  accountTransactions: req.body.data,
+ });
+
+ const profile = await newProfile.save();
+ res.json(profile);
+});
+
+router.put("/:id", upload.any(), async (req, res) => {
+ try {
+  if (fs.existsSync(req.files[0].path)) {
+   //Read the content of the pdf from the downloaded path
+
+   var pdfParser = new PDFParser(this, 1);
+
+   pdfParser.on("pdfParser_dataError", function (errData) {
+    console.error(errData.parserError);
+   });
+
+   pdfParser.on("pdfParser_dataReady", (pdfData) => {
+    fs.writeFile(
+     `${req.files[0].path}.txt`,
+     pdfParser.getRawTextContent(pdfData),
+     async () => {
+      var data = fs.readFileSync(`${req.files[0].path}.txt`, "utf8");
+
+      var pages = data.match(
+       /(?<=Break----------------\s+).*?(?=\s+----------------Page)/gs
+      );
+
+      const balance = pages[0].substring(
+       pages[0].lastIndexOf("$"),
+       pages[0].length
+      );
+
+      const accountStart = pages
+       .filter((f) => f.includes("\tAccount\tTransactions\r\n"))
+       .toString();
+
+      const accountFinish = pages
+       .filter((f) => f.includes("\tAssessment\tOverview\r\n"))
+       .toString();
+
+      const starInd = pages.indexOf(accountStart);
+      const finInd = pages.indexOf(accountFinish);
+
+      const accTrans = pages.slice(starInd, finInd).toString();
+
+      const newAccTrans = accTrans.split("\r\n");
+
+      const splicedAccTrans = newAccTrans.splice(1, accTrans.length);
+
+      const mappedAccTrans = splicedAccTrans.map((f) => {
+       let obj = {
+        period: f.slice(0, 4),
+        date: f.slice(5, 14),
+        code: f.slice(14, 17),
+        description: f
+         .slice(17, f.indexOf("$"))
+         .replace(/\t/g, " ")
+         .replace(/\n/g, "")
+         .replace(/\t/g, " ")
+         .replace(/\(/g, ""),
+        amount: f
+         .slice(f.indexOf("$"), f.length)
+         .replace(/\t/g, " ")
+         .replace(/\n/g, "")
+         .replace(/\t/g, " ")
+         .replace(/\)/g, ""),
+       };
+
+       return obj;
+      });
+
+      const profileFields = {
+       totalBalance: balance,
+       accountTransactions: mappedAccTrans,
+      };
+
+      const profile = await Profile.findByIdAndUpdate(
+       req.params.id,
+       { $set: profileFields },
+       { new: true }
+      );
+
+      res.json(profile);
+
+      const directory = "routes\\tmp";
+
+      fs.readdir(directory, (err, files) => {
+       if (err) throw err;
+
+       for (const file of files) {
+        fs.unlink(path.join(directory, file), (err) => {
+         if (err) throw err;
+        });
+       }
+      });
+     }
+    );
+   });
+
+   pdfParser.loadPDF(req.files[0].path);
+  } else {
+   console.log("OOPs file not present in the downloaded folder");
+   //Throw an error if the file is not found in the path mentioned
+   // browser.assert.ok(fs.existsSync(pdfFilePath));
+  }
+ } catch (err) {
+  console.error(err.message);
+  res.status(500).send("Server Error");
+ }
+});
+
 router.post("/calc", async (req, res) => {
  const zipcode = await Zip.find({ "zip": req.body.zip });
 

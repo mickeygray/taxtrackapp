@@ -35,3 +35,6 @@ export const GET_ZIP = "GET_ZIP";
 export const CLEAR_TASK = "CLEAR_TASK";
 export const OTP_LOADED = "TOKEN_LOADED";
 export const GET_RULES = "GET_RULES";
+export const UPLOAD_FILE = "UPLOAD_FILE";
+export const SET_PROFILE = "SET_PROFILE";
+export const SET_MILESTONES = "SET_MILESTONES";

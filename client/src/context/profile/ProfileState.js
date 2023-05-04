@@ -23,13 +23,17 @@ import {
  GET_ZIP,
  CLEAR_TASK,
  GET_RULES,
+ SET_PROFILE,
+ UPLOAD_FILE,
+ SET_MILESTONES,
 } from "../types";
 
 const ProfileState = (props) => {
  const initialState = {
-  client: null,
-  clientList: [],
+  profile: null,
+  profileList: [],
   message: null,
+  milestones: [],
   messages: [],
   task: null,
   filtered: null,
@@ -93,13 +97,13 @@ const ProfileState = (props) => {
   });
  };
 
- const getMessages = async (client) => {
+ const getMessages = async (profile) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
-  const res = await axios.get(`/api/profiles/${client._id}/messages`, config);
+  const res = await axios.get(`/api/profiles/${profile._id}/messages`, config);
   dispatch({
    type: GET_MESSAGES,
    payload: res.data,
@@ -114,30 +118,47 @@ const ProfileState = (props) => {
   dispatch({ type: FILTER_TASKS, payload: text });
  };
 
- const getTasks = async (client) => {
+ const getTasks = async (profile) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
-  const res = await axios.get(`/api/profiles/${client._id}/tasks`, config);
+  const res = await axios.get(`/api/profiles/${profile._id}/tasks`, config);
   dispatch({
    type: GET_TASKS,
    payload: res.data,
   });
  };
+ const getMilestones = async (profile) => {
+  const config = {
+   headers: {
+    "Content-Type": "application/json",
+   },
+  };
+  const res = await axios.get(
+   `/api/profiles/${profile._id}/milestones`,
+   config
+  );
 
- const updateMessage = async (client, message) => {
+  console.log(res.data);
+  dispatch({
+   type: SET_MILESTONES,
+   payload: res.data,
+  });
+ };
+
+ const updateMessage = async (profile, message) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
 
-  const messageItem = { ...message, clientId: client._id };
+  const messageItem = { ...message, profileId: profile._id };
 
   const res = await axios.put(
-   `/api/profiles/${client._id}/messages/${message._id}`,
+   `/api/profiles/${profile._id}/messages/${message._id}`,
    messageItem,
    config
   );
@@ -145,30 +166,32 @@ const ProfileState = (props) => {
    type: UPDATE_MESSAGE,
    payload: res.data,
   });
-  getMessages(client);
+  getMessages(profile);
  };
 
- const postTHS = async (formData) => {
+ const uploadFile = async (caseID, data) => {
   const config = {
    headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
    },
   };
-  const res = await axios.post("/api/profiles", formData, config);
+
+  const obj = { caseID, data };
+  const res = await axios.post(`/api/profiles`, obj, config);
 
   dispatch({
-   type: POST_THS,
+   type: UPLOAD_FILE,
    payload: res.data,
   });
  };
 
- const putCanopy = async (formData, client) => {
+ const putCanopy = async (formData, profile) => {
   const config = {
    headers: {
     "Content-Type": "multipart/form-data",
    },
   };
-  const res = await axios.put(`/api/profiles/${client._id}`, formData, config);
+  const res = await axios.put(`/api/profiles/${profile._id}`, formData, config);
 
   dispatch({
    type: PUT_CANOPY,
@@ -193,14 +216,14 @@ const ProfileState = (props) => {
    payload: res.data,
   });
  };
- const updateStatus = async (status, client) => {
+ const updateStatus = async (status, profile) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
   const res = await axios.put(
-   `/api/profiles/${client._id}/status`,
+   `/api/profiles/${profile._id}/status`,
    { status: status },
    config
   );
@@ -211,24 +234,24 @@ const ProfileState = (props) => {
   });
  };
 
- const addClient = (client) => {
+ const addClient = (profile) => {
   dispatch({
    type: ADD_CLIENT,
-   payload: client,
+   payload: profile,
   });
  };
 
  const clearClient = () => {
   dispatch({ type: CLEAR_CLIENT });
  };
- const sendMessage = async (client, messageBody) => {
+ const sendMessage = async (profile, messageBody) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
   const res = await axios.post(
-   `/api/profiles/${client._id}/messages`,
+   `/api/profiles/${profile._id}/messages`,
    messageBody,
    config
   );
@@ -238,17 +261,17 @@ const ProfileState = (props) => {
    payload: res.data,
   });
 
-  getMessages(client);
+  getMessages(profile);
  };
 
- const setTask = async (client, taskBody) => {
+ const setTask = async (profile, taskBody) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
   const res = await axios.post(
-   `/api/profiles/${client._id}/tasks`,
+   `/api/profiles/${profile._id}/tasks`,
    taskBody,
    config
   );
@@ -293,12 +316,18 @@ const ProfileState = (props) => {
   getTasks(profile);
  };
 
+ const setProfile = (profile) => {
+  dispatch({
+   type: SET_PROFILE,
+   payload: profile,
+  });
+ };
  return (
   <ProfileContext.Provider
    value={{
-    postTHS,
     putCanopy,
     addClient,
+    setProfile,
     getProfiles,
     clearClient,
     sendMessage,
@@ -314,7 +343,9 @@ const ProfileState = (props) => {
     rangeMessages,
     deleteMessage,
     updateStatus,
+    uploadFile,
     putDocs,
+    getMilestones,
     postCalc,
     getRules,
     message: state.message,
@@ -324,9 +355,10 @@ const ProfileState = (props) => {
     filtered: state.filtered,
     rules: state.rules,
     tasks: state.tasks,
-    client: state.client,
-    clientList: state.clientList,
+    profile: state.profile,
+    profileList: state.profileList,
     zipdata: state.zipdata,
+    milestones: state.milestones,
    }}>
    {props.children}
   </ProfileContext.Provider>

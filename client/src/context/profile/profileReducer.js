@@ -15,8 +15,11 @@ import {
  DELETE_MESSAGE,
  GET_TASKS,
  GET_ZIP,
+ UPLOAD_FILE,
  CLEAR_TASK,
  GET_RULES,
+ SET_PROFILE,
+ SET_MILESTONES,
 } from "../types";
 
 export default (state, action) => {
@@ -24,7 +27,24 @@ export default (state, action) => {
   case POST_THS:
    return {
     ...state,
-    client: action.payload,
+    profile: action.payload,
+   };
+
+  case SET_PROFILE:
+   return {
+    ...state,
+    profile: action.payload,
+   };
+
+  case SET_MILESTONES:
+   return {
+    ...state,
+    milestones: action.payload,
+   };
+  case UPLOAD_FILE:
+   return {
+    ...state,
+    profile: action.payload,
    };
 
   case GET_ZIP:
@@ -78,7 +98,7 @@ export default (state, action) => {
   case PUT_CANOPY:
    return {
     ...state,
-    client: action.payload,
+    profile: action.payload,
    };
 
   case SEND_MESSAGE:
@@ -120,24 +140,24 @@ export default (state, action) => {
   case SET_TASK:
    return {
     ...state,
-    client: action.payload,
+    profile: action.payload,
    };
   case ADD_CLIENT:
    return {
     ...state,
-    clientList: [...state.clientList, action.payload],
+    profileList: [...state.profileList, action.payload],
    };
 
   case GET_PROFILES:
    return {
     ...state,
-    clientList: action.payload,
+    profileList: action.payload,
    };
 
   case CLEAR_CLIENT:
    return {
     ...state,
-    client: null,
+    profile: null,
    };
 
   default:

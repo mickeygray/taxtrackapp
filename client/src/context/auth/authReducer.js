@@ -4,12 +4,19 @@ import {
  OTP_LOADED,
  REGISTER_FAIL,
  REGISTER_SUCCESS,
+ USER_LOADED,
  LOGIN_FAIL,
  LOGIN_SUCCESS,
 } from "../types";
 
 export default (state, action) => {
  switch (action.type) {
+  case USER_LOADED:
+   return {
+    ...state,
+    isAuthenticated: true,
+    user: action.payload,
+   };
   case PROFILE_LOADED:
    return {
     ...state,

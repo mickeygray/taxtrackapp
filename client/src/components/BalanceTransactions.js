@@ -23,7 +23,7 @@ import {
 import { Line, Chart } from "react-chartjs-2";
 import Burger from "./Burger";
 import profileContext from "../context/profile/profileContext";
-
+//Chart.defaults.global.legend.display = false;
 const BalanceTransactions = () => {
  ChartJS.register(
   CategoryScale,
@@ -69,10 +69,10 @@ const BalanceTransactions = () => {
     ...profile.accountTransactions
      .map((transaction, i) => {
       const type =
-       Number(transaction.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
+       transaction.amount &&
        rules &&
        rules
-        .filter((f) => f.code === transaction.code)
+        .filter((f) => parseInt(f.code) === parseInt(transaction.code))
         .map((r) => r.type)
         .toString();
 
@@ -88,33 +88,40 @@ const BalanceTransactions = () => {
      })
      .map((m, i) => {
       const debit =
-       m.type &&
-       m.type.includes("debit") &&
-       Number(m.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
-       Number(m.amount.replace(/[^0-9.-]+/g, ""));
+       m.type && m.type.includes("debit") && m.amount > 0 && m.amount;
       const credit =
-       m.type &&
-       m.type.includes("credit") &&
-       Number(m.amount.replace(/[^0-9.-]+/g, "")) > 0 &&
-       Number(m.amount.replace(/[^0-9.-]+/g, "")) * -1;
+       m.type && m.type.includes("credit") && m.amount != 0 && m.amount;
 
-      if (credit != 0 && isNumber(credit)) return { x: i, y: credit };
-      if (debit != 0 && isNumber(debit)) return { x: i, y: debit };
+      console.log(credit, "credit");
+      if (credit != 0 && isNumber(credit))
+       return {
+        x: m.date,
+        y: credit,
+        tooltip1: m.description,
+        tooltip2: m.period,
+       };
+      if (debit != 0 && isNumber(debit))
+       return {
+        x: m.date,
+        y: debit,
+        tooltip1: m.description,
+        tooltip2: m.period,
+       };
      })
-     .filter((e) => e != undefined),
-   ]);
-   /*
+     .filter((f) => f != undefined)
 
-   */
+     .sort((a, b) => Date.parse(a.x) - Date.parse(b.x)),
+   ]);
   }
  }, [rules, profileContext]);
 
  const savings =
+  profile.startingBalance &&
   Number(profile.startingBalance.replace(/[^0-9.-]+/g, "")) -
-  Number(profile.totalBalance.replace(/[^0-9.-]+/g, ""));
- const data = transArr.map((m, i) => {
+   Number(profile.currentBalance.replace(/[^0-9.-]+/g, ""));
+ const mappedData = transArr.map((t, i) => {
   const obj = {
-   x: i,
+   ...t,
    y: transArr
     .map((t) => t.y)
     .slice(0, i)
@@ -122,51 +129,6 @@ const BalanceTransactions = () => {
   };
   return obj;
  });
-
- const data2 = [];
- let prev = 100;
- let prev2 = 80;
- for (let i = 0; i < 1000; i++) {
-  prev += 5 - Math.random() * 10;
-  data.push({ x: i, y: prev });
-  prev2 += 5 - Math.random() * 10;
-  data2.push({ x: i, y: prev2 });
- }
-
- const labels = [
-  ...profile.milestones.map((m) => m.date),
-  ...profile.accountTransactions
-   .filter((f) => new Date(f.date) > new Date("1/1/2013"))
-   .map((m) => m.date)
-   .filter((x, i, a) => a.indexOf(x) == i),
- ]
-  .filter((x, i, a) => a.indexOf(x) == i)
-  .sort((a, b) => Date.parse(a) - Date.parse(b));
-
- const dataoptions = {
-  labels,
-  datasets: [
-   {
-    label: "Path To Zero",
-    data: data,
-    borderColor: "white",
-    radius: 0,
-    borderWidth: 10,
-    backgroundColor: "white",
-    lineTension: ".5",
-    borderDash: [10, 5],
-   },
-   {
-    label: "IRS Correspondances",
-    data: data2,
-    radius: 0,
-    borderColor: "white",
-    borderWidth: 10,
-    lineTension: ".5",
-    backgroundColor: "rgba(53, 162, 235, 0.5)",
-   },
-  ],
- };
 
  var now = new Date();
  var current;
@@ -176,11 +138,7 @@ const BalanceTransactions = () => {
   current = new Date(now.getFullYear(), now.getMonth() + 1, 1);
  }
 
- console.log(data);
-
- console.log(ctx);
-
- const [totalDuration, setTotalDuration] = useState(0);
+ const [totalDuration, setTotalDuration] = useState(10000);
 
  useEffect(() => {
   let timer1 = setTimeout(() => setTotalDuration(10000), 20000);
@@ -201,92 +159,90 @@ const BalanceTransactions = () => {
       .getDatasetMeta(ctx.datasetIndex)
       .data[ctx.index - 1].getProps(["y"], true).y;
 
- const config = {
-  type: "line",
-  data: {
-   labels: labels,
-   datasets: [
-    {
-     label: "Path To Zero",
-     data: data,
-     borderColor: "white",
-     radius: 0,
-     borderWidth: 10,
-     backgroundColor: "white",
-     lineTension: ".5",
-     //borderDash: [10, 5],
-    },
+ const footer = (tooltipItems) => {
+  let sum = 0;
 
-    /*
-    {
-     label: "IRS Correspondances",
-     data: data2,
-     radius: 0,
-     borderColor: "white",
-     borderWidth: 10,
-     lineTension: ".5",
-     backgroundColor: "rgba(53, 162, 235, 0.5)",
-    },*/
-   ],
+  return "Sum: " + sum;
+ };
+
+ const data = {
+  labels: mappedData.map((m) => m.x),
+  datasets: [
+   {
+    label: "Path To Zero",
+    data: mappedData,
+    borderColor: "white",
+    radius: 20,
+    fill: false,
+    borderWidth: 10,
+    backgroundColor: "white",
+    lineTension: ".5",
+    tooltip: {
+     callbacks: {
+      title: "Yes",
+     },
+    },
+   },
+  ],
+ };
+ const options = {
+  responsive: true,
+  /* animation: {
+   x: {
+    type: "number",
+    easing: "linear",
+    duration: 30000,
+    from: NaN,
+    delay(ctx) {
+     if (ctx.type !== "data" || ctx.yStarted) {
+      return 0;
+     }
+     ctx.yStarted = true;
+     return ctx.index * delayBetweenPoints;
+    },
+   },
+   y: {
+    type: "number",
+    easing: "linear",
+    duration: totalDuration,
+    from: previousY, // previousY,
+    delay(ctx) {
+     if (ctx.type !== "data" || ctx.yStarted) {
+      return 0;
+     }
+     ctx.yStarted = true;
+     return ctx.index * delayBetweenPoints;
+    },
+   },
+  },*/
+  interaction: {
+   // intersect: false,
+   mode: "index",
   },
-  options: {
-   responsive: true,
-   animation: {
-    initial: false,
-    x: {
-     type: "number",
-     easing: "linear",
-     duration: totalDuration,
-     from: NaN,
-     delay(ctx) {
-      if (ctx.type !== "data" || ctx.yStarted) {
-       return 0;
-      }
-      ctx.yStarted = true;
-      return ctx.index * delayBetweenPoints;
-     },
-    },
-    y: {
-     type: "number",
-     easing: "linear",
-     duration: totalDuration,
-     from: previousY, // previousY,
-     delay(ctx) {
-      if (ctx.type !== "data" || ctx.yStarted) {
-       return 0;
-      }
-      ctx.yStarted = true;
-      return ctx.index * delayBetweenPoints;
-     },
-    },
-   },
-   interaction: {
-    intersect: false,
-   },
-   plugins: {
-    legend: false,
-   },
+  plugins: {
+   legend: { display: false },
    tooltip: {
     callbacks: {
      title: function (context) {
-      return `${profile.milestones[context[0].dataIndex].party} ${
-       profile.milestones[context[0].dataIndex].action
-      }`;
+      return {};
      },
-     afterTitle: function (context) {
-      return `${profile.accountTransactions[context[0].dataIndex].period} ${
-       profile.accountTransactions[context[0].dataIndex].description
-      }`;
+     labelTextColor: function (context) {
+      return "#543453";
      },
-    },
-   },
-   scales: {
-    x: {
-     type: "linear",
     },
    },
   },
+  scales: {
+   y: {
+    display: false, // Hide Y axis labels
+   },
+   x: {
+    display: false, // Hide X axis labels
+   },
+  },
  };
+
+ console.log(options.plugins.tooltip.callbacks.labelTextColor);
 
  const [style, setStyle] = useState({ backgroundColor: "black" });
  useEffect(() => {
@@ -306,23 +262,25 @@ const BalanceTransactions = () => {
   }
  }, [tasks.length]);
 
+ console.log(data);
+
  return (
   <div>
    <Navbar />
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
    {messageModal === false && (
-    <div>
-     <div className='all-center' style={{ backgroundColor: "#99EDC3" }}>
+    <div className='container grid-2c' style={{ height: "77vh" }}>
+     <Line data={data} options={options} />
+     <div className='' style={{ backgroundColor: "#99EDC3" }}>
       <h3 className='text-center'>
-       Your Latest Balance Is {profile.totalBalance}. <br /> So far you've
-       eliminated ${savings.toLocaleString()} in debt!
+       Your Latest Balance Is {profile.currentBalance}. <br /> So far you've
+       eliminated ${savings && savings.toLocaleString()} in debt!
       </h3>
       <h3 className='text-center'>
        We will update your account again on {current.toLocaleDateString()}.
       </h3>
      </div>
-     <Line config={config} data={config.data} />
     </div>
    )}
   </div>

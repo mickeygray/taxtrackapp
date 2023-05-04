@@ -6,9 +6,10 @@ import Login from "./Login";
 const PrivateRoute = ({ component: Component }) => {
  const authContext = useContext(AuthContext);
 
- const { isAuthenticated, profile } = authContext;
+ const { isAuthenticated, profile, user } = authContext;
 
  if (isAuthenticated === true && profile !== null) return <Component />;
+ if (isAuthenticated === true && user !== null) return <Component />;
  if (isAuthenticated === false) return <Login />;
 };
 

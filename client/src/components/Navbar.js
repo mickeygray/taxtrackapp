@@ -7,7 +7,9 @@ import goodbye from "../images/goodbye.png";
 const Navbar = () => {
  const { profile, logout } = useContext(AuthContext);
  return (
-  <div className='grid-2' style={{ backgroundColor: "#728C69" }}>
+  <div
+   className='grid-2'
+   style={{ backgroundColor: "#728C69", height: "187px" }}>
    <div className='m-2'>
     <Link to='/'>
      <img
