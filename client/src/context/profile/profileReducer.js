@@ -20,6 +20,9 @@ import {
  GET_RULES,
  SET_PROFILE,
  SET_MILESTONES,
+ CLEAR_PROFILE,
+ CLEAR_PROFILES,
+ UPDATE_PROFILE,
 } from "../types";
 
 export default (state, action) => {
@@ -28,6 +31,23 @@ export default (state, action) => {
    return {
     ...state,
     profile: action.payload,
+   };
+
+  case CLEAR_PROFILE:
+   return {
+    ...state,
+    profile: null,
+   };
+  case UPDATE_PROFILE:
+   return {
+    ...state,
+   };
+
+  case CLEAR_PROFILES:
+   return {
+    ...state,
+    profileList: [],
+    profile: null,
    };
 
   case SET_PROFILE:
@@ -44,7 +64,7 @@ export default (state, action) => {
   case UPLOAD_FILE:
    return {
     ...state,
-    profile: action.payload,
+    newProfile: action.payload,
    };
 
   case GET_ZIP:

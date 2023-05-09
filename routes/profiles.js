@@ -100,6 +100,32 @@ router.put("/:id/status", async (req, res) => {
  );
  res.json(profile);
 });
+
+router.put("/:id/info", async (req, res) => {
+ const { fullName, ssn, phone, email } = req.body;
+
+ const leadFields = {};
+
+ if (fullName) leadFields.fullName = fullName;
+ if (fullName)
+  leadFields.firstName = fullName.substring(0, fullName.indexOf(" "));
+ if (fullName)
+  leadFields.lastName = fullName.substring(
+   fullName.indexOf(" "),
+   fullName.length
+  );
+ if (ssn) leadFields.ssn = ssn;
+ if (phone) leadFields.phone = phone;
+ if (email) leadFields.email = email;
+ const profile = await Profile.findByIdAndUpdate(
+  req.params.id,
+
+  {
+   "$set": leadFields,
+  }
+ );
+ res.json(profile);
+});
 //get all tasks associated with a profile
 router.get("/:id/tasks", async (req, res) => {
  const profile = await Profile.findById(req.params.id);
@@ -145,8 +171,11 @@ router.post("/:id/messages", async (req, res) => {
 //Get all profiles (needs search function)
 router.get("/", async (req, res) => {
  const regex = new RegExp(`${req.query.q}`, "gi");
+
  const profiles = await Profile.find({ fullName: regex });
 
+ console.log(profiles);
+ console.log(req.query.q);
  res.json(profiles);
 });
 
@@ -184,53 +213,64 @@ router.post("/", async (req, res) => {
  const content = await rawResponse.json();
 
  console.log(content.data);
+
+
 */
+
+ console.log();
+
  const logicsData = null; //content.data ? JSON.parse(content.data) : null;
 
  const newProfile = new Profile({
   fullName:
    logicsData != null
     ? logicsData.FirstName + " " + logicsData.LastName
-    : `Logics Error: Case Id ${req.body.caseID}`,
-  email: logicsData != null ? logicsData.Email : `jeffklinger85@gmail.com`,
+    : `Logics Error: Case Id ${req.body.caseID} Full Name`,
+  email:
+   logicsData != null
+    ? logicsData.Email
+    : `Logics Error: Case Id ${req.body.caseID} email`,
   phone:
    logicsData != null
     ? logicsData.CellPhone
-    : `Logics Error: Case Id ${req.body.caseID} - Cell`,
+    : `${parseInt(Math.random() * 1000000)}`,
   firstName:
    logicsData != null
     ? logicsData.FirstName
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} First Name`,
   lastName:
    logicsData != null
     ? logicsData.LastName
-    : `Logics Error: Case Id ${req.body.caseID}`,
-  ssn: logicsData != null ? logicsData.SSN : `1234`,
+    : `Logics Error: Case Id ${req.body.caseID} Last Name`,
+  ssn:
+   logicsData != null ? logicsData.SSN : `${parseInt(Math.random() * 1000000)}`,
   city:
    logicsData != null
     ? logicsData.City
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} city`,
   state:
    logicsData != null
     ? logicsData.State
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} State`,
   zip:
    logicsData != null
     ? logicsData.Zip
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} Zip`,
   address:
    logicsData != null
     ? logicsData.Address
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} Address`,
   aptNo:
    logicsData != null
     ? logicsData.AptNo
-    : `Logics Error: Case Id ${req.body.caseID}`,
+    : `Logics Error: Case Id ${req.body.caseID} Apt No`,
   caseID: req.body.caseID,
   addDate: Intl.DateTimeFormat("fr-ca").format(new Date()),
   temp_secret: speakeasy.generateSecret(),
   accountTransactions: req.body.data,
-  startingBalance: req.body.data.map((b) => b.amount).reduce((a, b) => a + b),
+  startingBalance: req.body.data
+   .map((a) => parseFloat(a.amount))
+   .reduce((a, b) => a + b),
  });
 
  const profile = await newProfile.save();
@@ -240,7 +280,9 @@ router.post("/", async (req, res) => {
 router.put("/:id", upload.any(), async (req, res) => {
  const transactions = req.body.data;
 
- const balance = transactions.map((t) => t.amount).reduce((a, b) => a + b);
+ const balance = transactions
+  .map((t) => parseFloat(t.amount))
+  .reduce((a, b) => a + b);
 
  const profileFields = {
   currentBalance: balance,

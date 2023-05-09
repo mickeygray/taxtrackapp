@@ -120,7 +120,7 @@ const BalanceTransactions = () => {
   parseFloat(profile.startingBalance.replace(",", "")) -
    parseFloat(profile.currentBalance);
 
- console.log(profile.startingBalance, profile.currentBalance);
+ console.log();
  const mappedData = transArr.map((t, i) => {
   const obj = {
    ...t,
@@ -131,6 +131,8 @@ const BalanceTransactions = () => {
   };
   return obj;
  });
+
+ console.log(mappedData, "MAPPED");
 
  const truncatedMappedData = transArr
   .filter((f) => new Date(f.x) >= new Date(profile.createDate))
@@ -336,11 +338,11 @@ const BalanceTransactions = () => {
    {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true && <MessageModal />}
    {messageModal === false && (
-    <div className='container grid-2c' style={{ height: "77vh" }}>
+    <div className='grid-2c' style={{ height: "77vh" }}>
      <Line data={data} options={options} />
      <div
       className='bg-primary all-center'
-      style={{ height: "77vh", width: "14.4vw" }}>
+      style={{ height: "77vh", width: "20vw" }}>
       <h3 className='text-center'>
        Congrats {profile.firstName} <br />
        So far you've eliminated ${savings && savings.toLocaleString()} in debt!

@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
 import ProfileContext from "../context/profile/profileContext";
-import ClientItem from "./ClientItem";
+import ProfileItem from "./ProfileItem";
 import LogOut from "./LogOut";
 import Pagination from "./Pagination";
 import Upload from "./Upload";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 const TaxTrackBackEnd = () => {
  const [caseID, setCaseID] = useState("");
@@ -14,8 +15,15 @@ const TaxTrackBackEnd = () => {
 
  const profileContext = useContext(ProfileContext);
 
- const { postTHS, profile, addClient, clearClient, profileList, getProfiles } =
-  profileContext;
+ const {
+  postTHS,
+  profile,
+  newProfile,
+  clearProfile,
+  profileList,
+  getProfiles,
+  clearProfiles,
+ } = profileContext;
 
  const [currentPage, setCurrentPage] = useState(1);
  const postsPerPage = 10;
@@ -37,20 +45,46 @@ const TaxTrackBackEnd = () => {
  };
 
  const [putState, setPutState] = useState(false);
+ const [returnState, setReturnState] = useState(false);
+ useEffect(() => {
+  if (newProfile != null) {
+   setReturnState((prevState) => !prevState);
+   const timer = setTimeout(() => {
+    setReturnState((prevState) => !prevState);
+    clearProfile();
+   }, 5000);
+   return () => clearTimeout(timer);
+  }
+ }, [newProfile, profileContext]);
 
+ console.log(profileList);
  return (
   <div>
    <LogOut />
    <div className='grid-2 all-center' style={{ width: "600px" }}>
     <div className='card' style={{ width: "300px" }}>
      <Upload putState={putState} />
+
+     {returnState === true && (
+      <>
+       <p>Successfully Created Case for {profile && profile.fullName}</p>
+       <CopyToClipboard text={`${profile && profile.fullName}`}>
+        <button>Copy Name</button>
+       </CopyToClipboard>
+      </>
+     )}
     </div>
 
-    <div className='card' style={{ width: "300px" }}>
+    <div className='card' style={{ width: "300px", height: "274px" }}>
      <h3>Search Clients By Name</h3>
      <i>*An empty query returns all of the records </i>
+     <br />
+     <br />
      <input type='text' name='text' onChange={(e) => setText(e.target.value)} />
-     <button onClick={() => getProfiles(text)}>Search</button>
+     <div className='grid-2'>
+      <button onClick={() => getProfiles(text)}>Search</button>
+      <button onClick={() => clearProfiles()}>Clear Results</button>
+     </div>
     </div>
    </div>
 
@@ -62,7 +96,7 @@ const TaxTrackBackEnd = () => {
     />
     {currentPosts.length > 0
      ? currentPosts.map((profile) => (
-        <ClientItem key={profile._id} profile={profile} />
+        <ProfileItem key={profile._id} profile={profile} />
        ))
      : ""}
    </div>

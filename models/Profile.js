@@ -65,8 +65,8 @@ const profileSchema = new Schema({
  zip: { type: String },
  status: { type: String },
  addDate: { type: String },
- startingBalance: { type: String },
- currentBalance: { type: String },
+ startingBalance: { type: Number },
+ currentBalance: { type: Number },
  pin: { type: String },
  caseID: {
   type: String,

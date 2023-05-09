@@ -26,11 +26,15 @@ import {
  SET_PROFILE,
  UPLOAD_FILE,
  SET_MILESTONES,
+ CLEAR_PROFILE,
+ CLEAR_PROFILES,
+ UPDATE_PROFILE,
 } from "../types";
 
 const ProfileState = (props) => {
  const initialState = {
   profile: null,
+  newProfile: null,
   profileList: [],
   message: null,
   milestones: [],
@@ -94,6 +98,12 @@ const ProfileState = (props) => {
   dispatch({
    type: GET_PROFILES,
    payload: res.data,
+  });
+ };
+
+ const clearProfile = () => {
+  dispatch({
+   type: CLEAR_PROFILE,
   });
  };
 
@@ -234,6 +244,24 @@ const ProfileState = (props) => {
   });
  };
 
+ const updateProfile = async (update, profile) => {
+  const config = {
+   headers: {
+    "Content-Type": "application/json",
+   },
+  };
+  const res = await axios.put(
+   `/api/profiles/${profile._id}/info`,
+   update,
+   config
+  );
+
+  dispatch({
+   type: UPDATE_PROFILE,
+   payload: res.data,
+  });
+ };
+
  const addClient = (profile) => {
   dispatch({
    type: ADD_CLIENT,
@@ -322,6 +350,13 @@ const ProfileState = (props) => {
    payload: profile,
   });
  };
+
+ const clearProfiles = () => {
+  dispatch({
+   type: CLEAR_PROFILES,
+  });
+ };
+
  return (
   <ProfileContext.Provider
    value={{
@@ -329,6 +364,7 @@ const ProfileState = (props) => {
     addClient,
     setProfile,
     getProfiles,
+    clearProfiles,
     clearClient,
     sendMessage,
     getMessages,
@@ -345,13 +381,16 @@ const ProfileState = (props) => {
     updateStatus,
     uploadFile,
     putDocs,
+    clearProfile,
     getMilestones,
     postCalc,
     getRules,
+    updateProfile,
     message: state.message,
     range: state.range,
     messages: state.messages,
     task: state.task,
+    newProfile: state.newProfile,
     filtered: state.filtered,
     rules: state.rules,
     tasks: state.tasks,

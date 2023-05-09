@@ -3,7 +3,7 @@ import ProfileContext from "../context/profile/profileContext";
 import Pagination from "./Pagination";
 import TaskItem from "./TaskItem";
 
-const Filter = ({ client }) => {
+const Filter = ({ profile }) => {
  const profileContext = useContext(ProfileContext);
  const text = useRef("");
 
@@ -79,24 +79,24 @@ const Filter = ({ client }) => {
      filtered === null &&
      currentPosts.length > 0 &&
      currentPosts.map((task) => (
-      <TaskItem task={task} client={client} key={task._id} />
+      <TaskItem task={task} profile={profile} key={task._id} />
      ))}
 
     {range != null &&
      filtered === null &&
      range.map((task) => (
-      <TaskItem task={task} client={client} key={task._id} />
+      <TaskItem task={task} profile={profile} key={task._id} />
      ))}
 
     {filtered != null &&
      range != null &&
      range
       .filter((element) => filtered.includes(element))
-      .map((task) => <TaskItem task={task} client={client} key={task._id} />)}
+      .map((task) => <TaskItem task={task} profile={profile} key={task._id} />)}
     {filtered != null &&
      range === null &&
      filtered.map((task) => (
-      <TaskItem task={task} client={client} key={task._id} />
+      <TaskItem task={task} profile={profile} key={task._id} />
      ))}
    </div>
   </div>

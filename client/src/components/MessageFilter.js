@@ -2,7 +2,7 @@ import React, { useContext, useRef, useEffect, useState } from "react";
 import ProfileContext from "../context/profile/profileContext";
 import Pagination from "./Pagination";
 import BackEndMessageItem from "./BackEndMessageItem";
-const Filter = ({ client }) => {
+const Filter = ({ profile }) => {
  const profileContext = useContext(ProfileContext);
  const text = useRef("");
 
@@ -83,13 +83,21 @@ const Filter = ({ client }) => {
      filtered === null &&
      currentPosts.length > 0 &&
      currentPosts.map((message) => (
-      <BackEndMessageItem message={message} client={client} key={message._id} />
+      <BackEndMessageItem
+       message={message}
+       profile={profile}
+       key={message._id}
+      />
      ))}
 
     {range != null &&
      filtered === null &&
      range.map((message) => (
-      <BackEndMessageItem message={message} client={client} key={message._id} />
+      <BackEndMessageItem
+       message={message}
+       profile={profile}
+       key={message._id}
+      />
      ))}
 
     {filtered != null &&
@@ -99,14 +107,18 @@ const Filter = ({ client }) => {
       .map((message) => (
        <BackEndMessageItem
         message={message}
-        client={client}
+        profile={profile}
         key={message._id}
        />
       ))}
     {filtered != null &&
      range === null &&
      filtered.map((message) => (
-      <BackEndMessageItem message={message} client={client} key={message._id} />
+      <BackEndMessageItem
+       message={message}
+       profile={profile}
+       key={message._id}
+      />
      ))}
    </div>
   </div>

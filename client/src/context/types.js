@@ -37,4 +37,7 @@ export const OTP_LOADED = "TOKEN_LOADED";
 export const GET_RULES = "GET_RULES";
 export const UPLOAD_FILE = "UPLOAD_FILE";
 export const SET_PROFILE = "SET_PROFILE";
+export const CLEAR_PROFILE = "CLEAR_PROFILE";
+export const UPDATE_PROFILE = "UPDATE_PROFILE";
+export const CLEAR_PROFILES = "CLEAR_PROFILES";
 export const SET_MILESTONES = "SET_MILESTONES";

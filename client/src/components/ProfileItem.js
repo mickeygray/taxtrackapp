@@ -7,18 +7,8 @@ import MessageFilter from "./MessageFilter";
 import MilestoneGenerator from "./MilestoneGenerator";
 import Upload from "./Upload";
 
-const ClientItem = ({ profile }) => {
- const {
-  formsFiled,
-  totalPaymentSummary,
-  mgi,
-  rmgi,
-
-  interest,
-  penalties,
-  totalBalance,
-  penalizedYears,
- } = profile;
+const ProfileItem = ({ profile }) => {
+ const { startingBalance, currentBalance, fullName, addDate, ssn } = profile;
 
  const profileContext = useContext(ProfileContext);
  const authContext = useContext(AuthContext);
@@ -32,6 +22,7 @@ const ClientItem = ({ profile }) => {
   getTasks,
   setProfile,
   updateStatus,
+  updateProfile,
  } = profileContext;
 
  const [file, setFile] = useState(null);
@@ -98,7 +89,25 @@ const ClientItem = ({ profile }) => {
  }, []);
 
  const [putState, setPutState] = useState(true);
- console.log(messageBody);
+
+ const [update, setUpdate] = useState({
+  fullName: "",
+  email: "",
+  phone: "",
+  ssn: "",
+ });
+
+ const [fnPut, setFnput] = useState(false);
+ const [emPut, setEmput] = useState(false);
+ const [pnPut, setPnput] = useState(false);
+ const [ssnPut, setSsnput] = useState(false);
+
+ const clearBools = () => {
+  setFnput(false);
+  setEmput(false);
+  setPnput(false);
+  setSsnput(false);
+ };
  return (
   <>
    {view === false ? (
@@ -129,9 +138,113 @@ const ClientItem = ({ profile }) => {
      <div className='grid-3'>
       <div className='card'>
        <div>
-        Name: {profile.fullName} <br /> Email: {profile.email} <br />
-        Phone: {profile.phone} <br /> Subscription Start: {profile.addDate}
+        <ul>
+         <li>
+          {fnPut === false ? (
+           <a onClick={() => setFnput((prevState) => !prevState)}>
+            Name: {profile.fullName}
+           </a>
+          ) : (
+           <input
+            type='text'
+            name='fullName'
+            placeholder={profile.fullName}
+            onChange={(e) =>
+             setUpdate({ ...update, [e.target.name]: e.target.value })
+            }
+           />
+          )}
+         </li>
+         <li>
+          {" "}
+          {emPut === false ? (
+           <a onClick={() => setEmput((prevState) => !prevState)}>
+            Email: {profile.email}
+           </a>
+          ) : (
+           <input
+            type='text'
+            name='email'
+            placeholder={profile.email}
+            onChange={(e) =>
+             setUpdate({ ...update, [e.target.name]: e.target.value })
+            }
+           />
+          )}
+         </li>
+         <li>
+          {" "}
+          {pnPut === false ? (
+           <a onClick={() => setPnput((prevState) => !prevState)}>
+            Phone: {profile.phone}
+           </a>
+          ) : (
+           <input
+            type='text'
+            name='phone'
+            placeholder={profile.phone}
+            onChange={(e) =>
+             setUpdate({ ...update, [e.target.name]: e.target.value })
+            }
+           />
+          )}
+         </li>
+         <li>
+          {" "}
+          {ssnPut === false ? (
+           <a onClick={() => setSsnput((prevState) => !prevState)}>
+            SSN: {profile.ssn}
+           </a>
+          ) : (
+           <input
+            type='text'
+            name='ssn'
+            placeholder={profile.ssn}
+            onChange={(e) =>
+             setUpdate({ ...update, [e.target.name]: e.target.value })
+            }
+           />
+          )}
+         </li>
+        </ul>
+        {(fnPut && (
+         <button
+          onClick={() => {
+           updateProfile(update, profile);
+           clearBools();
+          }}>
+          Update Profile
+         </button>
+        )) ||
+         (emPut && (
+          <button
+           onClick={() => {
+            updateProfile(update, profile);
+            clearBools();
+           }}>
+           Update Profile
+          </button>
+         )) ||
+         (pnPut && (
+          <button
+           onClick={() => {
+            updateProfile(update, profile);
+            clearBools();
+           }}>
+           Update Profile
+          </button>
+         )) ||
+         (ssnPut && (
+          <button
+           onClick={() => {
+            updateProfile(update, profile);
+            clearBools();
+           }}>
+           Update Profile
+          </button>
+         ))}
        </div>
+
        <div>
         <form>
          <select
@@ -155,42 +268,9 @@ const ClientItem = ({ profile }) => {
        </div>
        <div>
         <div className='card'>
-         Interest : {interest}
+         Starting Balance : {startingBalance}
          <br />
-         Penalty : {penalties}
-         <br />
-         Penalized Years : {penalizedYears}
-         <br />
-         IRS Balance : {totalBalance}
-        </div>
-
-        <div className='card'>
-         Average MGI : {mgi} <br /> Latest MGI :{rmgi}
-        </div>
-        <div className='card'>
-         Forms On File: <br />
-         {formsFiled.toString()}
-        </div>
-        <div className='card'>
-         Income Examples:{" "}
-         <div
-          className='grid-3'
-          style={{ fontSize: ".8rem", height: "75px", overflowY: "scroll" }}>
-          {totalPaymentSummary.map((payment) => (
-           <div className='mx-2' key={JSON.stringify(payment)}>
-            {Object.keys(payment)
-             .toString()
-             .replace(/([A-Z])/g, " $1")
-             .charAt(0)
-             .toUpperCase() +
-             Object.keys(payment)
-              .toString()
-              .replace(/([A-Z])/g, " $1")
-              .slice(1)}{" "}
-            <br /> {Object.values(payment).toString()}
-           </div>
-          ))}
-         </div>
+         Current Balance : {currentBalance || "First Update Not Complete"}
         </div>
        </div>
       </div>
@@ -301,4 +381,4 @@ const ClientItem = ({ profile }) => {
  );
 };
 
-export default ClientItem;
+export default ProfileItem;

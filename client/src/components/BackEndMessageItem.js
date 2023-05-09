@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import ProfileContext from "../context/profile/profileContext";
-const BackEndMessageItem = ({ message, client }) => {
+const BackEndMessageItem = ({ message, profile }) => {
  const profileContext = useContext(ProfileContext);
 
  const { deleteMessage, updateMessage } = profileContext;
@@ -19,7 +19,7 @@ const BackEndMessageItem = ({ message, client }) => {
  return (
   <div className='card'>
    <span style={{ float: "right" }}>
-    <button onClick={() => deleteMessage(client, message._id)}>X</button>
+    <button onClick={() => deleteMessage(profile, message._id)}>X</button>
    </span>
    {messageState === false && (
     <div>
@@ -54,7 +54,7 @@ const BackEndMessageItem = ({ message, client }) => {
    {messageState === true && (
     <button
      onClick={() =>
-      updateMessage(client, update) &&
+      updateMessage(profile, update) &&
       setMessageState((prevState) => !prevState)
      }>
      Update Message
