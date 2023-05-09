@@ -67,8 +67,8 @@ const TaxTrackBackEnd = () => {
 
      {returnState === true && (
       <>
-       <p>Successfully Created Case for {profile && profile.fullName}</p>
-       <CopyToClipboard text={`${profile && profile.fullName}`}>
+       <p>Successfully Created Case for {newProfile && newProfile.fullName}</p>
+       <CopyToClipboard text={`${newProfile && newProfile.fullName}`}>
         <button>Copy Name</button>
        </CopyToClipboard>
       </>
