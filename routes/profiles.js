@@ -8,6 +8,7 @@ const config = require("config");
 const db = config.get("mongoURI");
 const multer = require("multer");
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 var path = require("path");
 //const fetch = require("node-fetch");
 const { GridFsStorage } = require("multer-gridfs-storage");
@@ -217,10 +218,18 @@ router.post("/", async (req, res) => {
 
 */
 
+ const secret = speakeasy.generateSecret();
+ const token = speakeasy.totp({
+  secret: secret.base32,
+  encoding: "base32",
+ });
+
  console.log();
 
  const logicsData = null; //content.data ? JSON.parse(content.data) : null;
+ const salt = await bcrypt.genSalt(10);
 
+ const ssn = await bcrypt.hash("123456789", salt);
  const newProfile = new Profile({
   fullName:
    logicsData != null
@@ -242,8 +251,7 @@ router.post("/", async (req, res) => {
    logicsData != null
     ? logicsData.LastName
     : `Logics Error: Case Id ${req.body.caseID} Last Name`,
-  ssn:
-   logicsData != null ? logicsData.SSN : `${parseInt(Math.random() * 1000000)}`,
+  ssn,
   city:
    logicsData != null
     ? logicsData.City
@@ -266,7 +274,8 @@ router.post("/", async (req, res) => {
     : `Logics Error: Case Id ${req.body.caseID} Apt No`,
   caseID: req.body.caseID,
   addDate: Intl.DateTimeFormat("fr-ca").format(new Date()),
-  temp_secret: speakeasy.generateSecret(),
+  temp_secret: secret,
+  token,
   accountTransactions: req.body.data,
   startingBalance: req.body.data
    .map((a) => parseFloat(a.amount))
@@ -274,6 +283,47 @@ router.post("/", async (req, res) => {
  });
 
  const profile = await newProfile.save();
+
+ const welcomeEmail = await Email.findOne({ name: "welcome.html" });
+
+ const transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 465,
+  secure: true,
+  auth: {
+   user: "apikey",
+   pass: process.env.SENDGRIDAPIKEY,
+  },
+ });
+
+ const options = {
+  viewEngine: {
+   extName: ".hbs",
+   partialsDir: path.join(__dirname, "views"),
+   layoutsDir: path.join(__dirname, "views"),
+   defaultLayout: false,
+  },
+  viewPath: "views",
+  extName: ".hbs",
+ };
+
+ fs.writeFile("./views/template.hbs", welcomeEmail.html, (err) => {
+  if (err) throw err;
+ });
+
+ transporter.use("compile", hbs(options));
+
+ const mailer = {
+  title: `Welcome To Tax Track ${profile.fullName}`,
+  from: `onboarding@andersonbradshawtax.com`,
+  to: email,
+  subject: `Welcome To Tax Track ${profile.fullName}`,
+  template: "template",
+  context: { token: token, fullName: profile.fullName },
+ };
+
+ transporter.sendMail(mailer);
+
  res.json(profile);
 });
 

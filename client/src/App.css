@@ -588,6 +588,11 @@ img {
  grid-gap: 1rem;
 }
 
+.grid-2d {
+ display: grid;
+ grid-template-columns: 6fr 1fr;
+}
+
 .grid-2c {
  display: grid;
  grid-template-columns: 2fr 1fr;

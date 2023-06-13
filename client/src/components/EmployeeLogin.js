@@ -2,10 +2,8 @@ import React, { useContext } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import AuthContext from "../context/auth/authContext";
 import { Navigate } from "react-router-dom";
-const clientid =
- "228458250661-snd3uf70bgrdekaqv5db1us3v1nlrovg.apps.googleusercontent.com";
 
-const Login2 = () => {
+const EmployeeLogin = () => {
  const authContext = useContext(AuthContext);
  const { user, loadUser, isAuthenticated, logout } = authContext;
 
@@ -26,7 +24,7 @@ const Login2 = () => {
    {isAuthenticated === false ? (
     <div className='all-center' id='signInButton'>
      <GoogleLogin
-      clientId={clientid}
+      clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
       buttonText='Login'
       onSuccess={onSuccess}
       onFailure={onFailure}
@@ -37,7 +35,7 @@ const Login2 = () => {
    ) : (
     <span style={{ float: "right" }} id='signOutButton'>
      <GoogleLogout
-      clientId={clientid}
+      clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
       buttonText='Log Out'
       onLogoutSuccess={onLogoutSuccess}
      />
@@ -59,4 +57,4 @@ const Login2 = () => {
   </div>
  );
 };
-export default Login2;
+export default EmployeeLogin;

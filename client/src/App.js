@@ -5,16 +5,15 @@ import ProfileState from "./context/profile/ProfileState";
 import AuthState from "./context/auth/AuthState";
 import "./App.css";
 import Home from "./components/Home";
-import Login from "./components/Login";
-import Login2 from "./components/Login2";
+import ClientLogin from "./components/ClientLogin";
+import EmployeeLogin from "./components/EmployeeLogin";
 import TaxTrackBackEnd from "./components/TaxTrackBackEnd";
 import PrivateRoute from "./components/PrivateRoute";
 import BalanceTransactions from "./components/BalanceTransactions";
 
 import { gapi } from "gapi-script";
 
-const clientId =
- "228458250661-snd3uf70bgrdekaqv5db1us3v1nlrovg.apps.googleusercontent.com";
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const App = () => {
  useEffect(() => {
   const start = () => {
@@ -31,8 +30,8 @@ const App = () => {
    <ProfileState>
     <Router>
      <Routes>
-      <Route exact path='/login' element={<Login />} />
-      <Route exact path='/authorizedlogin' element={<Login2 />} />
+      <Route exact path='/login' element={<ClientLogin />} />
+      <Route exact path='/authorizedlogin' element={<EmployeeLogin />} />
       <Route path='/' element={<PrivateRoute component={Home} />} />
       <Route
        path='/backend'

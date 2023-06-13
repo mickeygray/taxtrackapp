@@ -1,12 +1,14 @@
 import {
  PROFILE_LOADED,
  LOGOUT,
- OTP_LOADED,
+ EMAIL_LOADED,
+ EMAIL_CLEARED,
  REGISTER_FAIL,
  REGISTER_SUCCESS,
  USER_LOADED,
  LOGIN_FAIL,
  LOGIN_SUCCESS,
+ RESET_PASSWORD,
 } from "../types";
 
 export default (state, action) => {
@@ -24,20 +26,31 @@ export default (state, action) => {
     profile: action.payload,
    };
 
+  case RESET_PASSWORD:
+   return {
+    ...state,
+    otp: action.payload,
+   };
+
   case LOGIN_SUCCESS:
   case REGISTER_SUCCESS:
    localStorage.setItem("token", action.payload.token);
    return {
     ...state,
     ...action.payload,
-    isAuthenticated: true,
     loading: false,
    };
 
-  case OTP_LOADED:
+  case EMAIL_LOADED:
    return {
     ...state,
-    otp: action.payload,
+    email: action.payload,
+   };
+
+  case EMAIL_CLEARED:
+   return {
+    ...state,
+    email: null,
    };
   case REGISTER_FAIL:
   case LOGIN_FAIL:

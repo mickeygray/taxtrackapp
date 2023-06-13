@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 
 import AuthContext from "../context/auth/authContext";
-import Login from "./Login";
+import ClientLogin from "./ClientLogin";
 
 const PrivateRoute = ({ component: Component }) => {
  const authContext = useContext(AuthContext);
@@ -10,7 +10,7 @@ const PrivateRoute = ({ component: Component }) => {
 
  if (isAuthenticated === true && profile !== null) return <Component />;
  if (isAuthenticated === true && user !== null) return <Component />;
- if (isAuthenticated === false) return <Login />;
+ if (isAuthenticated === false) return <ClientLogin />;
 };
 
 export default PrivateRoute;

@@ -12,26 +12,23 @@ const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
+const { AES, enc } = require("crypto-js");
 require("dotenv").config();
-
 //Create and Send Token
 
-router.put("/device", async (req, res) => {
- const { encryptedString, encryptedPin } = req.body;
- var bytes = base64.decode(encryptedString.split().reverse().toString());
- var bytes2 = base64.decode(encryptedPin.split().reverse().toString());
+router.put("/pin", async (req, res) => {
+ const { email, pinString } = req.body;
 
  console.log(req.body);
-
  try {
-  let profile = await Profile.findOne({ ssn: bytes });
+  let profile = await Profile.findOne({ email: email });
 
   const salt = await bcrypt.genSalt(10);
 
-  const pin = await bcrypt.hash(bytes2, salt);
+  const pin = await bcrypt.hash(pinString, salt);
 
   profile = await Profile.findOneAndUpdate(
-   { ssn: bytes },
+   { "email": email },
    {
     "$set": {
      "pin": pin,
@@ -39,13 +36,13 @@ router.put("/device", async (req, res) => {
    }
   );
 
+  console.log(profile);
   const payload = {
    profile: {
     id: profile.id,
    },
   };
 
-  console.log(payload);
   jwt.sign(
    payload,
    config.get("jwtSecret"),
@@ -63,14 +60,25 @@ router.put("/device", async (req, res) => {
  }
 });
 
-router.get("/verify", async (req, res) => {
- var bytes = base64.decode(req.query.q.split().reverse().toString());
- const profile = await Profile.findOne({ ssn: bytes });
+router.post("/verify", async (req, res) => {
+ const profile = await Profile.findOne({ caseID: req.body.caseID });
+
+ const isMatch = await bcrypt.compare(req.body.ssn, profile.ssn);
+
+ if (!isMatch) {
+  return res.status(400).json({ msg: "Invalid Credentials" });
+ }
+
+ res.json(profile.email);
+});
+
+router.post("/forget", async (req, res) => {
+ const profile = await Profile.findOne({ email: req.body.email });
 
  if (profile !== null) {
   const email = profile._doc.email;
 
-  const verifyEmail = await Email.find({ name: "verify.html" });
+  const verifyEmail = await Email.findOne({ name: "verify.html" });
 
   var token = speakeasy.totp({
    secret: profile._doc.temp_secret.base32,
@@ -98,7 +106,7 @@ router.get("/verify", async (req, res) => {
    extName: ".hbs",
   };
 
-  fs.writeFile("./views/template.hbs", verifyEmail[0].html, (err) => {
+  fs.writeFile("./views/template.hbs", verifyEmail.html, (err) => {
    if (err) throw err;
   });
 
@@ -106,7 +114,7 @@ router.get("/verify", async (req, res) => {
 
   const mailer = {
    title: `One time passcode for ${profile.fullName}`,
-   from: `verify@andersonbradshawtax.com`,
+   from: `reset@andersonbradshawtax.com`,
    to: email,
    subject: `One time passcode for ${profile.fullName}`,
    template: "template",
@@ -117,10 +125,16 @@ router.get("/verify", async (req, res) => {
   res.json(token);
  }
 });
-
 router.get("/verified", async (req, res) => {
  var bytes = base64.decode(req.query.q.split().reverse().toString());
- const profile = await Profile.findOne({ ssn: bytes });
+
+ const profile = await Profile.findOne({ email: req.body.email });
+
+ const isMatch = await bcrypt.compare(bytes, profile.ssn);
+
+ if (!isMatch) {
+  return res.status(400).json({ msg: "Invalid Credentials" });
+ }
 
  const payload = {
   profile: {
@@ -153,18 +167,18 @@ router.get("/", auth, async (req, res) => {
  }
 });
 
-router.post("/pin", async (req, res) => {
+router.post("/login", async (req, res) => {
  console.log(req.body);
- var bytes = base64.decode(req.body.encryptedPin.split().reverse().toString());
+
  const profile = await Profile.findOne({ email: req.body.email });
 
- const isMatch = await bcrypt.compare(bytes, profile.pin);
+ const isMatch = await bcrypt.compare(req.body.pw, profile.pin);
+
+ console.log(isMatch);
 
  if (!isMatch) {
   return res.status(400).json({ msg: "Invalid Credentials" });
  }
-
- console.log(isMatch);
 
  const payload = {
   profile: {
@@ -183,19 +197,6 @@ router.post("/pin", async (req, res) => {
    res.json({ token });
   }
  );
-});
-
-router.put("/forget", async (req, res) => {
- try {
-  console.log(req.body);
-
-  await Profile.findOneAndUpdate({ "ttuid": req.body.ttuid }, { "ttuid": "" });
-
-  res.json({ msg: "Campaign removed" });
- } catch (err) {
-  console.error(err.message);
-  res.status(500).send("Server Error");
- }
 });
 
 module.exports = router;
