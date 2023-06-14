@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 import AuthContext from "./authContext";
 import axios from "axios";
 import authReducer from "./authReducer";
@@ -22,6 +22,7 @@ import {
 const AuthState = (props) => {
  const initialState = {
   profile: null,
+  token: localStorage.getItem("token"),
   error: null,
   isAuthenticated: false,
   profileList: [],
@@ -31,6 +32,11 @@ const AuthState = (props) => {
  };
 
  const [state, dispatch] = useReducer(authReducer, initialState);
+
+ setAuthToken(state.token);
+ useEffect(() => {
+  setAuthToken(state.token);
+ }, [state.token]);
 
  const savePin = async (email, pinString) => {
   const obj = { email, pinString };
@@ -90,8 +96,6 @@ const AuthState = (props) => {
  };
 
  const loadProfile = async () => {
-  setAuthToken(localStorage.token);
-
   try {
    const res = await axios.get("/api/auth");
 
@@ -99,8 +103,6 @@ const AuthState = (props) => {
     type: PROFILE_LOADED,
     payload: res.data,
    });
-
-   console.log(res.data);
   } catch (err) {
    dispatch({ type: AUTH_ERROR });
   }
@@ -115,15 +117,11 @@ const AuthState = (props) => {
 
   const obj = { pw, email };
 
-  console.log(obj);
-
   const res = await axios.post(`/api/auth/login`, obj, config);
 
   dispatch({ type: LOGIN_SUCCESS, payload: res.data });
 
-  if (localStorage.token) {
-   loadProfile();
-  }
+  loadProfile();
  };
 
  const logout = () => {
@@ -159,6 +157,7 @@ const AuthState = (props) => {
     token: state.token,
     user: state.user,
     otp: state.otp,
+    token: state.token,
     email: state.email,
     isAuthenticated: state.isAuthenticated,
    }}>

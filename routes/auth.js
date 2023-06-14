@@ -61,7 +61,7 @@ router.put("/pin", async (req, res) => {
 });
 
 router.post("/verify", async (req, res) => {
- const profile = await Profile.findOne({ caseID: req.body.caseID });
+ const profile = await Profile.findOne({ token: req.body.code });
 
  const isMatch = await bcrypt.compare(req.body.ssn, profile.ssn);
 

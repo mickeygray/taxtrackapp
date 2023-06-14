@@ -2,14 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/auth/authContext";
 import ProfileContext from "../context/profile/profileContext";
-import logo from "../images/TaxTrackLogo.jpg";
-import bubble from "../images/bubble.png";
-
-import exclamation from "../images/exclamation.png";
-
-import MessageModal from "./MessageModal";
-import TaskModal from "./TaskModal";
-import Navbar from "./Navbar";
+import messagesimg from "../images/messages.png";
 import {
  Chart as ChartJS,
  CategoryScale,
@@ -24,7 +17,7 @@ import { Line, Chart } from "react-chartjs-2";
 import Burger from "./Burger";
 import profileContext from "../context/profile/profileContext";
 //Chart.defaults.global.legend.display = false;
-const BalanceTransactions = () => {
+const BalanceTransactions = ({ toggleModal }) => {
  ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -36,7 +29,7 @@ const BalanceTransactions = () => {
  );
 
  const { profile, logout } = useContext(AuthContext);
-
+ /*
  const [stoneArr, setStoneArr] = useState([
   ...profile.milestones.map(
    (m, i) =>
@@ -47,8 +40,21 @@ const BalanceTransactions = () => {
      .reduce((a, b) => a + b, 0)
   ),
  ]);
-
- const [transArr, setTransArr] = useState([]);
+*/
+ const [transArr, setTransArr] = useState([
+  ...profile.accountTransactions
+   .map((m) => {
+    let obj = {
+     x: m.date,
+     y: m.amount,
+     tooltip1: m.description,
+     tooltip2: m.period,
+    };
+    return obj;
+   })
+   .sort((a, b) => Date.parse(a.x) - Date.parse(b.x)),
+  ,
+ ]);
  const [dataState, setDataState] = useState(false);
  const ctx =
   document.querySelector("#root canvas") &&
@@ -60,6 +66,8 @@ const BalanceTransactions = () => {
  const [taskModal, toggleTaskModal] = useState(false);
 
  const [transactionView, setTransactionView] = useState(false);
+
+ /*
  useEffect(() => {
   function isNumber(x) {
    return parseFloat(x) == x;
@@ -115,27 +123,32 @@ const BalanceTransactions = () => {
   }
  }, [rules, profileContext]);
 
+ */
+
  const savings =
-  profile.startingBalance &&
-  parseFloat(profile.startingBalance.replace(",", "")) -
-   parseFloat(profile.currentBalance);
+  profile.currentBalance && profile.startingBalance - profile.currentBalance;
 
  console.log();
- const mappedData = transArr.map((t, i) => {
-  const obj = {
-   ...t,
-   y: transArr
-    .map((t) => t.y)
-    .slice(0, i)
-    .reduce((a, b) => a + b, 0),
-  };
-  return obj;
- });
+ const mappedData = transArr
+  .filter((f) => f.y != 0)
+  .filter((v, i, a) => a.findIndex((v2) => v2.x === v.x) === i)
+  .map((t, i) => {
+   const obj = {
+    ...t,
+    y: transArr
+     .map((t) => t.y)
+     .slice(0, i)
+     .reduce((a, b) => a + b, 0),
+   };
+   return obj;
+  });
 
  console.log(mappedData, "MAPPED");
+ //console.log(transArr);
+ //console.log(profile);
 
  const truncatedMappedData = transArr
-  .filter((f) => new Date(f.x) >= new Date(profile.createDate))
+  .filter((f) => new Date(f.x) >= new Date(profile.addDate))
   .map((t, i) => {
    const index = transArr.indexOf(t);
    const obj = {
@@ -196,11 +209,11 @@ const BalanceTransactions = () => {
     label: "Current Balance",
     data: dataState === false ? truncatedMappedData : mappedData,
     borderColor: "white",
-    radius: 1.6,
+    radius: 1,
     fill: false,
     borderWidth: 10,
     backgroundColor: "#f4f4f4",
-    lineTension: ".5",
+    lineTension: 0.4,
     tooltip: {
      callbacks: {
       title: "Yes",
@@ -334,15 +347,10 @@ const BalanceTransactions = () => {
 
  return (
   <div className='bg-light'>
-   <Navbar />
-   {taskModal === true && <TaskModal tasks={tasks} />}
-   {messageModal === true && <MessageModal />}
    {messageModal === false && (
     <div className='grid-2c' style={{ height: "77vh" }}>
      <Line data={data} options={options} />
-     <div
-      className='bg-primary all-center'
-      style={{ height: "77vh", width: "20vw" }}>
+     <div className='bg-primary all-center' style={{ height: "77vh" }}>
       <h3 className='text-center'>
        Congrats {profile.firstName} <br />
        So far you've eliminated ${savings && savings.toLocaleString()} in debt!
@@ -360,6 +368,14 @@ const BalanceTransactions = () => {
        onClick={() => setDataState((prevState) => !prevState)}>
        {dataState === false ? "View Entire IRS History" : "On The Right Track!"}
       </button>
+      <br />
+      <br />
+      <a onClick={toggleModal}>
+       <img
+        src={messagesimg}
+        style={{ borderRadius: "50%", height: "100px", width: "100px" }}
+       />
+      </a>
      </div>
     </div>
    )}

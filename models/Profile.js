@@ -67,6 +67,7 @@ const profileSchema = new Schema({
  addDate: { type: String },
  startingBalance: { type: Number },
  currentBalance: { type: Number },
+ token: { type: String },
  pin: { type: String },
  caseID: {
   type: String,

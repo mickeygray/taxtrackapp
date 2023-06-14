@@ -22,7 +22,7 @@ const ClientLogin = () => {
  } = authContext;
 
  //SSN String Creation
- const [caseID, setCaseId] = useState("");
+ const [code, setCode] = useState("");
  const [ssn, setSsn] = useState("");
  const [emailAddress, setEmail] = useState("");
  const [resetCode, setResetCode] = useState("");
@@ -75,7 +75,7 @@ const ClientLogin = () => {
  const onSsn = (e) => {
   e.preventDefault();
 
-  verifyAccount({ caseID, ssn });
+  verifyAccount({ code, ssn });
   setSsn("");
  };
 
@@ -312,13 +312,12 @@ const ClientLogin = () => {
     {pinState === false && registerState === true && (
      <form onSubmit={onSsn}>
       <div className='form-group'>
-       <label htmlFor='Email'>Case ID</label>
+       <label htmlFor='Email'>Registration Code</label>
        <input
-        id='ssn'
         type='text'
-        name='caseID'
-        value={caseID}
-        onChange={(e) => setCaseId(e.target.value)}
+        name='code'
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
         required
        />
        <label htmlFor='Social'>Social Secruity Number</label>
