@@ -8,7 +8,11 @@ import Upload from "./Upload";
 
 const ProfilePage = () => {
  useEffect(() => {
-  getMessages(profile);
+  const interval = setInterval(() => {
+   getMessages(profile);
+  }, 5000);
+
+  return () => clearInterval(interval);
  }, []);
 
  const profileContext = useContext(ProfileContext);
@@ -43,6 +47,10 @@ const ProfilePage = () => {
    setMessageBody({ ...messageBody, name: user.name });
   }
  }, [user, authContext, messageBody]);
+
+ useEffect(() => {
+  setProfile(profile);
+ }, [profile]);
 
  const [fnPut, setFnput] = useState(false);
  const [emPut, setEmput] = useState(false);
@@ -125,7 +133,6 @@ const ProfilePage = () => {
         onClick={() => {
          updateProfile(update, profile);
          clearBools();
-         setProfile(profile);
         }}>
         Update Profile
        </button>

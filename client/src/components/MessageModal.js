@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import styled from "styled-components";
 import ProfileContext from "../context/profile/profileContext";
 import AuthContext from "../context/auth/authContext";
-import MessageItem from "./MessageItem";
+
 const MessageModal = ({ toggleModal }) => {
  const profileContext = useContext(ProfileContext);
  const { sendMessage, getMessages, messages } = profileContext;
@@ -10,7 +9,11 @@ const MessageModal = ({ toggleModal }) => {
  const { profile } = authContext;
 
  useEffect(() => {
-  getMessages(profile);
+  const interval = setInterval(() => {
+   getMessages(profile);
+  }, 5000);
+
+  return () => clearInterval(interval);
  }, []);
 
  const [text, setText] = useState("");
@@ -26,10 +29,10 @@ const MessageModal = ({ toggleModal }) => {
  };
  return (
   <div className='container'>
-   <span style={{ float: "right" }}>
-    <button onClick={toggleModal}>X</button>
-   </span>
    <div style={{ width: "500px" }} className='all-center2'>
+    <span style={{ float: "right" }}>
+     <a href='#' onClick={toggleModal} className='close' />
+    </span>
     <div className='chat-container chat-messages'>
      {messages.map((message, index) => (
       <div
@@ -53,10 +56,14 @@ const MessageModal = ({ toggleModal }) => {
       className='p-1 m-1'
       value={text}
       onChange={(e) => setText(e.target.value)}></textarea>
-
-     <button className='btn btn-dark' onClick={() => submitPost(text)}>
-      Send Message
-     </button>
+     <div className='grid-2'>
+      <button className='btn btn-dark' onClick={() => submitPost(text)}>
+       Send Message
+      </button>
+      <button className='btn btn-light' onClick={() => setText("")}>
+       Clear Message
+      </button>
+     </div>
     </div>
    </div>
   </div>

@@ -10,7 +10,7 @@ import Upload from "./Upload";
 const ProfileItem = ({ profile }) => {
  const profileContext = useContext(ProfileContext);
  const authContext = useContext(AuthContext);
- const { user } = authContext;
+
  const { putCanopy, getMessages, setProfile, clearProfiles } = profileContext;
 
  const [style, setStyle] = useState({
