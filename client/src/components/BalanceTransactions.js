@@ -1,8 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import AuthContext from "../context/auth/authContext";
-import ProfileContext from "../context/profile/profileContext";
-import messagesimg from "../images/messages.png";
 import {
  Chart as ChartJS,
  CategoryScale,
@@ -13,11 +10,11 @@ import {
  Tooltip,
  Legend,
 } from "chart.js";
-import { Line, Chart } from "react-chartjs-2";
-import Burger from "./Burger";
-import profileContext from "../context/profile/profileContext";
+import { Line } from "react-chartjs-2";
+
 //Chart.defaults.global.legend.display = false;
 const BalanceTransactions = ({ toggleModal }) => {
+ const chartRef = useRef(null);
  ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -25,266 +22,154 @@ const BalanceTransactions = ({ toggleModal }) => {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  {
+   id: "uniqueid5",
+
+   afterDraw: function (chart, easing) {
+    if (chart.tooltip._active && chart.tooltip._active.length) {
+     const activePoint = chart.tooltip._active[0];
+     const ctx = chart.ctx;
+     const x = activePoint.element.x;
+     const topY = chart.scales.y.top;
+     const bottomY = chart.scales.y.bottom;
+     ctx.save();
+     ctx.setLineDash([3, 3]);
+     ctx.beginPath();
+     ctx.moveTo(x, topY);
+     ctx.lineTo(x, bottomY);
+     ctx.lineWidth = 2;
+     ctx.strokeStyle = "#333";
+     ctx.stroke();
+     ctx.restore();
+    }
+   },
+  }
  );
 
- const { profile, logout } = useContext(AuthContext);
- /*
- const [stoneArr, setStoneArr] = useState([
-  ...profile.milestones.map(
-   (m, i) =>
-    Number(profile.startingBalance.replace(/[^0-9.-]+/g, "")) -
-    profile.milestones
-     .slice(0, i)
-     .map(({ amount }) => parseFloat(amount))
-     .reduce((a, b) => a + b, 0)
-  ),
- ]);
-*/
- const [transArr, setTransArr] = useState([
-  ...profile.accountTransactions
-   .map((m) => {
-    let obj = {
-     x: m.date,
-     y: m.amount,
-     tooltip1: m.description,
-     tooltip2: m.period,
-    };
-    return obj;
-   })
-   .sort((a, b) => Date.parse(a.x) - Date.parse(b.x)),
-  ,
- ]);
- const [dataState, setDataState] = useState(false);
- const ctx =
-  document.querySelector("#root canvas") &&
-  document.querySelector("#root canvas").getContext("2d");
+ // Create a custom tooltip positioner to put at the bottom of the chart area
+ Tooltip.positioners.top = function (items) {
+  const pos = Tooltip.positioners.average(items);
 
- const { tasks, getTasks, getRules, rules } = useContext(ProfileContext);
-
- const [messageModal, toggleMessageModal] = useState(false);
- const [taskModal, toggleTaskModal] = useState(false);
-
- const [transactionView, setTransactionView] = useState(false);
-
- /*
- useEffect(() => {
-  function isNumber(x) {
-   return parseFloat(x) == x;
+  // Happens when nothing is found
+  if (pos === false) {
+   return false;
   }
-  if (rules != null) {
-   setTransArr([
-    ...profile.accountTransactions
-     .map((transaction, i) => {
-      const type =
-       transaction.amount &&
-       rules &&
-       rules
-        .filter((f) => parseInt(f.code) === parseInt(transaction.code))
-        .map((r) => r.type)
-        .toString();
 
-      if (type !== false) {
-       const obj = {
-        ...transaction,
-        type,
-       };
-       return obj;
-      } else {
-       return transaction;
-      }
-     })
-     .map((m, i) => {
-      const debit =
-       m.type && m.type.includes("debit") && m.amount > 0 && m.amount;
-      const credit =
-       m.type && m.type.includes("credit") && m.amount != 0 && m.amount;
+  const chart = this.chart;
 
-      console.log(credit, "credit");
-      if (credit != 0 && isNumber(credit))
-       return {
-        x: m.date,
-        y: credit,
-        tooltip1: m.description,
-        tooltip2: m.period,
-       };
-      if (debit != 0 && isNumber(debit))
-       return {
-        x: m.date,
-        y: debit,
-        tooltip1: m.description,
-        tooltip2: m.period,
-       };
-     })
-     .filter((f) => f != undefined)
-
-     .sort((a, b) => Date.parse(a.x) - Date.parse(b.x)),
-   ]);
-  }
- }, [rules, profileContext]);
-
- */
-
- const savings =
-  profile.currentBalance && profile.startingBalance - profile.currentBalance;
-
- console.log();
- const mappedData = transArr
-  .filter((f) => f.y != 0)
-  .filter((v, i, a) => a.findIndex((v2) => v2.x === v.x) === i)
-  .map((t, i) => {
-   const obj = {
-    ...t,
-    y: transArr
-     .map((t) => t.y)
-     .slice(0, i)
-     .reduce((a, b) => a + b, 0),
-   };
-   return obj;
-  });
-
- console.log(mappedData, "MAPPED");
- //console.log(transArr);
- //console.log(profile);
-
- const truncatedMappedData = transArr
-  .filter((f) => new Date(f.x) >= new Date(profile.addDate))
-  .map((t, i) => {
-   const index = transArr.indexOf(t);
-   const obj = {
-    ...t,
-    y: transArr
-     .map((t) => t.y)
-     .slice(0, index)
-     .reduce((a, b) => a + b, 0),
-    rawY: transArr[index].y,
-   };
-   return obj;
-  });
-
- console.log(truncatedMappedData);
-
- var now = new Date();
- var current;
- if (now.getMonth() == 11) {
-  current = new Date(now.getFullYear() + 1, 0, 1);
- } else {
-  current = new Date(now.getFullYear(), now.getMonth() + 1, 1);
- }
-
- const [totalDuration, setTotalDuration] = useState(10000);
-
- useEffect(() => {
-  let timer1 = setTimeout(() => setTotalDuration(10000), 20000);
-
-  // this will clear Timeout
-  // when component unmount like in willComponentUnmount
-  // and show will not change to true
-  return () => {
-   clearTimeout(timer1);
+  return {
+   x: chart.chartArea.right,
+   y: chart.chartArea.top,
+   xAlign: "right",
+   yAlign: "top",
   };
- }, []);
- const delayBetweenPoints = totalDuration / transArr.length;
-
- const previousY = (ctx) =>
-  ctx.index === 0
-   ? ctx.chart.scales.y.getPixelForValue(100)
-   : ctx.chart
-      .getDatasetMeta(ctx.datasetIndex)
-      .data[ctx.index - 1].getProps(["y"], true).y;
-
- const footer = (tooltipItems) => {
-  let sum = 0;
-
-  return "Sum: " + sum;
  };
-
+ const { profile, logout } = useContext(AuthContext);
+ var thresholdValue = 0;
+ var thresholdHighArray = new Array(profile.accountTransactions.length).fill(
+  thresholdValue
+ );
  const data = {
-  labels:
-   dataState === false
-    ? truncatedMappedData.map((m) => m.x)
-    : mappedData.map((m) => m.x),
+  labels: profile.accountTransactions.map((t) => t.x),
   datasets: [
    {
     label: "Current Balance",
-    data: dataState === false ? truncatedMappedData : mappedData,
+    data: profile.accountTransactions,
     borderColor: "white",
-    radius: 1,
+    pointRadius: 0.5,
     fill: false,
-    borderWidth: 10,
     backgroundColor: "#f4f4f4",
     lineTension: 0.4,
     tooltip: {
      callbacks: {
-      title: "Yes",
+      title: "",
      },
     },
+   },
+   {
+    data: thresholdHighArray,
+    borderColor: "red",
+    radius: 0,
+    borderWidth: 1,
+    borderDash: [3, 3], // Specifies the pattern of the dashed line
+    fill: false,
    },
   ],
  };
+
+ var line = [
+  {
+   type: "line",
+   mode: "vertical",
+
+   scaleID: "y-axis-0",
+   value: -20000,
+
+   borderColor: "#333",
+   borderWidth: 1,
+  },
+ ];
  const options = {
   responsive: true,
-  /*animation: {
+  layout: {
+   padding: {
+    top: 20,
+   },
+  },
+  maintainAspectRatio: false,
+  scales: {
    x: {
-    type: "number",
-    easing: "linear",
-    duration: 30000,
-    from: NaN,
-    delay(ctx) {
-     if (ctx.type !== "data" || ctx.yStarted) {
-      return 0;
-     }
-     ctx.yStarted = true;
-     return ctx.index * delayBetweenPoints;
-    },
+    display: false,
    },
    y: {
-    type: "number",
-    easing: "linear",
-    duration: totalDuration,
-    from: previousY, // previousY,
-    delay(ctx) {
-     if (ctx.type !== "data" || ctx.yStarted) {
-      return 0;
-     }
-     ctx.yStarted = true;
-     return ctx.index * delayBetweenPoints;
-    },
+    display: false,
    },
-  },*/
-  interaction: {
-   //intersect: false,
-   mode: "index",
+  },
+  annotation: {
+   annotations: line,
   },
   plugins: {
-   legend: { display: false },
+   legend: {
+    display: false,
+   },
    tooltip: {
     displayColors: false,
+    titleFont: {
+     size: 15,
+     family: "arial",
+    },
+    position: "top",
     callbacks: {
      title: function (chart) {
-      let title =
-       dataState === false
-        ? truncatedMappedData[chart[0].dataIndex].tooltip1
-        : mappedData[chart[0].dataIndex].tooltip1;
+      function addLineBreaks(text) {
+       const MAX_CHARACTERS = 50;
+       const words = text.split(" ");
+       let currentLineLength = 0;
+
+       const result = words.reduce(
+        (lines, word) => {
+         if (currentLineLength + word.length <= MAX_CHARACTERS) {
+          lines[lines.length - 1] += " " + word;
+          currentLineLength += word.length + 1; // +1 for the space
+         } else {
+          lines.push(word);
+          currentLineLength = word.length;
+         }
+         return lines;
+        },
+        [""]
+       );
+
+       return result.join("\n");
+      }
+
+      let title = `${addLineBreaks(
+       profile.accountTransactions[chart[0].dataIndex].tooltip1
+      )} for ${profile.accountTransactions[chart[0].dataIndex].tooltip2}`;
       return title;
      },
      afterTitle: function (chart) {
-      let adjustmentAmount = transArr[chart[0].dataIndex].y;
-      let truncatedAdjustedAmount =
-       truncatedMappedData &&
-       dataState === false &&
-       truncatedMappedData[chart[0].dataIndex].rawY;
-
-      //
-      let title =
-       dataState === false
-        ? truncatedMappedData[chart[0].dataIndex].tooltip2
-        : mappedData[chart[0].dataIndex].tooltip2;
-      let date =
-       dataState === false
-        ? truncatedMappedData[chart[0].dataIndex].x
-        : mappedData[chart[0].dataIndex].x;
-      let str = "";
       const formatter = new Intl.NumberFormat("en-US", {
        style: "currency",
        currency: "USD",
@@ -294,93 +179,22 @@ const BalanceTransactions = ({ toggleModal }) => {
        //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
       });
 
-      const creditAmount = formatter.format(adjustmentAmount * -1);
-      const debitAmount = formatter.format(adjustmentAmount);
-      const truncatedCreditAmount = formatter.format(
-       truncatedAdjustedAmount * -1
-      );
-      const truncatedDebitAmount = formatter.format(truncatedAdjustedAmount);
+      let amount = profile.accountTransactions[chart[0].dataIndex].y;
+      let date = profile.accountTransactions[chart[0].dataIndex].x;
 
-      if (adjustmentAmount > 0 && dataState === true) {
-       str = `Your Account Was Debited for ${debitAmount} For Tax Year ${title} on ${date}`;
-      } else if (adjustmentAmount < 0 && dataState === true) {
-       str = `Your Account Was Credited for ${creditAmount} For Tax Year ${title} on ${date}`;
-      } else if (truncatedAdjustedAmount < 0 && dataState === false) {
-       str = `Your Account Was Credited for ${truncatedCreditAmount} For Tax Year ${title} on ${date}`;
-      } else if (truncatedAdjustedAmount > 0 && dataState === false) {
-       str = `Your Account Was Debited for ${truncatedDebitAmount} For Tax Year ${title} on ${date}`;
-      }
+      let str = ` ${formatter.format(
+       profile.startingBalance - amount
+      )} savings as of ${date}`;
 
       return str;
      },
     },
-   },
-  },
-  scales: {
-   y: {
-    display: false, // Hide Y axis labels
-   },
-   x: {
-    display: false, // Hide X axis labels
+    backgroundColor: "transparent",
    },
   },
  };
 
- const [style, setStyle] = useState({ backgroundColor: "black" });
- useEffect(() => {
-  getRules();
-
-  const interval = setInterval(() => {
-   getTasks(profile);
-  }, 5000);
-
-  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
- }, []);
-
- useEffect(() => {
-  if (tasks && tasks.length === 0) {
-   setStyle({ backgroundColor: "black" });
-  } else if (tasks && tasks.length > 0) {
-   setStyle({ backgroundColor: "yellow" });
-  }
- }, [tasks.length]);
-
- return (
-  <div className='bg-light'>
-   {messageModal === false && (
-    <div className='grid-2c' style={{ height: "77vh" }}>
-     <Line data={data} options={options} />
-     <div className='bg-primary all-center' style={{ height: "77vh" }}>
-      <h3 className='text-center'>
-       Congrats {profile.firstName} <br />
-       So far you've eliminated ${savings && savings.toLocaleString()} in debt!
-      </h3>
-      <h3 className='text-center'>
-       We will update your account again on {current.toLocaleDateString()}.
-      </h3>
-      <button
-       className='btn btn-sm'
-       style={{
-        backgroundColor: "#7cde31",
-        borderRadius: "4px",
-        marginLeft: "6.5px",
-       }}
-       onClick={() => setDataState((prevState) => !prevState)}>
-       {dataState === false ? "View Entire IRS History" : "On The Right Track!"}
-      </button>
-      <br />
-      <br />
-      <a onClick={toggleModal}>
-       <img
-        src={messagesimg}
-        style={{ borderRadius: "50%", height: "100px", width: "100px" }}
-       />
-      </a>
-     </div>
-    </div>
-   )}
-  </div>
- );
+ return <Line ref={chartRef} data={data} options={options} />;
 };
 
 export default BalanceTransactions;

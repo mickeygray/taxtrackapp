@@ -41,13 +41,13 @@ export default (state, action) => {
   case UPDATE_PROFILE:
    return {
     ...state,
+    profile: action.payload,
    };
 
   case CLEAR_PROFILES:
    return {
     ...state,
     profileList: [],
-    profile: null,
    };
 
   case SET_PROFILE:

@@ -34,10 +34,10 @@ export default (state, action) => {
 
   case LOGIN_SUCCESS:
   case REGISTER_SUCCESS:
-   console.log(action.payload);
    localStorage.setItem("token", action.payload.token);
    return {
     ...state,
+    isAuthenticated: true,
     ...action.payload,
    };
 

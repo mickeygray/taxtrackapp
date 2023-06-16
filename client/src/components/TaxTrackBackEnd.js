@@ -5,6 +5,7 @@ import LogOut from "./LogOut";
 import Pagination from "./Pagination";
 import Upload from "./Upload";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import ProfilePage from "./ProfilePage";
 
 const TaxTrackBackEnd = () => {
  const [caseID, setCaseID] = useState("");
@@ -94,11 +95,13 @@ const TaxTrackBackEnd = () => {
      totalPosts={profileList.length}
      paginate={paginate}
     />
-    {currentPosts.length > 0
+    {profile === null && currentPosts.length > 0
      ? currentPosts.map((profile) => (
         <ProfileItem key={profile._id} profile={profile} />
        ))
      : ""}
+
+    {profile != null && <ProfilePage />}
    </div>
   </div>
  );

@@ -1,6 +1,6 @@
 /* Global Styles */
 :root {
- --primary-color: #07bc0c;
+ --primary-color: #77d215;
  --dark-color: #212226;
  --light-color: #f4f4f4;
  --danger-color: #cc7722;
@@ -14,7 +14,7 @@
 }
 
 body {
- font-family: "Roboto", sans-serif;
+ font-family: "Arial", sans-serif;
  font-size: 1rem;
  line-height: 1.6;
  background-color: #fff;
@@ -105,6 +105,41 @@ img {
  text-align: right;
 }
 
+.from-date {
+ font-size: 12px;
+ color: #333;
+ opacity: 0.7;
+}
+
+.hero-image {
+ background-image: url("./images/loginhero.png");
+ background-size: cover;
+ background-position: center;
+ height: 100vh;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ position: relative;
+}
+
+.overlay {
+ position: absolute;
+ top: 0;
+ left: 0;
+ right: 0;
+ bottom: 0;
+ background-color: rgba(0, 0, 0, 0.6);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+}
+
+.overlay-text {
+ color: white;
+ font-size: 2rem;
+ text-align: center;
+}
+
 .text-left {
  text-align: left;
 }
@@ -118,6 +153,13 @@ img {
  justify-content: center;
  align-items: center;
  text-align: center;
+}
+
+.all-center2 {
+ display: flex;
+ flex-direction: column;
+ width: 100%;
+ margin: auto;
 }
 
 /* Cards */
@@ -593,6 +635,81 @@ img {
  grid-template-columns: 6fr 1fr;
 }
 
+.profile-container {
+ display: grid;
+ grid-template-columns: 1fr;
+ grid-template-rows: auto 1fr;
+ gap: 20px;
+ height: 100vh;
+}
+
+.chart-container {
+ grid-row: 1 / 2;
+}
+
+.profile-info-container {
+ grid-row: 2 / 3;
+}
+
+.profile-info {
+ display: flex;
+ flex-direction: column;
+}
+
+.section {
+ margin-bottom: 20px;
+}
+
+h2 {
+ font-size: 18px;
+ margin-bottom: 10px;
+}
+
+.item {
+ display: flex;
+ align-items: center;
+ margin-bottom: 5px;
+}
+
+label {
+ font-weight: bold;
+ margin-right: 10px;
+}
+
+span {
+ margin-left: 5px;
+}
+.chat-container {
+ display: flex;
+ flex-direction: column;
+ align-items: flex-start;
+ padding: 10px;
+}
+
+.chat-bubble {
+ display: inline-block;
+ background-color: #e5e5ea;
+ border-radius: 20px;
+ padding: 10px 15px;
+ margin-bottom: 10px;
+}
+
+.chat-messages {
+ display: flex;
+ flex-direction: column;
+}
+
+.sender {
+ color: white;
+ align-self: flex-end;
+ background-color: #007aff;
+}
+
+.receiver {
+ color: black;
+ align-self: flex-start;
+ background-color: #e5e5ea;
+}
 .grid-2c {
  display: grid;
  grid-template-columns: 2fr 1fr;

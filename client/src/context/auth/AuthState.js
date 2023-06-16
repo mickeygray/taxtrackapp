@@ -54,6 +54,7 @@ const AuthState = (props) => {
     type: REGISTER_SUCCESS,
     payload: res.data,
    });
+   setAuthToken(res.data.token);
    loadProfile();
   } catch (err) {
    dispatch({
@@ -120,7 +121,7 @@ const AuthState = (props) => {
   const res = await axios.post(`/api/auth/login`, obj, config);
 
   dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-
+  setAuthToken(res.data.token);
   loadProfile();
  };
 

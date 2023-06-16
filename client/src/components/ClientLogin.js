@@ -112,9 +112,7 @@ const ClientLogin = () => {
 
  return (
   <>
-   <div
-    className='grid-2'
-    style={{ backgroundColor: "#7cde31", height: "187px" }}>
+   <div className='grid-2 bg-primary' style={{ height: "187px" }}>
     <div className='m-2'>
      <Link to='/'>
       <img
@@ -147,296 +145,320 @@ const ClientLogin = () => {
        </button>
       )}
      </span>
-
-     <br />
-     <br />
     </div>
    </div>
-   <br />
-   <br />
-   <div className='form-container all-center' style={{ width: "500px" }}>
-    {pinState === false && registerState === false && resetState === false && (
-     <>
-      <form onSubmit={onLogin}>
-       <div className='form-group'>
-        <label htmlFor='Email'>Email Address</label>
-        <input
-         type='email'
-         name='emailAddress'
-         value={emailAddress}
-         onChange={(e) => setEmail(e.target.value)}
-        />
-        <label htmlFor='Pin Code'>Password</label>
-        <input
-         type='password'
-         name='firstPassword'
-         value={pin.firstPassword}
-         onChange={onChangePin}
-        />
-       </div>
-       <input
-        type='submit'
-        value='Login'
-        className='btn btn-primary btn-block'
-       />
-      </form>
-      <button
-       className='btn btn-light btn-sm'
-       onClick={() => resetPassword(emailAddress)}>
-       Forgot Password
-      </button>
-     </>
-    )}
 
-    {resetState === true && (
-     <form onSubmit={onReset}>
-      <div className='form-group'>
-       <label htmlFor='Token'>Your One Time Access Code</label>
-       <input
-        type='password'
-        name='matchCode'
-        value={matchCode}
-        onChange={(e) => setMatchCode(e.target.value)}
-        required
-       />
-      </div>
-     </form>
-    )}
+   <div
+    className='hero-image'
+    style={{
+     backgroundSize: "cover",
+     backgroundPosition: "center",
+     height: "80vh",
+     display: "flex",
+     alignItems: "center",
+     justifyContent: "center",
+    }}>
+    {/* Overlay Text */}
+    <h1
+     className='overlay-text'
+     style={{
+      color: "white",
+      fontSize: "2rem",
+      textAlign: "center",
+     }}>
+     Welcome to Tax Track
+    </h1>
 
-    {matchCode === resetCode && resetState === true && (
-     <form onSubmit={onPin}>
-      <>
-       <div className='card' style={{ width: "300px" }}>
-        <label htmlFor='Email'>Your Email Address</label>
-        <input
-         type='email'
-         name='emailAddress'
-         value={emailAddress}
-         onChange={(e) => setEmail(e.target.value)}
-        />
-        <h2>Please Enter A Secure Password</h2>
-        <ul>
-         <li>
-          {pin.firstPassword.length >= 12 && (
-           <i className='fa-solid fa-check' />
+    {/* Login Form */}
+    <div className='login-form'>
+     {" "}
+     <div className='form-container all-center' style={{ width: "500px" }}>
+      {pinState === false &&
+       registerState === false &&
+       resetState === false && (
+        <>
+         <form onSubmit={onLogin}>
+          <div className='form-group'>
+           <label htmlFor='Email'>Email Address</label>
+           <input
+            type='email'
+            name='emailAddress'
+            value={emailAddress}
+            onChange={(e) => setEmail(e.target.value)}
+           />
+           <label htmlFor='Pin Code'>Password</label>
+           <input
+            type='password'
+            name='firstPassword'
+            value={pin.firstPassword}
+            onChange={onChangePin}
+           />
+          </div>
+          <input
+           type='submit'
+           value='Login'
+           className='btn btn-primary btn-block'
+          />
+         </form>
+         <button
+          className='btn btn-light btn-sm'
+          onClick={() => resetPassword(emailAddress)}>
+          Forgot Password
+         </button>
+        </>
+       )}
+
+      {resetState === true && (
+       <form onSubmit={onReset}>
+        <div className='form-group'>
+         <label htmlFor='Token'>Your One Time Access Code</label>
+         <input
+          type='password'
+          name='matchCode'
+          value={matchCode}
+          onChange={(e) => setMatchCode(e.target.value)}
+          required
+         />
+        </div>
+       </form>
+      )}
+
+      {matchCode === resetCode && resetState === true && (
+       <form onSubmit={onPin}>
+        <>
+         <div className='card' style={{ width: "300px" }}>
+          <label htmlFor='Email'>Your Email Address</label>
+          <input
+           type='email'
+           name='emailAddress'
+           value={emailAddress}
+           onChange={(e) => setEmail(e.target.value)}
+          />
+          <h2>Please Enter A Secure Password</h2>
+          <ul>
+           <li>
+            {pin.firstPassword.length >= 12 && (
+             <i className='fa-solid fa-check' />
+            )}
+            At least 12 characters
+            {pin.firstPassword.length > 0 &&
+             pin.firstPassword.length < 12 &&
+             `     ${pin.firstPassword.length}/12`}
+           </li>
+           <li>
+            {" "}
+            {upperCase === true && <i className='fa-solid fa-check' />} A
+            Capital Letter
+           </li>
+           <li>
+            {lowerCase === true && <i className='fa-solid fa-check' />}A Lower
+            Case Letter
+           </li>
+           <li>
+            {specialChar === true && <i className='fa-solid fa-check' />}A
+            Special Character
+           </li>
+           <li>
+            {hasNumber === true && <i className='fa-solid fa-check' />}A Number
+           </li>
+          </ul>
+          {match === false && pin.secondPassword.length > 0 && (
+           <i>Please ensure your passwords match.</i>
           )}
-          At least 12 characters
-          {pin.firstPassword.length > 0 &&
-           pin.firstPassword.length < 12 &&
-           `     ${pin.firstPassword.length}/12`}
-         </li>
-         <li>
-          {" "}
-          {upperCase === true && <i className='fa-solid fa-check' />} A Capital
-          Letter
-         </li>
-         <li>
-          {lowerCase === true && <i className='fa-solid fa-check' />}A Lower
-          Case Letter
-         </li>
-         <li>
-          {specialChar === true && <i className='fa-solid fa-check' />}A Special
-          Character
-         </li>
-         <li>
-          {hasNumber === true && <i className='fa-solid fa-check' />}A Number
-         </li>
-        </ul>
-        {match === false && pin.secondPassword.length > 0 && (
-         <i>Please ensure your passwords match.</i>
-        )}
-        <div className='all-center'>
-         <div className='grid-2d'>
-          <input
-           style={{ width: "200px" }}
-           name='firstPassword'
-           value={pin.firstPassword}
-           minLength={12}
-           required
-           type={passwordState === true ? "password" : "text"}
-           onChange={onChangePin}
-          />
+          <div className='all-center'>
+           <div className='grid-2d'>
+            <input
+             style={{ width: "200px" }}
+             name='firstPassword'
+             value={pin.firstPassword}
+             minLength={12}
+             required
+             type={passwordState === true ? "password" : "text"}
+             onChange={onChangePin}
+            />
 
+            <button
+             style={{ height: "10px", width: "10px" }}
+             className='btn btn-sm'
+             onClick={() => setPasswordState((prevState) => !prevState)}>
+             <i className='fa-solid fa-eye'></i>
+            </button>
+           </div>
+           <i>Please Reenter Your Password</i>
+           <div className='grid-2d'>
+            <input
+             style={{ width: "200px" }}
+             name='secondPassword'
+             value={pin.secondPassword}
+             onPaste={() => {
+              return false;
+             }}
+             onDrop={() => {
+              return false;
+             }}
+             autoComplete='off'
+             minLength={12}
+             required
+             type={secondPasswordState === true ? "password" : "text"}
+             onChange={onChangePin}
+            />
+
+            <button
+             style={{ height: "10px", width: "10px" }}
+             className='btn btn-sm'
+             onClick={() => setSecondPasswordState((prevState) => !prevState)}>
+             <i className='fa-solid fa-eye'></i>
+            </button>
+           </div>
+          </div>
+
+          <input
+           type='submit'
+           value='Reset Password'
+           className='btn btn-primary btn-block'
+          />
           <button
-           style={{ height: "10px", width: "10px" }}
-           className='btn btn-sm'
-           onClick={() => setPasswordState((prevState) => !prevState)}>
-           <i className='fa-solid fa-eye'></i>
+           className='btn btn-primary btn-block'
+           onClick={() => {
+            setPinState(false) && setResetState(false);
+           }}>
+           Start Over
           </button>
          </div>
-         <i>Please Reenter Your Password</i>
-         <div className='grid-2d'>
-          <input
-           style={{ width: "200px" }}
-           name='secondPassword'
-           value={pin.secondPassword}
-           onPaste={() => {
-            return false;
-           }}
-           onDrop={() => {
-            return false;
-           }}
-           autoComplete='off'
-           minLength={12}
-           required
-           type={secondPasswordState === true ? "password" : "text"}
-           onChange={onChangePin}
-          />
+        </>
+       </form>
+      )}
 
-          <button
-           style={{ height: "10px", width: "10px" }}
-           className='btn btn-sm'
-           onClick={() => setSecondPasswordState((prevState) => !prevState)}>
-           <i className='fa-solid fa-eye'></i>
-          </button>
-         </div>
+      {pinState === false && registerState === true && (
+       <form onSubmit={onSsn}>
+        <div className='form-group'>
+         <label htmlFor='Email'>Registration Code</label>
+         <input
+          type='text'
+          name='code'
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+         />
+         <label htmlFor='Social'>Social Secruity Number</label>
+         <input
+          id='ssn'
+          type='password'
+          name='ssn'
+          value={ssn}
+          onChange={onChangeSsn}
+          required
+         />
         </div>
 
         <input
          type='submit'
-         value='Reset Password'
+         value='Verify Identity'
          className='btn btn-primary btn-block'
         />
-        <button
-         className='btn btn-primary btn-block'
-         onClick={() => {
-          setPinState(false) && setResetState(false);
-         }}>
-         Start Over
-        </button>
-       </div>
-      </>
-     </form>
-    )}
+       </form>
+      )}
 
-    {pinState === false && registerState === true && (
-     <form onSubmit={onSsn}>
-      <div className='form-group'>
-       <label htmlFor='Email'>Registration Code</label>
-       <input
-        type='text'
-        name='code'
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        required
-       />
-       <label htmlFor='Social'>Social Secruity Number</label>
-       <input
-        id='ssn'
-        type='password'
-        name='ssn'
-        value={ssn}
-        onChange={onChangeSsn}
-        required
-       />
-      </div>
-
-      <input
-       type='submit'
-       value='Verify Identity'
-       className='btn btn-primary btn-block'
-      />
-     </form>
-    )}
-
-    {pinState === true && registerState === true && (
-     <form onSubmit={onPin}>
-      <>
-       <div className='card' style={{ width: "300px" }}>
-        <h2>Please Enter A Secure Password</h2>
-        <ul>
-         <li>
-          {pin.firstPassword.length >= 12 && (
-           <i className='fa-solid fa-check' />
+      {pinState === true && registerState === true && (
+       <form onSubmit={onPin}>
+        <>
+         <div className='card' style={{ width: "300px" }}>
+          <h2>Please Enter A Secure Password</h2>
+          <ul>
+           <li>
+            {pin.firstPassword.length >= 12 && (
+             <i className='fa-solid fa-check' />
+            )}
+            At least 12 characters
+            {pin.firstPassword.length > 0 &&
+             pin.firstPassword.length < 12 &&
+             `     ${pin.firstPassword.length}/12`}
+           </li>
+           <li>
+            {" "}
+            {upperCase === true && <i className='fa-solid fa-check' />} A
+            Capital Letter
+           </li>
+           <li>
+            {lowerCase === true && <i className='fa-solid fa-check' />}A Lower
+            Case Letter
+           </li>
+           <li>
+            {specialChar === true && <i className='fa-solid fa-check' />}A
+            Special Character
+           </li>
+           <li>
+            {hasNumber === true && <i className='fa-solid fa-check' />}A Number
+           </li>
+          </ul>
+          {match === false && pin.secondPassword.length > 0 && (
+           <i>Please ensure your passwords match.</i>
           )}
-          At least 12 characters
-          {pin.firstPassword.length > 0 &&
-           pin.firstPassword.length < 12 &&
-           `     ${pin.firstPassword.length}/12`}
-         </li>
-         <li>
-          {" "}
-          {upperCase === true && <i className='fa-solid fa-check' />} A Capital
-          Letter
-         </li>
-         <li>
-          {lowerCase === true && <i className='fa-solid fa-check' />}A Lower
-          Case Letter
-         </li>
-         <li>
-          {specialChar === true && <i className='fa-solid fa-check' />}A Special
-          Character
-         </li>
-         <li>
-          {hasNumber === true && <i className='fa-solid fa-check' />}A Number
-         </li>
-        </ul>
-        {match === false && pin.secondPassword.length > 0 && (
-         <i>Please ensure your passwords match.</i>
-        )}
-        <div className='all-center'>
-         <div className='grid-2d'>
-          <input
-           style={{ width: "200px" }}
-           name='firstPassword'
-           value={pin.firstPassword}
-           minLength={12}
-           required
-           type={passwordState === true ? "password" : "text"}
-           onChange={onChangePin}
-          />
+          <div className='all-center'>
+           <div className='grid-2d'>
+            <input
+             style={{ width: "200px" }}
+             name='firstPassword'
+             value={pin.firstPassword}
+             minLength={12}
+             required
+             type={passwordState === true ? "password" : "text"}
+             onChange={onChangePin}
+            />
 
+            <button
+             style={{ height: "10px", width: "10px" }}
+             className='btn btn-sm'
+             onClick={() => setPasswordState((prevState) => !prevState)}>
+             <i className='fa-solid fa-eye'></i>
+            </button>
+           </div>
+           <i>Please Reenter Your Password</i>
+           <div className='grid-2d'>
+            <input
+             style={{ width: "200px" }}
+             name='secondPassword'
+             value={pin.secondPassword}
+             onPaste={() => {
+              return false;
+             }}
+             onDrop={() => {
+              return false;
+             }}
+             autoComplete='off'
+             minLength={12}
+             required
+             type={secondPasswordState === true ? "password" : "text"}
+             onChange={onChangePin}
+            />
+
+            <button
+             style={{ height: "10px", width: "10px" }}
+             className='btn btn-sm'
+             onClick={() => setSecondPasswordState((prevState) => !prevState)}>
+             <i className='fa-solid fa-eye'></i>
+            </button>
+           </div>
+          </div>
+
+          <input
+           type='submit'
+           value='Create Secure Password'
+           className='btn btn-primary btn-block'
+          />
           <button
-           style={{ height: "10px", width: "10px" }}
-           className='btn btn-sm'
-           onClick={() => setPasswordState((prevState) => !prevState)}>
-           <i className='fa-solid fa-eye'></i>
+           className='btn btn-primary btn-block'
+           onClick={() => {
+            setPinState(false) && setRegisterState(false);
+           }}>
+           Start Over
           </button>
          </div>
-         <i>Please Reenter Your Password</i>
-         <div className='grid-2d'>
-          <input
-           style={{ width: "200px" }}
-           name='secondPassword'
-           value={pin.secondPassword}
-           onPaste={() => {
-            return false;
-           }}
-           onDrop={() => {
-            return false;
-           }}
-           autoComplete='off'
-           minLength={12}
-           required
-           type={secondPasswordState === true ? "password" : "text"}
-           onChange={onChangePin}
-          />
-
-          <button
-           style={{ height: "10px", width: "10px" }}
-           className='btn btn-sm'
-           onClick={() => setSecondPasswordState((prevState) => !prevState)}>
-           <i className='fa-solid fa-eye'></i>
-          </button>
-         </div>
-        </div>
-
-        <input
-         type='submit'
-         value='Create Secure Password'
-         className='btn btn-primary btn-block'
-        />
-        <button
-         className='btn btn-primary btn-block'
-         onClick={() => {
-          setPinState(false) && setRegisterState(false);
-         }}>
-         Start Over
-        </button>
-       </div>
-      </>
-     </form>
-    )}
+        </>
+       </form>
+      )}
+     </div>
+    </div>
    </div>
   </>
  );

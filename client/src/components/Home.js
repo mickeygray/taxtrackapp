@@ -1,33 +1,16 @@
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import AuthContext from "../context/auth/authContext";
-import ProfileContext from "../context/profile/profileContext";
+
 import MessageModal from "./MessageModal";
-import TaskModal from "./TaskModal";
+import messagesimg from "../images/messages.png";
 import Navbar from "./Navbar";
 import BalanceTransactions from "./BalanceTransactions";
+import ProfileInfo from "./ProfileInfo";
 
 const Home = () => {
- const { tasks, getTasks } = useContext(ProfileContext);
-
  const { profile, logout } = useContext(AuthContext);
  console.log(profile);
 
- const [style, setStyle] = useState({ backgroundColor: "black" });
- useEffect(() => {
-  const interval = setInterval(() => {
-   getTasks(profile);
-  }, 5000);
-
-  return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
- }, []);
-
- useEffect(() => {
-  if (tasks.length === 0) {
-   setStyle({ backgroundColor: "black" });
-  } else if (tasks.length > 0) {
-   setStyle({ backgroundColor: "yellow" });
-  }
- }, [tasks.length]);
  const [messageModal, toggleMessageModal] = useState(false);
  const [taskModal, toggleTaskModal] = useState(false);
 
@@ -60,11 +43,23 @@ const Home = () => {
  return (
   <div>
    <Navbar />
-   {taskModal === true && <TaskModal tasks={tasks} />}
    {messageModal === true ? (
     <MessageModal toggleModal={toggleModal} />
    ) : (
-    <BalanceTransactions toggleModal={toggleModal} />
+    <div className='profile-container'>
+     <div className='chart-container' style={{ width: "100vw" }}>
+      <BalanceTransactions />
+     </div>
+     <div className='container profile-info-container'>
+      <a onClick={toggleModal}>
+       <img
+        src={messagesimg}
+        style={{ borderRadius: "50%", height: "100px", width: "100px" }}
+       />
+      </a>
+      <ProfileInfo />
+     </div>
+    </div>
    )}
   </div>
  );

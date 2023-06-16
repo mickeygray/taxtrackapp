@@ -1,0 +1,15 @@
+TODO
+Resolve Login Token Passing Bug
+Test Logics API (needs logics id and canopy pairs I will organize everything i have and we can get the missing data (probably logics id for all the canopy packets i have))
+Filter TransArr to 90 Days before profile.addDate
+Create Chart Y value for x=0
+Determine if React-google-login is still valid
+Test the put requests for client info editing
+Refactor the code to turn repetitive jsx segements into components
+Remove Dead Functions
+Develop grid for chart and info overlay
+Test Message Css
+Determine what documents are on logics or figure out a system that allows the ea's to describe in a custom field the documents theyve completed the time frame they anticipate a response and creating segments below the chart for each of those documents with whatever else we can get from canopy on tax years in question plus the info in logics about the documents and the timeline for response.
+contact a figma designer and tell them to draw acorns app with pictures from my phone.
+deploy to amazon
+test on amazon

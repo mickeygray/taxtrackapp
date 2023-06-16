@@ -29,13 +29,26 @@ const MessageModal = ({ toggleModal }) => {
    <span style={{ float: "right" }}>
     <button onClick={toggleModal}>X</button>
    </span>
-   <div style={{ width: "500px" }} className='all-center'>
-    <div>
-     {messages.map((m) => (
-      <MessageItem message={m} key={m._id} />
+   <div style={{ width: "500px" }} className='all-center2'>
+    <div className='chat-container chat-messages'>
+     {messages.map((message, index) => (
+      <div
+       key={index}
+       className={`chat-bubble ${
+        message.name === profile.firstName ? "sender" : "receiver"
+       }`}>
+       {message.content}
+       <div className='from-date'>
+        <span className='from'>{message.name}</span> -{" "}
+        <span className='date'>
+         {new Date(message.date).toLocaleDateString()}
+        </span>
+       </div>
+      </div>
      ))}
     </div>
-    <div>
+
+    <div className='all-center'>
      <textarea
       className='p-1 m-1'
       value={text}

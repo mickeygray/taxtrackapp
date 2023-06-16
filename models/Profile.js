@@ -30,25 +30,16 @@ const profileSchema = new Schema({
  address: { type: String },
  accountTransactions: [
   {
-   code: { type: String },
-   description: { type: String },
-   amount: { type: Number },
-   date: { type: String },
-   period: { type: String },
+   x: { type: String },
+   y: { type: Number },
+   tooltip1: { type: String },
+   tooltip2: { type: String },
   },
  ],
  messages: [
   {
    name: { type: String },
    content: { type: String },
-   date: { type: String },
-  },
- ],
- tasks: [
-  {
-   type: { type: String },
-   priority: { type: String },
-   description: { type: String },
    date: { type: String },
   },
  ],

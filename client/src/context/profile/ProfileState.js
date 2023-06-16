@@ -39,11 +39,11 @@ const ProfileState = (props) => {
   message: null,
   milestones: [],
   messages: [],
-  task: null,
+
   filtered: null,
-  rules: null,
+
   range: null,
-  tasks: [],
+
   zipdata: null,
  };
 
@@ -124,22 +124,6 @@ const ProfileState = (props) => {
   dispatch({ type: FILTER_MESSAGES, payload: text });
  };
 
- const filterTasks = (text) => {
-  dispatch({ type: FILTER_TASKS, payload: text });
- };
-
- const getTasks = async (profile) => {
-  const config = {
-   headers: {
-    "Content-Type": "application/json",
-   },
-  };
-  const res = await axios.get(`/api/profiles/${profile._id}/tasks`, config);
-  dispatch({
-   type: GET_TASKS,
-   payload: res.data,
-  });
- };
  const getMilestones = async (profile) => {
   const config = {
    headers: {
@@ -255,7 +239,7 @@ const ProfileState = (props) => {
    update,
    config
   );
-
+  setProfile(res.data);
   dispatch({
    type: UPDATE_PROFILE,
    payload: res.data,
@@ -271,6 +255,10 @@ const ProfileState = (props) => {
 
  const clearClient = () => {
   dispatch({ type: CLEAR_CLIENT });
+ };
+
+ const clearProfileList = () => {
+  dispatch({ type: CLEAR_PROFILES });
  };
  const sendMessage = async (profile, messageBody) => {
   const config = {
@@ -292,31 +280,6 @@ const ProfileState = (props) => {
   getMessages(profile);
  };
 
- const setTask = async (profile, taskBody) => {
-  const config = {
-   headers: {
-    "Content-Type": "application/json",
-   },
-  };
-  const res = await axios.post(
-   `/api/profiles/${profile._id}/tasks`,
-   taskBody,
-   config
-  );
-
-  dispatch({
-   type: SET_TASK,
-   payload: res.data,
-  });
- };
-
- const rangeTasks = (taskRange) => {
-  dispatch({
-   type: RANGE_TASKS,
-   payload: taskRange,
-  });
- };
-
  const rangeMessages = (messageRange) => {
   dispatch({
    type: RANGE_MESSAGES,
@@ -335,15 +298,6 @@ const ProfileState = (props) => {
   getMessages(profile);
  };
 
- const clearTask = async (profile, _id) => {
-  const res = await axios.delete(`/api/profiles/${profile._id}/tasks/${_id}`);
-  dispatch({
-   type: CLEAR_TASK,
-   payload: res.data,
-  });
-  getTasks(profile);
- };
-
  const setProfile = (profile) => {
   dispatch({
    type: SET_PROFILE,
@@ -360,7 +314,6 @@ const ProfileState = (props) => {
  return (
   <ProfileContext.Provider
    value={{
-    putCanopy,
     addClient,
     setProfile,
     getProfiles,
@@ -368,36 +321,25 @@ const ProfileState = (props) => {
     clearClient,
     sendMessage,
     getMessages,
-    setTask,
-    getTasks,
     updateMessage,
-    getZip,
     filterMessages,
-    filterTasks,
-    rangeTasks,
-    clearTask,
     rangeMessages,
     deleteMessage,
     updateStatus,
     uploadFile,
-    putDocs,
     clearProfile,
     getMilestones,
-    postCalc,
     getRules,
     updateProfile,
     message: state.message,
     range: state.range,
     messages: state.messages,
-    task: state.task,
+
     newProfile: state.newProfile,
     filtered: state.filtered,
-    rules: state.rules,
-    tasks: state.tasks,
+
     profile: state.profile,
     profileList: state.profileList,
-    zipdata: state.zipdata,
-    milestones: state.milestones,
    }}>
    {props.children}
   </ProfileContext.Provider>
