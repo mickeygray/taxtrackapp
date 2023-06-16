@@ -65,6 +65,7 @@ const BalanceTransactions = ({ toggleModal }) => {
    yAlign: "top",
   };
  };
+
  const { profile, logout } = useContext(AuthContext);
  var thresholdValue = 0;
  var thresholdHighArray = new Array(profile.accountTransactions.length).fill(
@@ -77,9 +78,13 @@ const BalanceTransactions = ({ toggleModal }) => {
     label: "Current Balance",
     data: profile.accountTransactions,
     borderColor: "white",
-    pointRadius: 0.5,
+    radius: ".1",
     fill: false,
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "transparent",
+    borderWidth: 3,
+    pointRadius: 20,
+    radius: 20,
+    pointBorderColor: "transparent",
     lineTension: 0.4,
     tooltip: {
      callbacks: {
@@ -136,14 +141,18 @@ const BalanceTransactions = ({ toggleModal }) => {
    tooltip: {
     displayColors: false,
     titleFont: {
-     size: 15,
+     size: 20,
+     family: "arial",
+    },
+    bodyFont: {
+     size: 20,
      family: "arial",
     },
     position: "top",
     callbacks: {
      title: function (chart) {
       function addLineBreaks(text) {
-       const MAX_CHARACTERS = 50;
+       const MAX_CHARACTERS = 65;
        const words = text.split(" ");
        let currentLineLength = 0;
 

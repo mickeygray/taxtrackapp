@@ -2,7 +2,6 @@ import React, { useReducer, useEffect } from "react";
 import AuthContext from "./authContext";
 import axios from "axios";
 import authReducer from "./authReducer";
-import { encode as base64_encode } from "base-64";
 import setAuthToken from "../../utils/setAuthToken";
 import {
  PROFILE_LOADED,

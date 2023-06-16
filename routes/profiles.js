@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
  const logicsData = content.data ? JSON.parse(content.data) : null;
  const salt = await bcrypt.genSalt(10);
 
- const ssn = await bcrypt.hash("123-45-6789", salt);
+ const ssn = await bcrypt.hash("6789", salt);
 
  //logicsData.SSN.slice(-4)
 

@@ -4,7 +4,6 @@ const router = express.Router();
 const config = require("config");
 const Profile = require("../models/Profile");
 const Email = require("../models/Email");
-const base64 = require("base-64");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
@@ -12,7 +11,6 @@ const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
-const { AES, enc } = require("crypto-js");
 require("dotenv").config();
 //Create and Send Token
 
@@ -125,35 +123,6 @@ router.post("/forget", async (req, res) => {
   transporter.sendMail(mailer);
   res.json(token);
  }
-});
-router.get("/verified", async (req, res) => {
- var bytes = base64.decode(req.query.q.split().reverse().toString());
-
- const profile = await Profile.findOne({ email: req.body.email });
-
- const isMatch = await bcrypt.compare(bytes, profile.ssn);
-
- if (!isMatch) {
-  return res.status(400).json({ msg: "Invalid Credentials" });
- }
-
- const payload = {
-  profile: {
-   id: profile.id,
-  },
- };
-
- jwt.sign(
-  payload,
-  config.get("jwtSecret"),
-  {
-   expiresIn: 360000,
-  },
-  (err, token) => {
-   if (err) throw err;
-   res.json({ token });
-  }
- );
 });
 
 router.get("/", auth, async (req, res) => {

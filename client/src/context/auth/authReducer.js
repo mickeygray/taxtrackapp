@@ -27,6 +27,7 @@ export default (state, action) => {
    };
 
   case RESET_PASSWORD:
+   localStorage.removeItem("token");
    return {
     ...state,
     otp: action.payload,

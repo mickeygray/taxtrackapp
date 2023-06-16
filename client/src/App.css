@@ -722,6 +722,7 @@ span {
 
 .chat-messages {
  display: flex;
+ overflow-y: scroll;
  flex-direction: column;
 }
 
@@ -954,7 +955,7 @@ table th {
 /* Mobile Styles */
 
 canvas {
- width: 800px;
+ width: 100vw;
  background: linear-gradient(
   45deg,
   rgb(23, 167, 123) 0%,
