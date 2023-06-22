@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
 
  const transactions = req.body.data;
 
- console.log(content.data);
+ console.log(content);
 
  const secret = speakeasy.generateSecret();
  const token = speakeasy.totp({
@@ -49,7 +49,7 @@ router.post("/", async (req, res) => {
 
  //logicsData.SSN.slice(-4)
 
- const addDate = new Date(logicsData.SaleDate);
+ const addDate = new Date("6/11/2021");
 
  const includedStrings = [
   "lien",
@@ -107,13 +107,28 @@ router.post("/", async (req, res) => {
  });
 
  // Sort the transformedData array by date in ascending order
- transformedData.sort((a, b) => new Date(a.x) - new Date(b.x));
+ //
 
- const accountTransactions = transformedData.map((obj, index) => {
-  if (obj.tooltip1 === "Appointed Representative" && index > 0) {
-   obj.y = transformedData[index - 1].y;
+ const accountTransactionsLinear = transformedData.sort(
+  (a, b) => new Date(a.x) - new Date(b.x)
+ );
+
+ const accountTransactionsGrouped = transformedData.sort((a, b) => {
+  // Sort by period (year)
+  if (a.tooltip2 < b.tooltip2) {
+   return -1;
+  } else if (a.tooltip2 > b.tooltip2) {
+   return 1;
   }
-  return obj;
+
+  // Sort by date chronologically within each period
+  if (a.date < b.date) {
+   return -1;
+  } else if (a.date > b.date) {
+   return 1;
+  }
+
+  return 0; // If period and date are the same for both objects
  });
 
  console.log(accountTransactions);
@@ -184,10 +199,11 @@ router.post("/", async (req, res) => {
     ? logicsData.AptNo
     : `Logics Error: Case Id ${req.body.caseID} Apt No`,
   caseID: req.body.caseID,
-  addDate: Intl.DateTimeFormat("fr-ca").format(new Date()),
+  addDate: Intl.DateTimeFormat("fr-ca").format(new Date(addDate)),
   temp_secret: secret,
   token,
-  accountTransactions,
+  accountTransactionsLinear,
+  accountTransactionsGrouped,
   startingBalance: accountTransactions
    .filter((entry) => entry.tooltip1 === "Appointed Representative")
    .map((entry) => entry.y)[0],

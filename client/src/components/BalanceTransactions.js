@@ -14,7 +14,10 @@ import { Line } from "react-chartjs-2";
 
 //Chart.defaults.global.legend.display = false;
 const BalanceTransactions = ({ toggleModal }) => {
+ const [isDragging, setIsDragging] = useState(false);
  const chartRef = useRef(null);
+ let tooltipRef = useRef(null);
+
  ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -67,10 +70,98 @@ const BalanceTransactions = ({ toggleModal }) => {
  };
 
  const { profile, logout } = useContext(AuthContext);
+ function addLineBreaks(text) {
+  const MAX_CHARACTERS = 65;
+  const words = text.split(" ");
+  let currentLineLength = 0;
+
+  const result = words.reduce(
+   (lines, word) => {
+    if (currentLineLength + word.length <= MAX_CHARACTERS) {
+     lines[lines.length - 1] += " " + word;
+     currentLineLength += word.length + 1; // +1 for the space
+    } else {
+     lines.push(word);
+     currentLineLength = word.length;
+    }
+    return lines;
+   },
+   [""]
+  );
+
+  return result.join("\n");
+ }
+ const handleTooltip = (tooltipModel) => {
+  const tooltipEl = tooltipRef.current;
+  tooltipEl.style.display = "block";
+
+  const targetValue = parseFloat(tooltipModel.dataPoints[0].raw.y);
+  let startValue =
+   tooltipModel.dataPoints[0].dataIndex > 0
+    ? parseFloat(
+       tooltipModel.dataPoints[0].dataset.data[
+        tooltipModel.dataPoints[0].dataIndex - 1
+       ].y
+      )
+    : parseFloat(
+       tooltipModel.dataPoints[0].dataset.data[
+        tooltipModel.dataPoints[0].dataIndex + 1
+       ].y
+      );
+  startValue = isNaN(startValue) ? 0 : startValue;
+
+  const animateNumberTabulator = (timestamp) => {
+   const progress = Math.min((timestamp - startTime) / duration, 1);
+   const easingProgress = Math.sqrt(progress); // Adjust the easing function as needed
+   const currentValue = Math.floor(
+    startValue + (targetValue - startValue) * easingProgress
+   );
+   tooltipEl.innerHTML = `<div style="margin-left: 100px;">
+      <h2>Current Balance: $ ${parseFloat(currentValue).toLocaleString(
+       "en-US",
+       { style: "currency", currency: "USD" }
+      )}</h2>
+      <h3><i class="fas fa-question-circle"></i> ${
+       tooltipModel.dataPoints[0].raw.tooltip1
+      } for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
+      <h3><i class="fas fa-calendar-check"></i> ${
+       tooltipModel.dataPoints[0].raw.x
+      }</h3>
+    </div>`;
+
+   if (progress < 1) {
+    requestAnimationFrame(animateNumberTabulator);
+   } else {
+    tooltipEl.innerHTML = `<div style="margin-left: 100px;">
+        <h2>Current Balance: $ ${parseFloat(targetValue).toLocaleString(
+         "en-US",
+         { style: "currency", currency: "USD" }
+        )}</h2>
+        <h3><i class="fas fa-question-circle"></i> ${
+         tooltipModel.dataPoints[0].raw.tooltip1
+        } for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
+        <h3><i class="fas fa-calendar-check"></i> ${
+         tooltipModel.dataPoints[0].raw.x
+        }</h3>
+      </div>`;
+   }
+  };
+
+  const startTime = performance.now();
+  const duration = 1000; // Animation duration in milliseconds (adjust as needed)
+
+  requestAnimationFrame(animateNumberTabulator);
+ };
+
  var thresholdValue = 0;
  var thresholdHighArray = new Array(profile.accountTransactions.length).fill(
   thresholdValue
  );
+
+ useEffect(() => {
+  tooltipRef.current = document.getElementById("custom-tooltip");
+ }, []);
+
  const data = {
   labels: profile.accountTransactions.map((t) => t.x),
   datasets: [
@@ -82,8 +173,8 @@ const BalanceTransactions = ({ toggleModal }) => {
     fill: false,
     backgroundColor: "transparent",
     borderWidth: 3,
-    pointRadius: 20,
-    radius: 20,
+    pointRadius: 80,
+    radius: 80,
     pointBorderColor: "transparent",
     lineTension: 0.4,
     tooltip: {
@@ -139,7 +230,15 @@ const BalanceTransactions = ({ toggleModal }) => {
     display: false,
    },
    tooltip: {
+    enabled: false,
+    external: (context) => {
+     handleTooltip(context.tooltip);
+    },
+   },
+   /*
+   tooltip: {
     displayColors: false,
+    mode: "x",
     titleFont: {
      size: 20,
      family: "arial",
@@ -198,12 +297,19 @@ const BalanceTransactions = ({ toggleModal }) => {
       return str;
      },
     },
+    
     backgroundColor: "transparent",
-   },
+   },*/
   },
  };
 
- return <Line ref={chartRef} data={data} options={options} />;
+ console.log(chartRef.current);
+ return (
+  <div>
+   <div id='custom-tooltip' className='custom-tooltip'></div>
+   <Line data={data} options={options} ref={chartRef} />
+  </div>
+ );
 };
 
 export default BalanceTransactions;

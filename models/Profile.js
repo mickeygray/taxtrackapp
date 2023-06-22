@@ -28,7 +28,15 @@ const profileSchema = new Schema({
  dob: { type: String },
  ssn: { type: String },
  address: { type: String },
- accountTransactions: [
+ accountTransactionsLinear: [
+  {
+   x: { type: String },
+   y: { type: Number },
+   tooltip1: { type: String },
+   tooltip2: { type: String },
+  },
+ ],
+ accountTransactionsGrouped: [
   {
    x: { type: String },
    y: { type: Number },
