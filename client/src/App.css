@@ -700,6 +700,7 @@ label {
 span {
  margin-left: 5px;
 }
+
 .chat-container {
  display: flex;
  flex-direction: column;
@@ -970,7 +971,6 @@ canvas {
 
 .chart-container {
  position: relative;
- overflow: visible; /* Ensures the tooltip area is visible */
 }
 
 @property --num {
@@ -988,6 +988,95 @@ canvas {
  }
 }
 
+.flip-digit {
+ display: inline-block;
+ margin: 0; /* Remove any default margin */
+ padding: 0; /* Remove any default padding */
+ font-family: monospace;
+ animation-name: flip;
+ animation-duration: 5s;
+ animation-fill-mode: both;
+ perspective: 1000px;
+ animation-timing-function: ease-in-out;
+}
+.currency-display {
+ margin-left: -4px; /* Remove any default margin */
+ padding: 0; /* Remove any default padding */
+ display: inline;
+ white-space: nowrap;
+}
+@keyframes roll-down {
+ 0%,
+ 25%,
+ 75%,
+ 100% {
+  transform: translateY(-100%);
+ }
+ 12.5%,
+ 62.5% {
+  transform: translateY(20%);
+ }
+}
+
+@keyframes roll-up {
+ 0%,
+ 25%,
+ 75%,
+ 100% {
+  transform: translateY(0);
+ }
+ 12.5%,
+ 62.5% {
+  transform: translateY(-20%);
+ }
+}
+
+.roll-down {
+ display: inline-block;
+ animation-duration: 1s; /* Increase the animation duration */
+ animation-fill-mode: both;
+ animation-name: roll-down;
+ animation-timing-function: linear;
+}
+
+.roll-up {
+ display: inline-block;
+ animation-duration: 1s; /* Increase the animation duration */
+ animation-fill-mode: both;
+ animation-name: roll-up;
+ animation-timing-function: linear;
+}
+.currency-label {
+ display: inline-block;
+ margin-right: 5px; /* Adjust the margin as needed */
+}
+
+.currency-value {
+ display: inline-block;
+ margin-left: -10px; /* Adjust the negative margin as needed */
+}
+@keyframes flip {
+ 0% {
+  transform-style: preserve-3d;
+  transform: rotateX(0);
+ }
+ 2% {
+  transform-style: preserve-3d;
+  transform: rotateX(-180deg);
+ }
+ 98% {
+  transform-style: preserve-3d;
+  transform: rotateX(-180deg);
+ }
+ 100% {
+  transform-style: preserve-3d;
+  transform: rotateX(0);
+ }
+}
+
+.tooltip-content {
+ margin-top: 0; /* Remove top margin to align with h2 */
+}
 .custom-tooltip {
  background: var(--primary-color);
 

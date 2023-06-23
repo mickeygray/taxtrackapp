@@ -12,9 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-//Chart.defaults.global.legend.display = false;
 const BalanceTransactions = ({ toggleModal }) => {
- const [isDragging, setIsDragging] = useState(false);
  const chartRef = useRef(null);
  let tooltipRef = useRef(null);
 
@@ -25,77 +23,58 @@ const BalanceTransactions = ({ toggleModal }) => {
   LineElement,
   Title,
   Tooltip,
-  Legend,
-  {
-   id: "uniqueid5",
-
-   afterDraw: function (chart, easing) {
-    if (chart.tooltip._active && chart.tooltip._active.length) {
-     const activePoint = chart.tooltip._active[0];
-     const ctx = chart.ctx;
-     const x = activePoint.element.x;
-     const topY = chart.scales.y.top;
-     const bottomY = chart.scales.y.bottom;
-     ctx.save();
-     ctx.setLineDash([3, 3]);
-     ctx.beginPath();
-     ctx.moveTo(x, topY);
-     ctx.lineTo(x, bottomY);
-     ctx.lineWidth = 2;
-     ctx.strokeStyle = "#333";
-     ctx.stroke();
-     ctx.restore();
-    }
-   },
-  }
+  Legend
  );
 
- // Create a custom tooltip positioner to put at the bottom of the chart area
- Tooltip.positioners.top = function (items) {
-  const pos = Tooltip.positioners.average(items);
+ const { profile } = useContext(AuthContext);
 
-  // Happens when nothing is found
-  if (pos === false) {
-   return false;
-  }
+ const plugin = {
+  id: "corsair",
+  defaults: {
+   width: 1,
+   color: "#FF4949",
+   dash: [3, 3],
+  },
+  afterInit: (chart, args, opts) => {
+   chart.corsair = {
+    x: 0,
+    y: 0,
+   };
+  },
+  afterEvent: (chart, args) => {
+   const { inChartArea } = args;
+   const { type, x, y } = args.event;
 
-  const chart = this.chart;
+   chart.corsair = { x, y, draw: inChartArea };
+   chart.draw();
+  },
+  beforeDatasetsDraw: (chart, args, opts) => {
+   const { ctx } = chart;
+   const { top, bottom, left, right } = chart.chartArea;
+   const { x, y, draw } = chart.corsair;
+   if (!draw) return;
 
-  return {
-   x: chart.chartArea.right,
-   y: chart.chartArea.top,
-   xAlign: "right",
-   yAlign: "top",
-  };
+   ctx.save();
+
+   ctx.beginPath();
+   ctx.lineWidth = opts.width;
+   ctx.strokeStyle = opts.color;
+   ctx.setLineDash(opts.dash);
+   ctx.moveTo(x, bottom);
+   ctx.lineTo(x, top);
+   ctx.stroke();
+
+   ctx.restore();
+  },
  };
 
- const { profile, logout } = useContext(AuthContext);
- function addLineBreaks(text) {
-  const MAX_CHARACTERS = 65;
-  const words = text.split(" ");
-  let currentLineLength = 0;
-
-  const result = words.reduce(
-   (lines, word) => {
-    if (currentLineLength + word.length <= MAX_CHARACTERS) {
-     lines[lines.length - 1] += " " + word;
-     currentLineLength += word.length + 1; // +1 for the space
-    } else {
-     lines.push(word);
-     currentLineLength = word.length;
-    }
-    return lines;
-   },
-   [""]
-  );
-
-  return result.join("\n");
- }
  const handleTooltip = (tooltipModel) => {
   const tooltipEl = tooltipRef.current;
   tooltipEl.style.display = "block";
 
   const targetValue = parseFloat(tooltipModel.dataPoints[0].raw.y);
+
+  console.log(tooltipModel);
   let startValue =
    tooltipModel.dataPoints[0].dataIndex > 0
     ? parseFloat(
@@ -110,47 +89,63 @@ const BalanceTransactions = ({ toggleModal }) => {
       );
   startValue = isNaN(startValue) ? 0 : startValue;
 
-  const animateNumberTabulator = (timestamp) => {
+  const formatCurrency = (value) => {
+   return value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+   });
+  };
+  const animateNumberTabulator = (timestamp, index) => {
    const progress = Math.min((timestamp - startTime) / duration, 1);
-   const easingProgress = Math.sqrt(progress); // Adjust the easing function as needed
-   const currentValue = Math.floor(
-    startValue + (targetValue - startValue) * easingProgress
-   );
+   const currentValue = startValue + (targetValue - startValue) * progress;
+
+   const wholePart = Math.floor(currentValue);
+   const decimalPart = (currentValue % 1).toFixed(2).substring(1);
+
+   const wholeDigits = formatCurrency(wholePart)
+    .replace(/[^0-9.-]+/g, "")
+    .split("")
+    .join("");
+
+   const animatedWholeDigits = wholeDigits !== "" ? wholeDigits : "0";
+
+   const animatedDecimalPart = `<span class="roll-down">${decimalPart}</span>`;
+   const wholeDigitsOnly = animatedWholeDigits.replace(/\.00$/, ""); // Remove non-digit characters
+   const decimalDigitsOnly = animatedDecimalPart.replace(/\D/g, ""); //
+   const animatedValue = parseFloat(
+    `${wholeDigitsOnly}.${decimalDigitsOnly}`
+   ).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+   });
+
    tooltipEl.innerHTML = `<div style="margin-left: 100px;">
-      <h2>Current Balance: $ ${parseFloat(currentValue).toLocaleString(
-       "en-US",
-       { style: "currency", currency: "USD" }
-      )}</h2>
-      <h3><i class="fas fa-question-circle"></i> ${
-       tooltipModel.dataPoints[0].raw.tooltip1
-      } for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
-      <h3><i class="fas fa-calendar-check"></i> ${
-       tooltipModel.dataPoints[0].raw.x
-      }</h3>
-    </div>`;
+        <h2>Current Balance: ${animatedValue}</h2>
+        <h3><i class="fas fa-question-circle"></i> ${tooltipModel.dataPoints[0].raw.tooltip1} for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
+        <h4><i class="fas fa-calendar-check"></i> ${tooltipModel.dataPoints[0].raw.x}</h4>
+      </div>`;
 
    if (progress < 1) {
-    requestAnimationFrame(animateNumberTabulator);
+    requestAnimationFrame((timestamp) =>
+     animateNumberTabulator(timestamp, index)
+    );
    } else {
     tooltipEl.innerHTML = `<div style="margin-left: 100px;">
-        <h2>Current Balance: $ ${parseFloat(targetValue).toLocaleString(
-         "en-US",
-         { style: "currency", currency: "USD" }
-        )}</h2>
-        <h3><i class="fas fa-question-circle"></i> ${
-         tooltipModel.dataPoints[0].raw.tooltip1
-        } for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
-        <h3><i class="fas fa-calendar-check"></i> ${
-         tooltipModel.dataPoints[0].raw.x
-        }</h3>
-      </div>`;
+          <h2>Current Balance: ${formatCurrency(targetValue)}</h2>
+          <h3><i class="fas fa-question-circle"></i> ${
+           tooltipModel.dataPoints[0].raw.tooltip1
+          } for ${tooltipModel.dataPoints[0].raw.tooltip2}</h3>
+          <h4><i class="fas fa-calendar-check"></i> ${
+           tooltipModel.dataPoints[0].raw.x
+          }</h4>
+        </div>`;
    }
   };
 
   const startTime = performance.now();
-  const duration = 1000; // Animation duration in milliseconds (adjust as needed)
+  const duration = 3000; // Animation duration in milliseconds
 
-  requestAnimationFrame(animateNumberTabulator);
+  requestAnimationFrame((timestamp) => animateNumberTabulator(timestamp, 0));
  };
 
  var thresholdValue = 0;
@@ -169,12 +164,11 @@ const BalanceTransactions = ({ toggleModal }) => {
     label: "Current Balance",
     data: profile.accountTransactions,
     borderColor: "white",
-    radius: ".1",
     fill: false,
     backgroundColor: "transparent",
     borderWidth: 3,
-    pointRadius: 80,
-    radius: 80,
+    pointRadius: 20,
+    radius: 20,
     pointBorderColor: "transparent",
     lineTension: 0.4,
     tooltip: {
@@ -186,6 +180,8 @@ const BalanceTransactions = ({ toggleModal }) => {
    {
     data: thresholdHighArray,
     borderColor: "red",
+    backgroundColor: "transparent",
+    pointBorderColor: "transparent",
     radius: 0,
     borderWidth: 1,
     borderDash: [3, 3], // Specifies the pattern of the dashed line
@@ -194,18 +190,6 @@ const BalanceTransactions = ({ toggleModal }) => {
   ],
  };
 
- var line = [
-  {
-   type: "line",
-   mode: "vertical",
-
-   scaleID: "y-axis-0",
-   value: -20000,
-
-   borderColor: "#333",
-   borderWidth: 1,
-  },
- ];
  const options = {
   responsive: true,
   layout: {
@@ -222,12 +206,12 @@ const BalanceTransactions = ({ toggleModal }) => {
     display: false,
    },
   },
-  annotation: {
-   annotations: line,
-  },
   plugins: {
    legend: {
     display: false,
+   },
+   corsair: {
+    color: "black",
    },
    tooltip: {
     enabled: false,
@@ -235,79 +219,86 @@ const BalanceTransactions = ({ toggleModal }) => {
      handleTooltip(context.tooltip);
     },
    },
-   /*
-   tooltip: {
-    displayColors: false,
-    mode: "x",
-    titleFont: {
-     size: 20,
-     family: "arial",
-    },
-    bodyFont: {
-     size: 20,
-     family: "arial",
-    },
-    position: "top",
-    callbacks: {
-     title: function (chart) {
-      function addLineBreaks(text) {
-       const MAX_CHARACTERS = 65;
-       const words = text.split(" ");
-       let currentLineLength = 0;
+  },
+  interaction: {
+   mode: "index",
+   intersect: false,
+  },
+  elements: {
+   line: {
+    borderWidth: 1,
+    borderColor: "#777",
+    backgroundColor: "rgba(0,0,0,0.4)",
+   },
+  },
+  onAfterDraw: function (chart) {
+   const ctx = chart.ctx;
+   const xScale = chart.scales.x;
+   const yScale = chart.scales.y;
+   const dataset = chart.data.datasets[0];
+   const meta = chart.getDatasetMeta(0);
 
-       const result = words.reduce(
-        (lines, word) => {
-         if (currentLineLength + word.length <= MAX_CHARACTERS) {
-          lines[lines.length - 1] += " " + word;
-          currentLineLength += word.length + 1; // +1 for the space
-         } else {
-          lines.push(word);
-          currentLineLength = word.length;
-         }
-         return lines;
-        },
-        [""]
-       );
+   ctx.save();
+   ctx.setLineDash([3, 3]);
+   ctx.lineWidth = 2;
+   ctx.strokeStyle = "#333";
 
-       return result.join("\n");
-      }
+   meta.data.forEach((element, index) => {
+    if (index > 0) {
+     const startX = xScale.getPixelForValue(dataset.data[index - 1].x);
+     const startY = yScale.getPixelForValue(dataset.data[index - 1].y);
+     const endX = xScale.getPixelForValue(dataset.data[index].x);
 
-      let title = `${addLineBreaks(
-       profile.accountTransactions[chart[0].dataIndex].tooltip1
-      )} for ${profile.accountTransactions[chart[0].dataIndex].tooltip2}`;
-      return title;
-     },
-     afterTitle: function (chart) {
-      const formatter = new Intl.NumberFormat("en-US", {
-       style: "currency",
-       currency: "USD",
+     ctx.beginPath();
+     ctx.moveTo(startX, startY);
+     ctx.lineTo(endX, startY);
+     ctx.stroke();
+    }
+   });
 
-       // These options are needed to round to whole numbers if that's what you want.
-       //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-       //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-      });
-
-      let amount = profile.accountTransactions[chart[0].dataIndex].y;
-      let date = profile.accountTransactions[chart[0].dataIndex].x;
-
-      let str = ` ${formatter.format(
-       profile.startingBalance - amount
-      )} savings as of ${date}`;
-
-      return str;
-     },
-    },
-    
-    backgroundColor: "transparent",
-   },*/
+   ctx.restore();
   },
  };
 
- console.log(chartRef.current);
+ const latestTransaction = profile.accountTransactions.reduce(
+  (latest, transaction) => {
+   const transactionDate = Date.parse(transaction.x);
+
+   if (!latest || transactionDate > latest.date) {
+    return {
+     ...transaction,
+     date: transactionDate,
+    };
+   }
+
+   return latest;
+  },
+  null
+ );
+
  return (
   <div>
+   {tooltipRef.current === null && (
+    <div className='custom-tooltip'>
+     <div style={{ marginLeft: "100px" }}>
+      <h2>
+       Current Balance: $
+       {profile.currentBalance
+        ? profile.currentBalance.toLocaleString()
+        : profile.startingBalance.toLocaleString()}
+      </h2>
+      <h3>
+       <i className='fas fa-question-circle'></i> {latestTransaction.tooltip1}{" "}
+       for {latestTransaction.tooltip2}
+      </h3>
+      <h4>
+       <i className='fas fa-calendar-check'></i> {latestTransaction.x}
+      </h4>
+     </div>
+    </div>
+   )}
    <div id='custom-tooltip' className='custom-tooltip'></div>
-   <Line data={data} options={options} ref={chartRef} />
+   <Line data={data} options={options} plugins={[plugin]} ref={chartRef} />
   </div>
  );
 };

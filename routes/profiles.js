@@ -99,21 +99,10 @@ router.post("/", async (req, res) => {
   });
  });
 
- transformedData.push({
-  x: addDate.toLocaleDateString(),
-  tooltip1: "Appointed Representative",
-  tooltip2: "All Tax Years",
-  y: 0,
- });
-
  // Sort the transformedData array by date in ascending order
  //
 
- const accountTransactionsLinear = transformedData.sort(
-  (a, b) => new Date(a.x) - new Date(b.x)
- );
-
- const accountTransactionsGrouped = transformedData.sort((a, b) => {
+ const accountTransactions = transformedData.sort((a, b) => {
   // Sort by period (year)
   if (a.tooltip2 < b.tooltip2) {
    return -1;
@@ -130,8 +119,6 @@ router.post("/", async (req, res) => {
 
   return 0; // If period and date are the same for both objects
  });
-
- console.log(accountTransactions);
 
  function capitalizeSentence(sentence) {
   return sentence
@@ -202,11 +189,10 @@ router.post("/", async (req, res) => {
   addDate: Intl.DateTimeFormat("fr-ca").format(new Date(addDate)),
   temp_secret: secret,
   token,
-  accountTransactionsLinear,
-  accountTransactionsGrouped,
-  startingBalance: accountTransactions
-   .filter((entry) => entry.tooltip1 === "Appointed Representative")
-   .map((entry) => entry.y)[0],
+  accountTransactions,
+  startingBalance: req.body.data
+   .map((entry) => entry.amount)
+   .reduce((a, b) => a + b),
  });
 
  const profile = await newProfile.save();
