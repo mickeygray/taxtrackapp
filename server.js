@@ -35,13 +35,11 @@ app.use(express.static(__dirname + "/public"));
 app.use("/api/profiles", require("./routes/profiles"));
 app.use("/api/auth", require("./routes/auth"));
 
-/*
 app.use(express.static("client/build"));
 app.get("*", (req, res) =>
  res.sendFile(path.resolve("client", "build", "index.html"))
 );
 
-*/
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`server started on port ${PORT}`));
