@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import AuthContext from "../../context/auth/authContext";
-import Odometer from "react-odometerjs";
 import {
  Chart as ChartJS,
  CategoryScale,
