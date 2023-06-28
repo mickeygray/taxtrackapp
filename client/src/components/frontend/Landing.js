@@ -5,7 +5,7 @@ import group2 from "../../images/group-2.png";
 import group3 from "../../images/group-3.png";
 import group4 from "../../images/group-4.png";
 import group5 from "../../images/group-5.png";
-import vector from "../../images/vector.svg";
+import vector from "../../images/vector.png";
 import vector1 from "../../images/vector-1.svg";
 import vector2 from "../../images/vector-2.png";
 import vector3 from "../../images/vector-3.png";
