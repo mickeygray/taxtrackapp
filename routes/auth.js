@@ -4,6 +4,7 @@ const router = express.Router();
 const config = require("config");
 const Profile = require("../models/Profile");
 const Email = require("../models/Email");
+const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
@@ -11,13 +12,14 @@ const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
+const { OAuth2Client } = require("google-auth-library");
+const axios = require("axios");
 require("dotenv").config();
 //Create and Send Token
 
 router.put("/pin", async (req, res) => {
  const { email, pinString } = req.body;
 
- console.log(req.body);
  try {
   let profile = await Profile.findOne({ email: email });
 
@@ -34,7 +36,6 @@ router.put("/pin", async (req, res) => {
    }
   );
 
-  console.log(profile);
   const payload = {
    profile: {
     id: profile.id,
@@ -58,6 +59,38 @@ router.put("/pin", async (req, res) => {
  }
 });
 
+router.post("/authenticate", async (req, res) => {
+ const { access_token } = req.body;
+
+ const userInfo = await axios
+  .get("https://www.googleapis.com/oauth2/v3/userinfo", {
+   headers: { Authorization: `Bearer ${access_token}` },
+  })
+  .then((res) => res.data);
+
+ const user = User.findOne({ email: userInfo.email });
+
+ if (!user) {
+  return res.status(404).json({ msg: "Not Authorized For Tax Track Usage" });
+ }
+
+ // Create and sign a JSON Web Token (JWT)
+ const payload = {
+  userInfo,
+ };
+ jwt.sign(
+  payload,
+  config.get("jwtSecret"),
+  {
+   expiresIn: 360000,
+  },
+  (err, token) => {
+   if (err) throw err;
+   res.json({ token });
+  }
+ );
+});
+
 router.post("/verify", async (req, res) => {
  console.log(req.body);
  const profile = await Profile.findOne({ token: req.body.code });
@@ -65,7 +98,7 @@ router.post("/verify", async (req, res) => {
  const isMatch = await bcrypt.compare(req.body.ssn, profile.ssn);
 
  if (!isMatch) {
-  return res.status(400).json({ msg: "Invalid Credentials" });
+  return res.status(400).json({ msg: "Invalid Registration Credentials" });
  }
 
  res.json(profile.email);
@@ -133,7 +166,18 @@ router.get("/", auth, async (req, res) => {
   res.json(profile);
  } catch (err) {
   console.error(err.message);
-  res.status(500).send("Server Error");
+  res.status(500).json({ msg: "Server Error" });
+ }
+});
+
+router.get("/env", async (req, res) => {
+ try {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+
+  res.json(clientId);
+ } catch (err) {
+  console.error(err.message);
+  res.status(500).json({ msg: "Server Error" });
  }
 });
 
@@ -142,9 +186,7 @@ router.post("/login", async (req, res) => {
 
  const profile = await Profile.findOne({ email: req.body.email });
 
- const isMatch = await bcrypt.compare(req.body.pw, profile.pin);
-
- console.log(isMatch);
+ const isMatch = await bcrypt.compare(req.body.password, profile.pin);
 
  if (!isMatch) {
   return res.status(400).json({ msg: "Invalid Credentials" });

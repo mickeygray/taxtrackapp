@@ -15,7 +15,7 @@ module.exports = function (req, res, next) {
 
   req.profile = decoded.profile;
 
-  console.log(decoded.profile);
+  req.user = decoded.user;
 
   next();
  } catch (err) {

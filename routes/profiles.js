@@ -3,14 +3,16 @@ const router = express.Router();
 var fs = require("fs");
 const Profile = require("../models/Profile");
 const Email = require("../models/Email");
+const User = require("../models/User");
 const nodemailer = require("nodemailer");
 const hbs = require("nodemailer-express-handlebars");
 const bcrypt = require("bcryptjs");
 var path = require("path");
 const fetch = require("node-fetch");
 const speakeasy = require("speakeasy");
+const auth = require("../middleware/auth");
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
  const regex = new RegExp(`${req.query.q}`, "gi");
 
  const profiles = await Profile.find({ fullName: regex });
@@ -18,7 +20,7 @@ router.get("/", async (req, res) => {
  res.json(profiles);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
  const rawResponse = await fetch(
   `https://andersontax.irslogics.com/publicapi/2020-02-22/cases/casefile?CaseID=${req.body.caseID}`,
   {
@@ -190,8 +192,8 @@ router.post("/", async (req, res) => {
   temp_secret: secret,
   token,
   accountTransactions,
-  startingBalance: req.body.data
-   .map((entry) => entry.amount)
+  startingBalance: accountTransactions
+   .map((entry) => entry.y)
    .reduce((a, b) => a + b),
  });
 
@@ -241,7 +243,7 @@ router.post("/", async (req, res) => {
 });
 
 //delete a message from the text thread
-router.delete("/:id/messages/:id", async (req, res) => {
+router.delete("/:id/messages/:id", auth, async (req, res) => {
  await Profile.findOneAndUpdate(
   { "messages._id": req.params.id },
   { $pull: { messages: { _id: req.params.id } } },
@@ -251,7 +253,7 @@ router.delete("/:id/messages/:id", async (req, res) => {
 });
 
 //update a message in the text thread
-router.put("/:id/messages/:id", async (req, res) => {
+router.put("/:id/messages/:id", auth, async (req, res) => {
  const profile = await Profile.findOneAndUpdate(
   { "messages._id": req.params.id },
 
@@ -266,7 +268,7 @@ router.put("/:id/messages/:id", async (req, res) => {
  res.status(200).json(profile);
 });
 //Update payment status
-router.put("/:id/status", async (req, res) => {
+router.put("/:id/status", auth, async (req, res) => {
  const profile = await Profile.findByIdAndUpdate(
   req.params.id,
 
@@ -279,7 +281,7 @@ router.put("/:id/status", async (req, res) => {
  res.json(profile);
 });
 //Update Client Info
-router.put("/:id/info", async (req, res) => {
+router.put("/:id/info", auth, async (req, res) => {
  const { fullName, ssn, phone, email } = req.body;
 
  const leadFields = {};
@@ -306,7 +308,7 @@ router.put("/:id/info", async (req, res) => {
 });
 
 //get all messages associated with a profile
-router.get("/:id/messages", async (req, res) => {
+router.get("/:id/messages", auth, async (req, res) => {
  const profile = await Profile.findById(req.params.id);
 
  const { messages } = profile;
@@ -315,7 +317,7 @@ router.get("/:id/messages", async (req, res) => {
 });
 
 //Add a new Message
-router.post("/:id/messages", async (req, res) => {
+router.post("/:id/messages", auth, async (req, res) => {
  const message = { ...req.body, date: new Date() };
  const profile = await Profile.findByIdAndUpdate(req.params.id, {
   "$push": {
@@ -328,7 +330,7 @@ router.post("/:id/messages", async (req, res) => {
 
 //Get all profiles (needs search function)
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
  const transactions = req.body.data;
 
  const balance = transactions
