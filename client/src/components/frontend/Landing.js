@@ -29,6 +29,7 @@ import instagram from "../../images/link-instagram-png.png";
 import facebook from "../../images/link-facebook-png.png";
 import twitter from "../../images/link-twitter-png.png";
 import buttonopen from "../../images/button-open-accessibility-menu-equalweb-ada-icon-green-svg.svg";
+import SettlementCalculator from "./SettlementCalculator";
 const Landing = () => {
  return (
   <div className='home-page'>
@@ -56,158 +57,8 @@ const Landing = () => {
       </div>
      </div>
     </div>
-    <div className='div-homepage'>
-     <div className='frame-5'>
-      <div className='text-wrapper-9'>CALCULATE YOUR ESTIMATE</div>
-      <div className='heading-compound'>See Your Potenial</div>
-      <p className='text-wrapper-10'>
-       Use the Acorns compound interest calculator to see how your money could
-       potentially grow over time with the power of compounding.
-      </p>
-     </div>
-     <div className='frame-6'>
-      <div className='frame-7'>
-       <div className='label-potential'>POTENTIAL FUTURE BALANCE:</div>
-       <div className='div-future-balance'>
-        <div className='text-wrapper-11'>$40,507</div>
-       </div>
-      </div>
-      <div className='div-chart-container'>
-       <div className='overlap'>
-        <img className='vector' alt='Vector' src={vector4} />
-        <img className='img' alt='Vector' src={vector3} />
-       </div>
-       <div className='overlap-group-2'>
-        <img className='group-2' alt='Group' src={group4} />
-        <img className='group-3' alt='Group' src={group3} />
-        <img className='group-4' alt='Group' src={group2} />
-        <img className='group-5' alt='Group' src={group1} />
-        <img className='group-6' alt='Group' src={group} />
-       </div>
-       <div className='overlap-2'>
-        <div className='text' />
-        <div className='text-2' />
-       </div>
-       <div className='frame-8'>
-        <div className='text-wrapper-12'>2023</div>
-        <div className='text-wrapper-13'>2024</div>
-        <div className='text-wrapper-14'>2025</div>
-        <div className='text-wrapper-15'>2026</div>
-        <div className='text-wrapper-16'>2027</div>
-        <div className='text-wrapper-17'>2028</div>
-        <div className='text-wrapper-18'>2029</div>
-        <div className='text-wrapper-19'>2030</div>
-        <div className='text-wrapper-20'>2031</div>
-        <div className='text-wrapper-21'>2032</div>
-        <div className='text-wrapper-22'>2033</div>
-        <div className='text-wrapper-23'>2034</div>
-        <div className='text-wrapper-24'>2035</div>
-        <div className='text-wrapper-25'>2036</div>
-        <div className='text-wrapper-26'>2037</div>
-        <div className='text-wrapper-27'>2038</div>
-        <div className='text-wrapper-28'>2039</div>
-        <div className='text-wrapper-29'>2040</div>
-        <div className='text-wrapper-30'>2041</div>
-        <div className='text-wrapper-31'>2042</div>
-       </div>
-       <div className='frame-9'>
-        <div className='text-wrapper-32'>$48,000</div>
-        <div className='text-wrapper-33'>$36,000</div>
-        <div className='text-wrapper-34'>$24,000</div>
-        <div className='text-wrapper-35'>$24,000</div>
-        <div className='text-wrapper-36'>$12,000</div>
-        <div className='text-wrapper-37'>$12,000</div>
-        <div className='text-wrapper-38'>$0</div>
-       </div>
-       <div className='group-7'>
-        <img className='vector-2' alt='Vector' src={vector2} />
-        <div className='group-wrapper'>
-         <div className='group-8'>
-          <div className='group-9'>
-           <div className='text-wrapper-39'>Investment</div>
-           <img className='vector-3' alt='Vector' src={vector1} />
-          </div>
-          <div className='frame-wrapper'>
-           <div className='frame-10'>
-            <img className='vector-4' alt='Vector' src={vector} />
-            <div className='text-wrapper-40'>Return</div>
-           </div>
-          </div>
-         </div>
-        </div>
-       </div>
-      </div>
-     </div>
-     <div className='frame-11'>
-      <div className='frame-12'>
-       <div className='text-wrapper-41'>Initial deposit</div>
-       <div className='overlap-group-wrapper'>
-        <div className='overlap-group-3'>
-         <div className='text-wrapper-42'>$4100</div>
-        </div>
-       </div>
-      </div>
-      <div className='frame-13'>
-       <div className='text-wrapper-43'>Contributions</div>
-       <div className='group-10'>
-        <div className='overlap-group-4'>
-         <div className='text-wrapper-44'>$20</div>
-        </div>
-       </div>
-      </div>
-      <div className='frame-14'>
-       <div className='frame-15'>
-        <div className='div-radio-option'>
-         <div className='input' />
-         <div className='label-weekly'>Weekly</div>
-        </div>
-        <div className='div-radio-option-2'>
-         <div className='input-2' />
-         <div className='label-daily'>Daily</div>
-        </div>
-       </div>
-       <div className='frame-16'>
-        <div className='div-radio-option-3'>
-         <div className='input-3' />
-         <div className='label-annual'>Annual</div>
-        </div>
-        <div className='div-radio-option-4'>
-         <div className='input-4' />
-         <div className='label-monthly'>Monthly</div>
-        </div>
-       </div>
-      </div>
-      <div className='frame-17'>
-       <div className='frame-18'>
-        <div className='text-wrapper-45'>Years to grow</div>
-        <div className='frame-19'>
-         <div className='input-5'>
-          <div className='text-wrapper-46'>20</div>
-         </div>
-         <div className='text-wrapper-47'> years</div>
-        </div>
-       </div>
-       <div className='div-years-to-grow'>
-        <div className='overlap-group-5'>
-         <div className='div-slider-progress-wrapper'>
-          <div className='div-slider-progress' />
-         </div>
-         <img className='image-2' alt='Image' src={image21} />
-        </div>
-       </div>
-      </div>
-      <div className='frame-20'>
-       <div className='text-wrapper-48'>Average annual return</div>
-       <div className='group-11'>
-        <div className='overlap-group-6'>
-         <div className='text-wrapper-49'>6%</div>
-        </div>
-       </div>
-      </div>
-      <div className='calculate-my-wrapper'>
-       <div className='calculate-my'>Calculate My Estimate</div>
-      </div>
-     </div>
+    <div style={{ margin: "50px", marginTop: "150px" }}>
+     <SettlementCalculator />
     </div>
     <div className='div-homepage-2'>
      <div className='frame-21'>

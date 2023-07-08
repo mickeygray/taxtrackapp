@@ -3,26 +3,19 @@ import ProfileContext from "./profileContext";
 import ProfileReducer from "./profileReducer";
 import axios from "axios";
 import {
- POST_THS,
  ADD_CLIENT,
  PUT_CANOPY,
  CLEAR_CLIENT,
  GET_PROFILES,
- SET_TASK,
  SEND_MESSAGE,
- POST_CALC,
+ SET_QUAL,
+ CLEAR_QUAL,
  GET_MESSAGES,
  FILTER_MESSAGES,
- FILTER_TASKS,
  RANGE_MESSAGES,
- RANGE_TASKS,
  UPDATE_MESSAGE,
  DELETE_MESSAGE,
- GET_TASKS,
  UPDATE_STATUS,
- GET_ZIP,
- CLEAR_TASK,
- GET_RULES,
  SET_PROFILE,
  UPLOAD_FILE,
  SET_MILESTONES,
@@ -39,52 +32,12 @@ const ProfileState = (props) => {
   message: null,
   milestones: [],
   messages: [],
-
+  oicChartData: null,
   filtered: null,
-
   range: null,
-
-  zipdata: null,
  };
 
  const [state, dispatch] = useReducer(ProfileReducer, initialState);
- //Tax Calculator Post
- const postCalc = async (calc) => {
-  const config = {
-   headers: {
-    "Content-Type": "application/json",
-   },
-  };
-
-  await axios.post("/api/leads/calc", calc, config);
-
-  dispatch({
-   type: POST_CALC,
-   payload: calc,
-  });
- };
-
- const getZip = async (zip) => {
-  const config = {
-   headers: {
-    "Content-Type": "application/json",
-   },
-  };
-
-  const res = await axios.get(`/api/profiles/zips?q=${zip}`, config);
-  dispatch({ type: GET_ZIP, payload: res.data });
- };
-
- const getRules = async () => {
-  const config = {
-   headers: {
-    "Content-Type": "application/json",
-   },
-  };
-
-  const res = await axios.get(`/api/profiles/rules`, config);
-  dispatch({ type: GET_RULES, payload: res.data });
- };
 
  //Get Profiles Needs a Search
  const getProfiles = async (text) => {
@@ -257,9 +210,17 @@ const ProfileState = (props) => {
   dispatch({ type: CLEAR_CLIENT });
  };
 
- const clearProfileList = () => {
-  dispatch({ type: CLEAR_PROFILES });
+ const setQualificationResult = (qualificationResult) => {
+  dispatch({
+   type: SET_QUAL,
+   payload: qualificationResult,
+  });
  };
+
+ const clearQualificationResult = () => {
+  dispatch({ type: CLEAR_QUAL });
+ };
+
  const sendMessage = async (profile, messageBody) => {
   const config = {
    headers: {
@@ -329,15 +290,15 @@ const ProfileState = (props) => {
     uploadFile,
     clearProfile,
     getMilestones,
-    getRules,
     updateProfile,
+    setQualificationResult,
+    clearQualificationResult,
     message: state.message,
+    oicChartData: state.oicChartData,
     range: state.range,
     messages: state.messages,
-
     newProfile: state.newProfile,
     filtered: state.filtered,
-
     profile: state.profile,
     profileList: state.profileList,
    }}>

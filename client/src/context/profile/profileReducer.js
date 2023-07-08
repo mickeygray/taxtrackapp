@@ -4,25 +4,20 @@ import {
  PUT_CANOPY,
  CLEAR_CLIENT,
  GET_PROFILES,
- SET_TASK,
  SEND_MESSAGE,
  GET_MESSAGES,
  FILTER_MESSAGES,
- FILTER_TASKS,
  RANGE_MESSAGES,
- RANGE_TASKS,
  UPDATE_MESSAGE,
  DELETE_MESSAGE,
- GET_TASKS,
- GET_ZIP,
  UPLOAD_FILE,
- CLEAR_TASK,
- GET_RULES,
  SET_PROFILE,
  SET_MILESTONES,
  CLEAR_PROFILE,
  CLEAR_PROFILES,
  UPDATE_PROFILE,
+ SET_QUAL,
+ CLEAR_QUAL,
 } from "../types";
 
 export default (state, action) => {
@@ -56,6 +51,18 @@ export default (state, action) => {
     profile: action.payload,
    };
 
+  case CLEAR_QUAL:
+   return {
+    ...state,
+    oicChartData: null,
+   };
+
+  case SET_QUAL:
+   return {
+    ...state,
+    oicChartData: action.payload,
+   };
+
   case SET_MILESTONES:
    return {
     ...state,
@@ -65,18 +72,6 @@ export default (state, action) => {
    return {
     ...state,
     newProfile: action.payload,
-   };
-
-  case GET_ZIP:
-   return {
-    ...state,
-    zipdata: action.payload,
-   };
-
-  case GET_RULES:
-   return {
-    ...state,
-    rules: action.payload,
    };
 
   case FILTER_MESSAGES:
@@ -98,23 +93,6 @@ export default (state, action) => {
     ),
    };
 
-  case RANGE_TASKS:
-   return {
-    ...state,
-    range: state.tasks.filter(
-     (m) =>
-      new Date(m.date) >= new Date(action.payload.taskStart) &&
-      new Date(m.date) <= new Date(action.payload.taskEnd)
-    ),
-   };
-  case FILTER_TASKS:
-   return {
-    ...state,
-    filtered: state.calls.filter((task) => {
-     const regex = new RegExp(`${action.payload}`, "gi");
-     return task.description.match(regex);
-    }),
-   };
   case PUT_CANOPY:
    return {
     ...state,
@@ -140,28 +118,12 @@ export default (state, action) => {
     ),
    };
 
-  case CLEAR_TASK:
-   return {
-    ...state,
-    tasks: state.tasks.filter((task) => task._id !== action.payload._id),
-   };
-
   case GET_MESSAGES:
    return {
     ...state,
     messages: action.payload,
    };
 
-  case GET_TASKS:
-   return {
-    ...state,
-    tasks: action.payload,
-   };
-  case SET_TASK:
-   return {
-    ...state,
-    profile: action.payload,
-   };
   case ADD_CLIENT:
    return {
     ...state,
