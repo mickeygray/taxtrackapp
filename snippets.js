@@ -489,7 +489,7 @@ const healthCareExpenses = {
  over65: 154,
 };
 
-const ivingExpenses = {
+const livingExpenses = {
  familyOf1: {
   food: 466,
   housekeepingSupplies: 47,
@@ -531,3 +531,642 @@ const ivingExpenses = {
   total: 2349,
  },
 };
+
+// Step 1: Calculate the Expenses
+
+function calculateTotalExpenses() {
+ let autoCost = 0;
+ const region = Object.values(auto).find((region) =>
+  region.states.includes(formResponse.state)
+ );
+ if (region) {
+  autoCost = formResponse.carsOwned > 1 ? region.twoCars : region.oneCar;
+ }
+
+ const housingCost = housing.find((item) => item.state === formResponse.state);
+ const familySize = `familyOf${formResponse.residents}`;
+ const housingExpense = housingCost ? housingCost[familySize] : 0;
+
+ const residentsUnder65 = formResponse.residents - formResponse.residents65;
+ const healthcareExpenses =
+  healthCareExpenses.under65 * residentsUnder65 +
+  healthCareExpenses.over65 * formResponse.residents65;
+
+ const livingExpensesData = livingExpenses[familySize];
+
+ const totalExpenses =
+  autoCost + housingExpense + healthcareExpenses + livingExpensesData;
+
+ return {
+  totalExpenses,
+  autoCost,
+  housingExpense,
+  healthCareExpenses,
+  livingExpenses: livingExpensesData,
+ };
+}
+// Step 2: Calculate the Colllection  Window
+function calculateCollectionWindow() {
+ // Determine the oldest tax year and the newest tax year
+ const oldestTaxYear = Math.min(
+  ...formResponse.taxLiabilities.map((liability) =>
+   Math.min(...liability.years)
+  )
+ );
+ const newestTaxYear = Math.max(
+  ...formResponse.taxLiabilities.map((liability) =>
+   Math.max(...liability.years)
+  )
+ );
+
+ // Add extenuating circumstances years up to 5 to all tax years
+ const extendedTaxYears = formResponse.taxLiabilities.map((liability) => ({
+  ...liability,
+  years: liability.years.map(
+   (year) =>
+    year +
+    Math.min(5, formResponse.extenuatingCircumstances.additionalYears || 0)
+  ),
+ }));
+
+ // Calculate the average number of years between the oldest and newest tax years
+ const averageYears = (newestTaxYear + oldestTaxYear) / 2;
+
+ // Calculate the collection window by multiplying the average number of years by 12
+ const collectionWindow = averageYears * 12;
+
+ // Return the estimated expirations and the collection window
+ return { expirations: extendedTaxYears, collectionWindow };
+}
+
+// Step 2: Calculate the total income
+function calculateTotalIncome() {
+ // Multiply the monthly wages by 0.8
+ const totalWages =
+  formResponse.incomes
+   .filter((income) => income.type === "wages")
+   .reduce((sum, income) => sum + income.amount, 0) * 0.8;
+
+ // Multiply the monthly passive income by 0.8
+ const totalPassiveIncome =
+  formResponse.incomes
+   .filter((income) => income.type === "passive")
+   .reduce((sum, income) => sum + income.amount, 0) * 0.8;
+
+ // Multiply the total available equity by 0.08
+ const totalEquity = formResponse.equity * 0.08;
+
+ // Sum up the results to get the total income
+ const totalIncome = totalWages + totalPassiveIncome + totalEquity;
+
+ return totalIncome;
+}
+
+// Step 3: Calculate the monthly collection amount
+function calculateMonthlyCollectionAmount() {
+ // Subtract the total expenses from the total income
+ const totalExpenses = calculateTotalExpenses();
+ const totalIncome = calculateTotalIncome();
+ const monthlyCollectionAmount = totalIncome - totalExpenses;
+
+ return monthlyCollectionAmount;
+}
+
+// Step 4: Calculate the plausible offer amount
+function calculatePlausibleOfferAmount() {
+ // Multiply the monthly collection amount by the RCP time window to get the plausible offer amount
+ const plausibleOfferAmount =
+  calculateMonthlyCollectionAmount() *
+  calculateCollectionWindow().collectionWindow;
+
+ return plausibleOfferAmount;
+}
+
+// Step 5: Determine the settlement calculation
+// Step 5: Determine the settlement calculation
+function determineSettlementCalculation() {
+ const plausibleOfferAmount = calculatePlausibleOfferAmount();
+ const federalLiability = formResponse.taxLiabilities
+  .filter((liability) => liability.plaintiff === "irs")
+  .map((liability) => liability.amount)[0]; // Assuming there is only one federal tax liability
+
+ // Check if the plausible offer amount is at most 0.79 times the federal liability
+ if (plausibleOfferAmount <= 0.79 * federalLiability) {
+  // Offer status is an Offer in Compromise (OIC)
+  if (
+   plausibleOfferAmount >= 0.5 * federalLiability &&
+   plausibleOfferAmount <= 0.79 * federalLiability
+  ) {
+   const stateLiability =
+    formResponse.taxLiabilities
+     .filter((f) => f.plaintiff === "state")
+     .map((m) => m.amount)[0] || 0; // Assuming state liability is available
+   const rcpWindow = calculateCollectionWindow().collectionWindow;
+   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+   let statePayment = stateLiability / rcpWindow;
+   let monthlyExpenses = calculateTotalExpenses() + statePayment + debtPayment;
+   let updatedPlausibleOfferAmount =
+    calculateMonthlyCollectionAmount() *
+    calculateCollectionWindow().collectionWindow;
+
+   // Recalculate the offer with updated monthly expenses
+   // If the recalculated offer is <= 0.3 of federal liability, multiply the state payment by 0.25 and try again
+   while (updatedPlausibleOfferAmount < 0.3 * federalLiability) {
+    statePayment *= 0.75;
+    monthlyExpenses = calculateTotalExpenses() + statePayment + debtPayment;
+    updatedPlausibleOfferAmount =
+     calculateMonthlyCollectionAmount() *
+     calculateCollectionWindow().collectionWindow;
+   }
+   // Check if there is a state liability
+
+   return {
+    offerStatus: "OIC",
+    statePayment,
+    plausibleOfferAmount:
+     updatedPlausibleOfferAmount > 0
+      ? updatedPlausibleOfferAmount
+      : plausibleOfferAmount,
+    monthlyExpenses,
+    offerLumpSum: plausibleOfferAmount * 0.8,
+    offerPaymentPlans: [
+     plausibleOfferAmount / 12,
+     plausibleOfferAmount / 24,
+     plausibleOfferAmount / 36,
+    ],
+   };
+  }
+
+  // Check if the plausible offer amount is between 0.8 and 1.2
+  if (
+   plausibleOfferAmount >= 0.8 * federalLiability &&
+   plausibleOfferAmount <= 1.2 * federalLiability
+  ) {
+   // Check if there is a state liability
+   const stateLiability =
+    formResponse.taxLiabilities
+     .filter((liability) => liability.plaintiff === "state")
+     .map((liability) => liability.amount)[0] || 0; // Assuming state liability is available
+   const rcpWindow = calculateCollectionWindow().collectionWindow;
+   const statePayment = stateLiability / rcpWindow;
+   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+   let monthlyExpenses = calculateTotalExpenses() + statePayment + debtPayment;
+   let updatedPlausibleOfferAmount =
+    calculatePlausibleOfferAmount() - debtPayment;
+
+   // Recalculate offer with updated monthly expenses
+   // If recalculated offer is < 0.5 of federal liability, multiply the state payment by 0.75 and try again
+   // Repeat until >= 0.5 of federal liability
+   while (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
+    statePayment *= 0.75;
+    monthlyExpenses = calculateTotalExpenses() + statePayment + debtPayment;
+    updatedPlausibleOfferAmount =
+     calculateMonthlyCollectionAmount() *
+     calculateCollectionWindow().collectionWindow;
+   }
+   const monthlyPaymentPlan =
+    (0.75 * federalLiability) / calculateCollectionWindow().collectionWindow;
+   const savings = 0.75 * federalLiability;
+
+   return {
+    offerStatus:
+     updatedPlausibleOfferAmount < 0.79 * federalLiability ? "OIC" : "DDIA",
+    plausibleOfferAmount:
+     updatedPlausibleOfferAmount > 0
+      ? updatedPlausibleOfferAmount
+      : plausibleOfferAmount,
+    statePayment,
+    monthlyExpenses,
+    monthlyPaymentPlan: updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
+    savings: updatedPlausibleOfferAmount > 0.8 && savings,
+    offerLumpSum: plausibleOfferAmount * 0.8,
+    offerPaymentPlans: [
+     plausibleOfferAmount / 12,
+     plausibleOfferAmount / 24,
+     plausibleOfferAmount / 36,
+    ],
+   };
+  }
+ }
+
+ // Step 4: If the Offer is > 1.2 but cannnot be paid off in 6 years
+ if (
+  plausibleOfferAmount >= 1.3 * federalLiability &&
+  monthlyExpenses * 6 * 12 < federalLiability
+ ) {
+  const nextYearAfter6 = Math.min(
+   ...calculateCollectionWindow().expirations.filter(
+    (expiration) => expiration > 6
+   )
+  );
+  const ddiaDuration = (nextYearAfter6 - 1) * 12;
+  const liabilityToBeDivided =
+   federalLiability / calculateCollectionWindow().expirations.length;
+  const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
+   (expiration) => expiration.years.length > 6
+  );
+  const reducedLiability = csedYearsGreaterThan6.reduce((sum, expiration) => {
+   const numYearsGreaterThan6 = expiration.years.length - 6;
+   return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
+  }, 0);
+  const monthlyPaymentPlan = liabilityToBeDivided / ddiaDuration;
+  const savings = federalLiability - reducedLiability;
+
+  return {
+   offerStatus: "DDIA",
+   monthlyPaymentPlan,
+   savings,
+  };
+ }
+}
+if (monthlyExpenses * 6 * 12 > federalLiability) {
+ // Step 5: If the monthly collection amount can repay the debt in 6 years:
+ function determine6YearPaymentPlan() {
+  const federalLiability = formResponse.taxLiabilities[0].amount; // Assuming there is only one federal tax liability
+  const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
+   (expiration) => expiration.years.length > 6
+  );
+  const totalDebtReduction =
+   csedYearsGreaterThan6.length *
+   (federalLiability / calculateCollectionWindow().expirations.length) *
+   0.9;
+  const monthlyPaymentPlan = (federalLiability - totalDebtReduction) / 72; // 6 years * 12 months
+  const offerStatus = monthlyPaymentPlan > 50 ? "6-Year Payment Plan" : "CNC";
+
+  return {
+   offerStatus,
+   monthlyPaymentPlan,
+  };
+ }
+}
+// Generate financial summaries
+function generateFinancialSummaries() {
+ // Calculate the RCP (Step 1)
+ const { expirations, collectionWindow } = calculateCollectionWindow();
+
+ // Calculate the total income (Step 2)
+ const totalIncome = calculateTotalIncome();
+
+ // Calculate the monthly collection amount (Step 3)
+ const monthlyCollectionAmount = calculateMonthlyCollectionAmount();
+
+ // Calculate the plausible offer amount (Step 4)
+ const plausibleOfferAmount = calculatePlausibleOfferAmount();
+
+ // Determine the settlement calculation (Step 5)
+ const settlementCalculation =
+  plausibleOfferAmount <= 0.79 * formResponse.taxLiabilities[0].amount
+   ? determineSettlementCalculation()
+   : determine6YearPaymentPlan();
+
+ // Generate the financial summaries object
+ const financialSummaries = {
+  liabilitySummary: {
+   federalLiability,
+   stateLiability,
+   ddiaLiability: monthlyPaymentPlan * rcpWindow,
+   sixYearPlanLiability: federalLiability * 0.9,
+   plausibleOfferAmount,
+   updatedPlausibleOfferAmount,
+   monthlyPaymentPlan,
+  },
+  context: {
+   monthlyExpenses:
+    calculateTotalExpenses() + settlementCalculation.statePayment || 0,
+   housingExpenses: calculateTotalExpenses().housing, // Assuming `housing` variable contains the housing expenses array
+   healthcareExpenses: calculateTotalExpenses().healthCareExpenses, // Assuming `healthCareExpenses` variable contains the healthcare expenses object
+   livingExpenses: calculateTotalExpenses().livingExpenses,
+   auto: calculateTotalExpenses().auto, // Assuming `livingExpenses` variable contains the living expenses object
+  },
+  incomeSummary: {
+   totalIncome,
+   wageIncomePercentage: (calculateTotalWages() / totalIncome) * 100,
+   passiveIncomePercentage: (calculateTotalPassiveIncome() / totalIncome) * 100,
+   equityIncomePercentage: (calculateTotalEquityIncome() / totalIncome) * 100,
+  },
+  formResponse: formResponse,
+  settlementCalculation,
+ };
+
+ return financialSummaries;
+}
+
+// Example form response
+const formResponse = {
+ taxLiabilities: [
+  {
+   plaintiff: "irs",
+   amount: 10000,
+   payment: 5000,
+   years: [2018, 2019, 2020],
+   unfiledYears: [],
+  },
+  {
+   plaintiff: "state",
+   amount: 5000,
+   payment: 2000,
+   years: [2018, 2019],
+   unfiledYears: [],
+  },
+ ],
+ privateDebt: 20000,
+ incomes: [
+  { type: "wages", amount: 3000 },
+  { type: "passive", amount: 500 },
+ ],
+ equity: 10000,
+ state: "AL",
+ carsOwned: 1,
+ residents65: 0,
+ residents: 1,
+ extenuatingCircumstances: { additionalYears: 2 },
+};
+
+// Generate financial summaries
+const summaries = generateFinancialSummaries();
+
+// Output the financial summaries
+console.log(summaries);
+
+function calculateTotalExpenses() {
+ const { state, carsOwned, residents, residents65 } = formResponse;
+
+ const region = Object.values(auto).find((region) =>
+  region.states.includes(state)
+ );
+ const autoCost = region ? (carsOwned > 1 ? region.twoCars : region.oneCar) : 0;
+
+ const housingCost = housing.find((item) => item.state === state);
+ const familySize = `familyOf${residents}`;
+ const housingExpense = housingCost ? housingCost[familySize] : 0;
+
+ const residentsUnder65 = residents - residents65;
+ const healthcareExpenses =
+  healthCareExpenses.under65 * residentsUnder65 +
+  healthCareExpenses.over65 * residents65;
+
+ const livingExpensesData = livingExpenses[familySize];
+
+ const totalExpenses =
+  autoCost + housingExpense + healthcareExpenses + livingExpensesData.total;
+
+ return {
+  totalExpenses,
+  autoCost,
+  housingExpense,
+  healthcareExpenses,
+  livingExpenses: livingExpensesData,
+ };
+}
+
+function calculateCollectionWindow() {
+ const { taxLiabilities, extenuatingCircumstances } = formResponse;
+
+ const oldestTaxYear = Math.min(
+  ...taxLiabilities.map((liability) => Math.min(...liability.years))
+ );
+ const newestTaxYear = Math.max(
+  ...taxLiabilities.map((liability) => Math.max(...liability.years))
+ );
+
+ const extendedTaxYears = taxLiabilities.map((liability) => ({
+  ...liability,
+  years: liability.years.map(
+   (year) => year + Math.min(5, extenuatingCircumstances.additionalYears || 0)
+  ),
+ }));
+
+ const averageYears = (newestTaxYear + oldestTaxYear) / 2;
+ const collectionWindow = averageYears * 12;
+
+ return { expirations: extendedTaxYears, collectionWindow };
+}
+
+function calculateTotalIncome() {
+ const { incomes, equity } = formResponse;
+
+ const totalWages =
+  incomes
+   .filter((income) => income.type === "wages")
+   .reduce((sum, income) => sum + income.amount, 0) * 0.8;
+
+ const totalPassiveIncome =
+  incomes
+   .filter((income) => income.type === "passive")
+   .reduce((sum, income) => sum + income.amount, 0) * 0.8;
+
+ const totalEquity = equity * 0.08;
+
+ const totalIncome = totalWages + totalPassiveIncome + totalEquity;
+
+ return totalIncome;
+}
+
+function calculateMonthlyCollectionAmount() {
+ const totalExpenses = calculateTotalExpenses().totalExpenses;
+ const totalIncome = calculateTotalIncome();
+ const monthlyCollectionAmount = totalIncome - totalExpenses;
+
+ return monthlyCollectionAmount;
+}
+
+function calculatePlausibleOfferAmount() {
+ const monthlyCollectionAmount = calculateMonthlyCollectionAmount();
+ const collectionWindow = calculateCollectionWindow().collectionWindow;
+ const plausibleOfferAmount = monthlyCollectionAmount * collectionWindow;
+
+ return plausibleOfferAmount;
+}
+
+function determineSettlementCalculation() {
+ const plausibleOfferAmount = calculatePlausibleOfferAmount();
+ const [federalLiability] = formResponse.taxLiabilities
+  .filter((liability) => liability.plaintiff === "irs")
+  .map((liability) => liability.amount);
+
+ if (plausibleOfferAmount <= 0.79 * federalLiability) {
+  if (
+   plausibleOfferAmount >= 0.5 * federalLiability &&
+   plausibleOfferAmount <= 0.79 * federalLiability
+  ) {
+   const stateLiability =
+    formResponse.taxLiabilities
+     .filter((liability) => liability.plaintiff === "state")
+     .map((liability) => liability.amount)[0] || 0;
+
+   const rcpWindow = calculateCollectionWindow().collectionWindow;
+   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+   let statePayment = stateLiability / rcpWindow;
+   let monthlyExpenses =
+    calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+   let updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+
+   while (updatedPlausibleOfferAmount < 0.3 * federalLiability) {
+    statePayment *= 0.25;
+    monthlyExpenses =
+     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+    updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+   }
+
+   return {
+    offerStatus: "OIC",
+    statePayment,
+    plausibleOfferAmount:
+     updatedPlausibleOfferAmount > 0
+      ? updatedPlausibleOfferAmount
+      : plausibleOfferAmount,
+    monthlyExpenses,
+    offerLumpSum: plausibleOfferAmount * 0.8,
+    offerPaymentPlans: [
+     plausibleOfferAmount / 12,
+     plausibleOfferAmount / 24,
+     plausibleOfferAmount / 36,
+    ],
+   };
+  }
+
+  if (
+   plausibleOfferAmount >= 0.8 * federalLiability &&
+   plausibleOfferAmount <= 1.2 * federalLiability
+  ) {
+   const stateLiability =
+    formResponse.taxLiabilities
+     .filter((liability) => liability.plaintiff === "state")
+     .map((liability) => liability.amount)[0] || 0;
+
+   const rcpWindow = calculateCollectionWindow().collectionWindow;
+   const statePayment = stateLiability / rcpWindow;
+   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+   let monthlyExpenses =
+    calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+   let updatedPlausibleOfferAmount =
+    calculatePlausibleOfferAmount() - debtPayment;
+
+   while (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
+    statePayment *= 0.75;
+    monthlyExpenses =
+     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+    updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+   }
+
+   const monthlyPaymentPlan =
+    (0.75 * federalLiability) / calculateCollectionWindow().collectionWindow;
+   const savings = 0.75 * federalLiability;
+
+   return {
+    offerStatus:
+     updatedPlausibleOfferAmount < 0.79 * federalLiability ? "OIC" : "DDIA",
+    plausibleOfferAmount:
+     updatedPlausibleOfferAmount > 0
+      ? updatedPlausibleOfferAmount
+      : plausibleOfferAmount,
+    statePayment,
+    monthlyExpenses,
+    monthlyPaymentPlan: updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
+    savings: updatedPlausibleOfferAmount > 0.8 && savings,
+    offerLumpSum: plausibleOfferAmount * 0.8,
+    offerPaymentPlans: [
+     plausibleOfferAmount / 12,
+     plausibleOfferAmount / 24,
+     plausibleOfferAmount / 36,
+    ],
+   };
+  }
+ }
+
+ if (
+  plausibleOfferAmount >= 1.3 * federalLiability &&
+  monthlyExpenses * 6 * 12 < federalLiability
+ ) {
+  const nextYearAfter6 = Math.min(
+   ...calculateCollectionWindow().expirations.filter(
+    (expiration) => expiration > 6
+   )
+  );
+  const ddiaDuration = (nextYearAfter6 - 1) * 12;
+  const liabilityToBeDivided =
+   federalLiability / calculateCollectionWindow().expirations.length;
+  const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
+   (expiration) => expiration.years.length > 6
+  );
+  const reducedLiability = csedYearsGreaterThan6.reduce((sum, expiration) => {
+   const numYearsGreaterThan6 = expiration.years.length - 6;
+   return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
+  }, 0);
+  const monthlyPaymentPlan = liabilityToBeDivided / ddiaDuration;
+  const savings = federalLiability - reducedLiability;
+
+  return {
+   offerStatus: "DDIA",
+   monthlyPaymentPlan,
+   savings,
+  };
+ }
+
+ if (monthlyExpenses * 6 * 12 > federalLiability) {
+  function determine6YearPaymentPlan() {
+   const federalLiability = formResponse.taxLiabilities[0].amount;
+   const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
+    (expiration) => expiration.years.length > 6
+   );
+   const totalDebtReduction =
+    csedYearsGreaterThan6.length *
+    (federalLiability / calculateCollectionWindow().expirations.length) *
+    0.9;
+   const monthlyPaymentPlan = (federalLiability - totalDebtReduction) / 72;
+   const offerStatus = monthlyPaymentPlan > 50 ? "6-Year Payment Plan" : "CNC";
+
+   return {
+    offerStatus,
+    monthlyPaymentPlan,
+   };
+  }
+ }
+
+ return null; // Return null if no settlement calculation is determined
+}
+
+function generateFinancialSummaries() {
+ const { federalLiability, stateLiability, monthlyPaymentPlan } =
+  determineSettlementCalculation();
+ const {
+  monthlyExpenses,
+  housingExpense,
+  healthcareExpenses,
+  livingExpenses,
+  autoCost,
+ } = calculateTotalExpenses();
+ const totalIncome = calculateTotalIncome();
+ const plausibleOfferAmount = calculatePlausibleOfferAmount();
+ const settlementCalculation = determineSettlementCalculation();
+
+ const financialSummaries = {
+  liabilitySummary: {
+   federalLiability,
+   stateLiability,
+   ddiaLiability: monthlyPaymentPlan * rcpWindow,
+   sixYearPlanLiability: federalLiability * 0.9,
+   plausibleOfferAmount,
+   updatedPlausibleOfferAmount,
+   monthlyPaymentPlan,
+  },
+  context: {
+   monthlyExpenses,
+   housingExpenses: housingExpense,
+   healthcareExpenses,
+   livingExpenses,
+   auto: autoCost,
+  },
+  incomeSummary: {
+   totalIncome,
+   wageIncomePercentage: (calculateTotalWages() / totalIncome) * 100,
+   passiveIncomePercentage: (calculateTotalPassiveIncome() / totalIncome) * 100,
+   equityIncomePercentage: (calculateTotalEquityIncome() / totalIncome) * 100,
+  },
+  formResponse,
+  settlementCalculation,
+  errors: [], // Add any errors encountered during processing to this array
+ };
+
+ return financialSummaries;
+}
