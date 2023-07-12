@@ -317,6 +317,7 @@ const SettlementForm = () => {
   carsOwned: 0,
   currentAge: 0,
   residents: 0,
+  residents65: 0,
   extenuatingCircumstances: {},
  });
 
@@ -854,7 +855,7 @@ const SettlementForm = () => {
  };
 
  function calculateTotalExpenses() {
-  const { state, carsOwned, residents, residents65plus } = formResponse;
+  const { state, carsOwned, residents, residents65 } = formResponse;
 
   const region = Object.values(auto).find((region) =>
    region.states.includes(state)
@@ -869,25 +870,24 @@ const SettlementForm = () => {
   const familySize = `familyOf${residents}`;
   const housingExpense = housingCost ? housingCost[familySize] : 0;
 
-  const residentsUnder65 = residents - residents65plus;
+  const residentsUnder65 = parseInt(residents) - (parseInt(residents65) || 0);
 
-  console.log(residents);
   console.log(residentsUnder65);
-  console.log(formResponse);
   const healthCareExpense =
-   healthCareExpenses.under65 * residentsUnder65 +
-   healthCareExpenses.over65 * residents65plus;
+   healthCareExpenses.under65 * parseInt(residentsUnder65) +
+   healthCareExpenses.over65 * parseInt(residents65);
 
   const livingExpensesData = livingExpenses[familySize];
 
   const totalExpenses =
    autoCost + housingExpense + healthCareExpense + livingExpensesData.total;
 
-  console.log(totalExpenses, "tot in expenses");
-  console.log(autoCost, "auto in expenses");
-  console.log(housingExpense, "housing in expenses");
-  console.log(livingExpensesData, "living in expenses");
-  console.log(healthCareExpense, "health in expenses");
+  console.log(
+   autoCost,
+   housingExpense,
+   healthCareExpense,
+   livingExpensesData.total
+  );
   return {
    totalExpenses,
    autoCost,
@@ -940,15 +940,13 @@ const SettlementForm = () => {
     .filter((income) => income.type === "passive")
     .reduce((sum, income) => sum + parseFloat(income.amount), 0) * 0.8;
 
-  const totalEquity = equity * 0.08;
-
-  const totalIncome = totalWages + totalPassiveIncome + totalEquity;
+  const totalIncome = totalWages + totalPassiveIncome;
 
   console.log(totalIncome, "tot in income");
   console.log(totalWages, "wage in income");
   console.log(totalPassiveIncome, "passive in income");
-  console.log(totalEquity, "equity in income");
-  return { totalIncome, totalWages, totalPassiveIncome, totalEquity };
+
+  return { totalIncome, totalWages, totalPassiveIncome };
  }
 
  function calculateMonthlyCollectionAmount() {
@@ -975,23 +973,42 @@ const SettlementForm = () => {
 
  function determineSettlementCalculation() {
   const plausibleOfferAmount = calculatePlausibleOfferAmount();
+  const rcpWindow = calculateCollectionWindow().collectionWindow;
   const federalLiability = formResponse.taxLiabilities
    .filter((liability) => liability.plaintiff === "irs")
-   .map((liability) => liability.amount)[0];
+   .map((liability) => parseFloat(liability.amount.replace("$", "")))[0];
 
-  console.log(plausibleOfferAmount);
-  console.log(federalLiability);
+  console.log(plausibleOfferAmount / federalLiability, "poffer");
+
+  const equity = formResponse.equity;
+  const highEquityThreshold = 10000;
+  const highLiabilityThreshold = 50000;
+  let liabilityLessEquity = federalLiability;
+  let offerLumpSumLessEquity = plausibleOfferAmount;
+  let liabilityReduction;
+  if (
+   equity >= highEquityThreshold &&
+   federalLiability >= highLiabilityThreshold
+  ) {
+   const maxLiabilityReduction = federalLiability - plausibleOfferAmount;
+   const equityReduction = Math.min(equity * 0.8, highEquityThreshold);
+   liabilityReduction = Math.min(equityReduction, maxLiabilityReduction);
+
+   liabilityLessEquity -= liabilityReduction;
+   offerLumpSumLessEquity -= liabilityReduction;
+  }
+
   if (plausibleOfferAmount <= 0.79 * federalLiability) {
    if (
     plausibleOfferAmount >= 0.5 * federalLiability &&
     plausibleOfferAmount <= 0.79 * federalLiability
    ) {
-    const stateLiability =
-     formResponse.taxLiabilities
-      .filter((liability) => liability.plaintiff === "state")
-      .map((liability) => liability.amount)[0] || 0;
+    const stateLiability = formResponse.taxLiabilities
+     .filter((liability) => liability.plaintiff === "state")
+     .map((liability) => parseFloat(liability.amount.replace("$", "")))[0];
 
-    const rcpWindow = calculateCollectionWindow().collectionWindow;
+    console.log(stateLiability);
+
     const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
     let statePayment = stateLiability / rcpWindow;
     let monthlyExpenses =
@@ -1009,6 +1026,7 @@ const SettlementForm = () => {
      offerStatus: "OIC",
      statePayment,
      federalLiability,
+     rcpWindow,
      plausibleOfferAmount:
       updatedPlausibleOfferAmount > 0
        ? updatedPlausibleOfferAmount
@@ -1021,49 +1039,16 @@ const SettlementForm = () => {
       plausibleOfferAmount / 36,
      ],
     };
-   }
-
-   if (
-    plausibleOfferAmount >= 0.8 * federalLiability &&
-    plausibleOfferAmount <= 1.2 * federalLiability
-   ) {
-    const stateLiability =
-     formResponse.taxLiabilities
-      .filter((liability) => liability.plaintiff === "state")
-      .map((liability) => liability.amount)[0] || 0;
-
-    const rcpWindow = calculateCollectionWindow().collectionWindow;
-    const statePayment = stateLiability / rcpWindow;
-    const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
-    let monthlyExpenses =
-     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
-    let updatedPlausibleOfferAmount =
-     calculatePlausibleOfferAmount() - debtPayment;
-
-    while (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
-     statePayment *= 0.75;
-     monthlyExpenses =
-      calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
-     updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
-    }
-
-    const monthlyPaymentPlan =
-     (0.75 * federalLiability) / calculateCollectionWindow().collectionWindow;
-    const savings = 0.75 * federalLiability;
-
+   } else {
     return {
-     offerStatus:
-      updatedPlausibleOfferAmount < 0.79 * federalLiability ? "OIC" : "DDIA",
-     plausibleOfferAmount:
-      updatedPlausibleOfferAmount > 0
-       ? updatedPlausibleOfferAmount
-       : plausibleOfferAmount,
-     statePayment,
+     offerStatus: "OIC",
      federalLiability,
-     monthlyExpenses,
-     monthlyPaymentPlan:
-      updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
-     savings: updatedPlausibleOfferAmount > 0.8 && savings,
+     plausibleOfferAmount,
+     rcpWindow,
+     liquidation: liabilityReduction
+      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+      : null,
+     monthlyExpenses: calculateTotalExpenses(),
      offerLumpSum: plausibleOfferAmount * 0.8,
      offerPaymentPlans: [
       plausibleOfferAmount / 12,
@@ -1072,6 +1057,57 @@ const SettlementForm = () => {
      ],
     };
    }
+  }
+  if (
+   plausibleOfferAmount >= 0.8 * federalLiability &&
+   plausibleOfferAmount <= 1.2 * federalLiability
+  ) {
+   const stateLiability =
+    formResponse.taxLiabilities
+     .filter((liability) => liability.plaintiff === "state")
+     .map((liability) => liability.amount)[0] || 0;
+
+   const rcpWindow = calculateCollectionWindow().collectionWindow;
+   const statePayment = stateLiability / rcpWindow;
+   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+   let monthlyExpenses =
+    calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+   let updatedPlausibleOfferAmount =
+    calculatePlausibleOfferAmount() - debtPayment;
+
+   while (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
+    statePayment *= 0.75;
+    monthlyExpenses =
+     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+    updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+   }
+
+   const monthlyPaymentPlan =
+    (0.75 * federalLiability) / calculateCollectionWindow().collectionWindow;
+   const savings = 0.75 * federalLiability;
+
+   return {
+    offerStatus:
+     updatedPlausibleOfferAmount < 0.79 * federalLiability ? "OIC" : "DDIA",
+    plausibleOfferAmount:
+     updatedPlausibleOfferAmount > 0
+      ? updatedPlausibleOfferAmount
+      : plausibleOfferAmount,
+    statePayment,
+    federalLiability,
+    monthlyExpenses,
+    liquidation: liabilityReduction
+     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+     : null,
+    monthlyPaymentPlan: updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
+    savings: updatedPlausibleOfferAmount > 0.8 && savings,
+    offerLumpSum: plausibleOfferAmount * 0.8,
+    offerPaymentPlans: [
+     plausibleOfferAmount / 12,
+     plausibleOfferAmount / 24,
+     plausibleOfferAmount / 36,
+    ],
+   };
   }
 
   if (
@@ -1100,6 +1136,10 @@ const SettlementForm = () => {
     offerStatus: "DDIA",
     federalLiability,
     monthlyPaymentPlan,
+
+    liquidation: liabilityReduction
+     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+     : null,
     savings,
    };
   }
@@ -1113,12 +1153,26 @@ const SettlementForm = () => {
     (federalLiability / calculateCollectionWindow().expirations.length) *
     0.9;
    const monthlyPaymentPlan = (federalLiability - totalDebtReduction) / 72;
-   const offerStatus = monthlyPaymentPlan > 50 ? "6-Year Payment Plan" : "CNC";
 
    return {
-    offerStatus,
+    offerStatus: "6-Year Payment Plan",
     federalLiability,
+    liquidation: liabilityReduction
+     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+     : null,
     monthlyPaymentPlan,
+   };
+  }
+
+  if (calculateMonthlyCollectionAmount() < 50) {
+   return {
+    offerStatus: "CNC",
+    federalLiability,
+    liquidation: liabilityReduction
+     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+     : null,
+    plausibleOfferAmount,
+    monthlyExpenses: calculateTotalExpenses(),
    };
   }
 
@@ -1485,7 +1539,7 @@ const SettlementForm = () => {
      <div style={{ display: "flex" }}>
       <div className={classes.sectionContainer} style={{ marginRight: "16px" }}>
        <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-        Private Debts
+        Private Debts and Mortgage Balance
        </InputLabel>
        <TextField
         name='privateDebt'
@@ -1495,7 +1549,7 @@ const SettlementForm = () => {
       </div>
       <div className={classes.sectionContainer}>
        <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-        Equity
+        Non-Essential Property and Asset Equity
        </InputLabel>
        <TextField
         name='equity'
@@ -1564,10 +1618,10 @@ const SettlementForm = () => {
          65+
         </InputLabel>
         <Select
-         name='residents65plus'
-         labelId='residents65plus-label'
-         id='residents65plus-select'
-         value={formResponse.residents65plus}
+         name='residents65'
+         labelId='residents65-label'
+         id='residents65-select'
+         value={formResponse.residents65}
          onChange={handleInputChange}>
          <MenuItem value='1'>1</MenuItem>
          <MenuItem value='2'>2</MenuItem>
