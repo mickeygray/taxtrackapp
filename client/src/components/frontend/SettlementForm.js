@@ -1095,6 +1095,7 @@ const SettlementForm = () => {
       : plausibleOfferAmount,
     statePayment,
     federalLiability,
+    rcpWindow,
     monthlyExpenses,
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
