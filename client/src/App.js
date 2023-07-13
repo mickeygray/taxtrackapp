@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import ProfileState from "./context/profile/ProfileState";
@@ -10,22 +10,33 @@ import Navbar from "./components/auth/Navbar";
 import Alerts from "./components/auth/Alerts";
 import TaxTrackBackEnd from "./components/backend/TaxTrackBackEnd";
 import PrivateRoute from "./components/auth/PrivateRoute";
-
 import AlertState from "./context/alert/AlertState";
 import { gapi } from "gapi-script";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Landing from "./components/frontend/Landing";
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-const App = () => {
- useEffect(() => {
-  const start = () => {
-   gapi.client.init({
-    clientId: clientId,
-    scope: "",
-   });
-  };
+import axios from "axios";
 
-  gapi.load("client:auth2", start);
+const App = () => {
+ const [clientId, setClientId] = useState("");
+ useEffect(() => {
+  const getGoogleClientId = async () => {
+   try {
+    const res = await axios.get("/api/auth/env");
+    setClientId(res.data);
+   } catch (err) {
+    console.err(err);
+   }
+  };
+  getGoogleClientId();
+  if (clientId.length > 0) {
+   const start = () => {
+    gapi.client.init({
+     clientId: clientId,
+     scope: "",
+    });
+   };
+   gapi.load("client:auth2", start);
+  }
  }, []);
 
  return (
@@ -51,6 +62,7 @@ const App = () => {
      </AlertState>
     </ProfileState>
    </AuthState>
+   //{" "}
   </GoogleOAuthProvider>
  );
 };

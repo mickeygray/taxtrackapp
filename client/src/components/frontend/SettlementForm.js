@@ -998,6 +998,18 @@ const SettlementForm = () => {
    offerLumpSumLessEquity -= liabilityReduction;
   }
 
+  if (calculateMonthlyCollectionAmount() < 50) {
+   return {
+    offerStatus: "CNC",
+    federalLiability,
+    liquidation: liabilityReduction
+     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+     : null,
+    plausibleOfferAmount,
+    monthlyExpenses: calculateTotalExpenses(),
+   };
+  }
+
   if (plausibleOfferAmount <= 0.79 * federalLiability) {
    if (
     plausibleOfferAmount >= 0.5 * federalLiability &&
@@ -1057,8 +1069,7 @@ const SettlementForm = () => {
      ],
     };
    }
-  }
-  if (
+  } else if (
    plausibleOfferAmount >= 0.8 * federalLiability &&
    plausibleOfferAmount <= 1.2 * federalLiability
   ) {
@@ -1109,9 +1120,7 @@ const SettlementForm = () => {
      plausibleOfferAmount / 36,
     ],
    };
-  }
-
-  if (
+  } else if (
    plausibleOfferAmount >= 1.3 * federalLiability &&
    calculateMonthlyCollectionAmount() * 6 * 12 < federalLiability
   ) {
@@ -1143,9 +1152,7 @@ const SettlementForm = () => {
      : null,
     savings,
    };
-  }
-
-  if (calculateMonthlyCollectionAmount() * 6 * 12 > federalLiability) {
+  } else if (calculateMonthlyCollectionAmount() * 6 * 12 > federalLiability) {
    const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
     (expiration) => expiration.years.length > 6
    );
@@ -1165,19 +1172,16 @@ const SettlementForm = () => {
    };
   }
 
-  if (calculateMonthlyCollectionAmount() < 50) {
-   return {
-    offerStatus: "CNC",
-    federalLiability,
-    liquidation: liabilityReduction
-     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-     : null,
-    plausibleOfferAmount,
-    monthlyExpenses: calculateTotalExpenses(),
-   };
-  }
+  return {
+   offerStatus:
+    "Please resubmit we were unable to make a proper determination, please review your information",
+   federalLiability,
+   plausibleOfferAmount,
+   rcpWindow,
+   monthlyExpenses: calculateTotalExpenses(),
+  };
 
-  return null; // Return null if no settlement calculation is determined
+  // Return null if no settlement calculation is determined
  }
  /*
  function generateFinancialSummaries() {

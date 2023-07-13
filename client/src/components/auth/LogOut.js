@@ -2,8 +2,6 @@ import React, { useContext } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import AuthContext from "../../context/auth/authContext";
 import { Navigate } from "react-router-dom";
-const clientid =
- "228458250661-snd3uf70bgrdekaqv5db1us3v1nlrovg.apps.googleusercontent.com";
 
 const LogOut = () => {
  const authContext = useContext(AuthContext);
