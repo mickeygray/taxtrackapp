@@ -8,8 +8,8 @@ import {
  CLEAR_CLIENT,
  GET_PROFILES,
  SEND_MESSAGE,
- SET_QUAL,
- CLEAR_QUAL,
+ SET_SETTLEMENT,
+ CLEAR_SETTLEMENT,
  GET_MESSAGES,
  FILTER_MESSAGES,
  RANGE_MESSAGES,
@@ -32,7 +32,7 @@ const ProfileState = (props) => {
   message: null,
   milestones: [],
   messages: [],
-  oicChartData: null,
+  settlementCalculation: null,
   filtered: null,
   range: null,
  };
@@ -210,15 +210,15 @@ const ProfileState = (props) => {
   dispatch({ type: CLEAR_CLIENT });
  };
 
- const setQualificationResult = (qualificationResult) => {
+ const setSettlementCalculation = (settlementCalculation) => {
   dispatch({
-   type: SET_QUAL,
-   payload: qualificationResult,
+   type: SET_SETTLEMENT,
+   payload: settlementCalculation,
   });
  };
 
- const clearQualificationResult = () => {
-  dispatch({ type: CLEAR_QUAL });
+ const clearSettlementCalculation = () => {
+  dispatch({ type: CLEAR_SETTLEMENT });
  };
 
  const sendMessage = async (profile, messageBody) => {
@@ -291,10 +291,10 @@ const ProfileState = (props) => {
     clearProfile,
     getMilestones,
     updateProfile,
-    setQualificationResult,
-    clearQualificationResult,
+    setSettlementCalculation,
+    clearSettlementCalculation,
     message: state.message,
-    oicChartData: state.oicChartData,
+    settlementCalculation: state.settlementCalculation,
     range: state.range,
     messages: state.messages,
     newProfile: state.newProfile,

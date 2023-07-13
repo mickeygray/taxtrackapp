@@ -16,8 +16,8 @@ import {
  CLEAR_PROFILE,
  CLEAR_PROFILES,
  UPDATE_PROFILE,
- SET_QUAL,
- CLEAR_QUAL,
+ SET_SETTLEMENT,
+ CLEAR_SETTLEMENT,
 } from "../types";
 
 export default (state, action) => {
@@ -51,16 +51,16 @@ export default (state, action) => {
     profile: action.payload,
    };
 
-  case CLEAR_QUAL:
+  case CLEAR_SETTLEMENT:
    return {
     ...state,
-    oicChartData: null,
+    settlementCalculation: null,
    };
 
-  case SET_QUAL:
+  case SET_SETTLEMENT:
    return {
     ...state,
-    oicChartData: action.payload,
+    settlementCalculation: action.payload,
    };
 
   case SET_MILESTONES:

@@ -41,5 +41,5 @@ export const TOGGLE_REMEMBER_ME = "TOGGLE_REMEMBER_ME";
 export const AUTHENTICATE_USER = "AUTHENTICATE_USER";
 export const LOAD_CRED = "LOAD_CRED";
 export const CLEAR_CRED = "CLEAR_CRED";
-export const SET_QUAL = "SET_QUAL";
-export const CLEAR_QUAL = "CLEAR_QUAL";
+export const SET_SETTLEMENT = "SET_SETTLEMENT";
+export const CLEAR_SETTLEMENT = "CLEAR_SETTLEMENT";

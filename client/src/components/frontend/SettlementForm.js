@@ -23,7 +23,8 @@ import {
  Edit,
  VisibilityOff,
 } from "@material-ui/icons";
-
+import useExpenseData from "../../utils/useExpenseData";
+import TaxLiabilitiesItem from "./TaxLiabilitiesItem";
 import ProfileContext from "../../context/profile/profileContext";
 
 const useStyles = makeStyles((theme) => ({
@@ -88,224 +89,11 @@ const useStyles = makeStyles((theme) => ({
  },
 }));
 
-const TaxLiabilitiesItem = ({
- debt,
- index,
- formResponse,
- setFormResponse,
- handleTaxLiabilitiesInputChange,
- handleDeleteTaxLiabilities,
-}) => {
- const [expanded, setExpanded] = useState(false);
- const [unfiledYearsSelected, setUnfiledYearsSelected] = useState(false);
-
- const handleToggle = () => {
-  setExpanded((prevState) => !prevState);
- };
-
- const currentYear = new Date().getFullYear();
- const startYear = 2010;
- const years = Array.from(
-  { length: currentYear - startYear + 1 },
-  (_, index) => startYear + index
- );
-
- const handleUnfiledYearsChange = (index, year) => {
-  setFormResponse((prevState) => {
-   const updatedTaxLiabilities = [...prevState.taxLiabilities];
-   const selectedDebt = updatedTaxLiabilities[index];
-   const isUnfiled = selectedDebt.unfiledYears.includes(year);
-
-   if (isUnfiled) {
-    selectedDebt.unfiledYears = selectedDebt.unfiledYears.filter(
-     (y) => y !== year
-    );
-   } else {
-    selectedDebt.unfiledYears.push(year);
-   }
-
-   return {
-    ...prevState,
-    taxLiabilities: updatedTaxLiabilities,
-   };
-  });
- };
-
- return (
-  <div key={index}>
-   <Box display='flex' alignItems='center' marginBottom={2}>
-    <Box flex={1}>
-     {expanded ? (
-      <Box key={index} display='flex' alignItems='center' marginBottom={2}>
-       <IconButton onClick={handleToggle}>
-        <VisibilityOff />
-       </IconButton>
-       <Grid container spacing={2}>
-        <Grid item xs={6}>
-         <FormControl fullWidth>
-          <InputLabel>Plaintiff</InputLabel>
-          <Select
-           name='plaintiff'
-           value={debt.plaintiff}
-           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-           displayEmpty>
-           <MenuItem value='irs'>IRS</MenuItem>
-           <MenuItem value='state'>State</MenuItem>
-          </Select>
-         </FormControl>
-        </Grid>
-        <Grid item xs={6}>
-         <FormControl fullWidth>
-          <InputLabel>Year</InputLabel>
-          <Select
-           name='years'
-           multiple // Set the 'multiple' prop to allow multiple selections
-           value={debt.years}
-           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-           renderValue={(selected) => selected.join(", ")} // Render the selected values as a comma-separated string
-           fullWidth>
-           {years.map((year) => (
-            <MenuItem key={year} value={year}>
-             <ListItemText primary={year} />
-            </MenuItem>
-           ))}
-          </Select>
-
-          {!unfiledYearsSelected && (
-           <FormControlLabel
-            control={
-             <Checkbox
-              checked={unfiledYearsSelected}
-              onChange={(e) => setUnfiledYearsSelected(e.target.checked)}
-              name='unfiledYearsSelected'
-             />
-            }
-            label='Are any of these years unfiled?'
-           />
-          )}
-
-          {unfiledYearsSelected && (
-           <div>
-            <IconButton
-             onClick={() => setUnfiledYearsSelected(!unfiledYearsSelected)}>
-             <VisibilityOff />
-            </IconButton>
-
-            <div className='grid-4' style={{ marginLeft: "-150px" }}>
-             {debt.years.map((year) => (
-              <div>
-               <FormControlLabel
-                key={year}
-                control={
-                 <Checkbox
-                  checked={
-                   formResponse.taxLiabilities[index]?.unfiledYears.includes(
-                    year
-                   ) || false
-                  }
-                  onChange={() => handleUnfiledYearsChange(index, year)}
-                  name={`unfiledYear_${year}`}
-                 />
-                }
-                label={year}
-               />
-              </div>
-             ))}
-            </div>
-           </div>
-          )}
-         </FormControl>
-        </Grid>
-       </Grid>
-       <Box flex={1} marginLeft={2}>
-        <div className='grid-2'>
-         <TextField
-          name='amount'
-          label='Amount'
-          value={debt.amount.toLocaleString("en-US", {
-           style: "currency",
-           currency: "USD",
-          })}
-          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-         />
-         <TextField
-          name='payment'
-          label='Monthly Payment'
-          value={debt.payment.toLocaleString("en-US", {
-           style: "currency",
-           currency: "USD",
-          })}
-          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-         />
-        </div>
-       </Box>
-
-       <Box marginLeft={2}>
-        <IconButton onClick={() => handleDeleteTaxLiabilities(index)}>
-         <Delete />
-        </IconButton>
-       </Box>
-      </Box>
-     ) : (
-      // Render the summary view
-      <div style={{ display: "flex", justifyContent: "center" }}>
-       <div>
-        <div
-         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-         }}>
-         <IconButton style={{ fontSize: "1rem" }} onClick={handleToggle}>
-          <Edit />
-         </IconButton>
-         <IconButton
-          style={{ fontSize: "1rem" }}
-          onClick={() => handleDeleteTaxLiabilities(index)}>
-          <Delete />
-         </IconButton>
-        </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-         <Typography variant='subtitle1' style={{ marginRight: "0.5rem" }}>
-          Plaintiff:{" "}
-          {debt.plaintiff === "irs"
-           ? "IRS"
-           : debt.plaintiff !== ""
-           ? "State"
-           : ""}
-         </Typography>
-         <Typography variant='subtitle1' style={{ marginRight: "0.5rem" }}>
-          Amount: {debt.amount}
-         </Typography>
-         <div>
-          <Typography variant='subtitle1'>
-           Years:
-           {debt.years
-            .sort((a, b) => parseInt(a) - parseInt(b))
-            .map((year, ind) => {
-             const isUnfiled = debt.unfiledYears.includes(year);
-             return (
-              <span key={year}>
-               {`'${year.toString().slice(-2)}`}
-               {isUnfiled && <span style={{ color: "red" }}>*</span>}
-               {ind === debt.years.length - 1 ? "" : ", "}
-              </span>
-             );
-            })}
-           <br />
-          </Typography>
-         </div>
-        </div>
-       </div>
-      </div>
-     )}
-    </Box>
-   </Box>
-  </div>
- );
-};
-
 const SettlementForm = () => {
+ const profileContext = useContext(ProfileContext);
+ const { setSettlementCalculation } = profileContext;
+ const { housing, auto, healthCareExpenses, livingExpenses, states } =
+  useExpenseData();
  const classes = useStyles();
  const [formVisible, setFormVisible] = useState(true);
  const [formResponse, setFormResponse] = useState({
@@ -320,539 +108,6 @@ const SettlementForm = () => {
   residents65: 0,
   extenuatingCircumstances: {},
  });
-
- const housing = [
-  {
-   state: "AL",
-   familyOf1: 1310.02,
-   familyOf2: 1542.86,
-   familyOf3: 1624.76,
-   familyOf4: 1811.91,
-   familyOf5: 1842.52,
-  },
-  {
-   state: "AK",
-   familyOf1: 1702,
-   familyOf2: 1998,
-   familyOf3: 2103,
-   familyOf4: 2344,
-   familyOf5: 2380,
-  },
-  {
-   state: "AZ",
-   familyOf1: 1460,
-   familyOf2: 1716,
-   familyOf3: 1805,
-   familyOf4: 2010,
-   familyOf5: 2040,
-  },
-  {
-   state: "AR",
-   familyOf1: 1288.83,
-   familyOf2: 1512.49,
-   familyOf3: 1592.59,
-   familyOf4: 1779.67,
-   familyOf5: 1807.98,
-  },
-  {
-   state: "CA",
-   familyOf1: 2384.78,
-   familyOf2: 2802.58,
-   familyOf3: 2954.31,
-   familyOf4: 3291.41,
-   familyOf5: 3343.86,
-  },
-  {
-   state: "CO",
-   familyOf1: 1737.23,
-   familyOf2: 2039.08,
-   familyOf3: 2149.24,
-   familyOf4: 2395.79,
-   familyOf5: 2437.58,
-  },
-  {
-   state: "CT",
-   familyOf1: 2384.17,
-   familyOf2: 2802.75,
-   familyOf3: 2952.33,
-   familyOf4: 3284.17,
-   familyOf5: 3332.33,
-  },
-  {
-   state: "DE",
-   familyOf1: 1758.33,
-   familyOf2: 2067.33,
-   familyOf3: 2176.33,
-   familyOf4: 2425.67,
-   familyOf5: 2464,
-  },
-  {
-   state: "DC",
-   familyOf1: 3336.8,
-   familyOf2: 3919.2,
-   familyOf3: 4123.2,
-   familyOf4: 4596.8,
-   familyOf5: 4666.4,
-  },
-  {
-   state: "HI",
-   familyOf1: 2204,
-   familyOf2: 2599,
-   familyOf3: 2738,
-   familyOf4: 3049,
-   familyOf5: 3093,
-  },
-  {
-   state: "FL",
-   familyOf1: 1531.81,
-   familyOf2: 1800.72,
-   familyOf3: 1895.17,
-   familyOf4: 2111.56,
-   familyOf5: 2145.67,
-  },
-  {
-   state: "GA",
-   familyOf1: 1473,
-   familyOf2: 1732,
-   familyOf3: 1825,
-   familyOf4: 2032,
-   familyOf5: 2067,
-  },
-  {
-   state: "ID",
-   familyOf1: 1530,
-   familyOf2: 1795,
-   familyOf3: 1898,
-   familyOf4: 2101,
-   familyOf5: 2144,
-  },
-  {
-   state: "HI",
-   familyOf1: 2531.4,
-   familyOf2: 3523.4,
-   familyOf3: 3132,
-   familyOf4: 3124.2,
-   familyOf5: 3396.4,
-  },
-  {
-   state: "IL",
-   familyOf1: 1700.6,
-   familyOf2: 1556.6,
-   familyOf3: 1798.8,
-   familyOf4: 2060.2,
-   familyOf5: 1505.4,
-  },
-  {
-   state: "IN",
-   familyOf1: 1390,
-   familyOf2: 1634,
-   familyOf3: 1722,
-   familyOf4: 1920,
-   familyOf5: 1952,
-  },
-  {
-   state: "IA",
-   familyOf1: 1366,
-   familyOf2: 1604,
-   familyOf3: 1690,
-   familyOf4: 1883,
-   familyOf5: 1914,
-  },
-  {
-   state: "KS",
-   familyOf1: 1375,
-   familyOf2: 1614,
-   familyOf3: 1701,
-   familyOf4: 1898,
-   familyOf5: 1930,
-  },
-  {
-   state: "KY",
-   familyOf1: 1315,
-   familyOf2: 1544,
-   familyOf3: 1626,
-   familyOf4: 1810,
-   familyOf5: 1839,
-  },
-  {
-   state: "LA",
-   familyOf1: 1469,
-   familyOf2: 1725,
-   familyOf3: 1818,
-   familyOf4: 2027,
-   familyOf5: 2060,
-  },
-  {
-   state: "ME",
-   familyOf1: 1546,
-   familyOf2: 1813,
-   familyOf3: 1911,
-   familyOf4: 2132,
-   familyOf5: 2167,
-  },
-  {
-   state: "MD",
-   familyOf1: 2101,
-   familyOf2: 2467,
-   familyOf3: 2597,
-   familyOf4: 2893,
-   familyOf5: 2937,
-  },
-  {
-   state: "MA",
-   familyOf1: 2445,
-   familyOf2: 2870,
-   familyOf3: 3023,
-   familyOf4: 3374,
-   familyOf5: 3428,
-  },
-  {
-   state: "MI",
-   familyOf1: 1505,
-   familyOf2: 1767,
-   familyOf3: 1860,
-   familyOf4: 2072,
-   familyOf5: 2106,
-  },
-  {
-   state: "MN",
-   familyOf1: 1535,
-   familyOf2: 1805,
-   familyOf3: 1900,
-   familyOf4: 2117,
-   familyOf5: 2151,
-  },
-  {
-   state: "MS",
-   familyOf1: 1278,
-   familyOf2: 1501,
-   familyOf3: 1580,
-   familyOf4: 1763,
-   familyOf5: 1793,
-  },
-  {
-   state: "MO",
-   familyOf1: 1361,
-   familyOf2: 1597,
-   familyOf3: 1681,
-   familyOf4: 1876,
-   familyOf5: 1905,
-  },
-  {
-   state: "NE",
-   familyOf1: 1468,
-   familyOf2: 1725,
-   familyOf3: 1816,
-   familyOf4: 2024,
-   familyOf5: 2057,
-  },
-  {
-   state: "NV",
-   familyOf1: 1601,
-   familyOf2: 1881,
-   familyOf3: 1977,
-   familyOf4: 2203,
-   familyOf5: 2241,
-  },
-  {
-   state: "NH",
-   familyOf1: 1976,
-   familyOf2: 2320,
-   familyOf3: 2446,
-   familyOf4: 2722,
-   familyOf5: 2767,
-  },
-  {
-   state: "NJ",
-   familyOf1: 2623,
-   familyOf2: 3078,
-   familyOf3: 3244,
-   familyOf4: 3622,
-   familyOf5: 3677,
-  },
-  {
-   state: "NM",
-   familyOf1: 1466,
-   familyOf2: 1723,
-   familyOf3: 1818,
-   familyOf4: 2024,
-   familyOf5: 2056,
-  },
-  {
-   state: "NY",
-   familyOf1: 1836,
-   familyOf2: 2156,
-   familyOf3: 2272,
-   familyOf4: 2534,
-   familyOf5: 2574,
-  },
-  {
-   state: "NC",
-   familyOf1: 1414,
-   familyOf2: 1660,
-   familyOf3: 1748,
-   familyOf4: 1947,
-   familyOf5: 1978,
-  },
-  {
-   state: "ND",
-   familyOf1: 1437,
-   familyOf2: 1688,
-   familyOf3: 1780,
-   familyOf4: 1984,
-   familyOf5: 2016,
-  },
-  {
-   state: "OH",
-   familyOf1: 1432,
-   familyOf2: 1683,
-   familyOf3: 1771,
-   familyOf4: 1972,
-   familyOf5: 2004,
-  },
-  {
-   state: "OK",
-   familyOf1: 1329,
-   familyOf2: 1561,
-   familyOf3: 1643,
-   familyOf4: 1830,
-   familyOf5: 1859,
-  },
-  {
-   state: "OR",
-   familyOf1: 1739.9,
-   familyOf2: 2046.7,
-   familyOf3: 2156.7,
-   familyOf4: 2403.2,
-   familyOf5: 2443.8,
-  },
-  {
-   state: "PA",
-   familyOf1: 1481.5,
-   familyOf2: 1740.5,
-   familyOf3: 1833.2,
-   familyOf4: 2043.9,
-   familyOf5: 2077.4,
-  },
-  {
-   state: "RI",
-   familyOf1: 2073.4,
-   familyOf2: 2430.4,
-   familyOf3: 2550.6,
-   familyOf4: 2841.8,
-   familyOf5: 2887.8,
-  },
-  {
-   state: "SC",
-   familyOf1: 1452.1,
-   familyOf2: 1708.9,
-   familyOf3: 1799.3,
-   familyOf4: 2006.9,
-   familyOf5: 2038.3,
-  },
-  {
-   state: "SD",
-   familyOf1: 1396.3,
-   familyOf2: 1640.4,
-   familyOf3: 1728.7,
-   familyOf4: 1923.2,
-   familyOf5: 1955.9,
-  },
-  {
-   state: "TN",
-   familyOf1: 1391.1,
-   familyOf2: 1632.4,
-   familyOf3: 1718.4,
-   familyOf4: 1911.4,
-   familyOf5: 1944.2,
-  },
-  {
-   state: "TX",
-   familyOf1: 2800,
-   familyOf2: 4100,
-   familyOf3: 5200,
-   familyOf4: 6200,
-   familyOf5: 7200,
-  },
-  {
-   state: "UT",
-   familyOf1: 1589.5,
-   familyOf2: 1865.5,
-   familyOf3: 1964.5,
-   familyOf4: 2185.5,
-   familyOf5: 2220.5,
-  },
-  {
-   state: "VT",
-   familyOf1: 1753.5,
-   familyOf2: 2057.5,
-   familyOf3: 2165.5,
-   familyOf4: 2415.5,
-   familyOf5: 2454.5,
-  },
-  {
-   state: "VA",
-   familyOf1: 1623.5,
-   familyOf2: 1905.5,
-   familyOf3: 2005.5,
-   familyOf4: 2234.5,
-   familyOf5: 2270.5,
-  },
-  {
-   state: "WA",
-   familyOf1: 1944.61,
-   familyOf2: 2282.25,
-   familyOf3: 2401.13,
-   familyOf4: 2676.02,
-   familyOf5: 2722.7,
-  },
-  {
-   state: "WV",
-   familyOf1: 1276.97,
-   familyOf2: 1499.24,
-   familyOf3: 1578.21,
-   familyOf4: 1760.02,
-   familyOf5: 1788.34,
-  },
-  {
-   state: "WI",
-   familyOf1: 1533.22,
-   familyOf2: 1800.95,
-   familyOf3: 1896.18,
-   familyOf4: 2116.62,
-   familyOf5: 2152.86,
-  },
-  {
-   state: "WY",
-   familyOf1: 1610.36,
-   familyOf2: 1890.18,
-   familyOf3: 1992.89,
-   familyOf4: 2223.73,
-   familyOf5: 2259.54,
-  },
-  {
-   state: "PR",
-   familyOf1: 1085.72,
-   familyOf2: 1275.46,
-   familyOf3: 1344.74,
-   familyOf4: 1497.04,
-   familyOf5: 1521.96,
-  },
- ];
-
- const auto = {
-  northeastRegion: {
-   states: ["CT", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
-   oneCar: 298,
-   twoCars: 596,
-  },
-  midwestRegion: {
-   states: [
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "MI",
-    "MN",
-    "MO",
-    "NE",
-    "ND",
-    "OH",
-    "SD",
-    "WI",
-   ],
-   oneCar: 225,
-   twoCars: 450,
-  },
-  southRegion: {
-   states: [
-    "AL",
-    "AR",
-    "DE",
-    "FL",
-    "GA",
-    "KY",
-    "LA",
-    "MD",
-    "MS",
-    "NC",
-    "OK",
-    "SC",
-    "TN",
-    "TX",
-    "VA",
-    "WV",
-   ],
-   oneCar: 242,
-   twoCars: 484,
-  },
-  westRegion: {
-   states: [
-    "AK",
-    "AZ",
-    "CA",
-    "CO",
-    "HI",
-    "ID",
-    "MT",
-    "NV",
-    "NM",
-    "OR",
-    "UT",
-    "WA",
-    "WY",
-   ],
-   oneCar: 264,
-   twoCars: 528,
-  },
- };
- const healthCareExpenses = {
-  under65: 79,
-  over65: 154,
- };
-
- const livingExpenses = {
-  familyOf1: {
-   food: 466,
-   housekeepingSupplies: 47,
-   apparelAndServices: 96,
-   personalCare: 43,
-   miscellaneous: 189,
-   total: 841,
-  },
-  familyOf2: {
-   food: 777,
-   housekeepingSupplies: 80,
-   apparelAndServices: 145,
-   personalCare: 78,
-   miscellaneous: 309,
-   total: 1389,
-  },
-  familyOf3: {
-   food: 936,
-   housekeepingSupplies: 85,
-   apparelAndServices: 207,
-   personalCare: 91,
-   miscellaneous: 381,
-   total: 1700,
-  },
-  familyOf4: {
-   food: 1123,
-   housekeepingSupplies: 90,
-   apparelAndServices: 252,
-   personalCare: 97,
-   miscellaneous: 431,
-   total: 1993,
-  },
-  familyOf5: {
-   food: 1213,
-   housekeepingSupplies: 97,
-   apparelAndServices: 272,
-   personalCare: 105,
-   miscellaneous: 465,
-   total: 2349,
-  },
- };
 
  function calculateTotalExpenses() {
   const { state, carsOwned, residents, residents65 } = formResponse;
@@ -872,7 +127,6 @@ const SettlementForm = () => {
 
   const residentsUnder65 = parseInt(residents) - (parseInt(residents65) || 0);
 
-  console.log(residentsUnder65);
   const healthCareExpense =
    healthCareExpenses.under65 * parseInt(residentsUnder65) +
    healthCareExpenses.over65 * parseInt(residents65);
@@ -882,12 +136,6 @@ const SettlementForm = () => {
   const totalExpenses =
    autoCost + housingExpense + healthCareExpense + livingExpensesData.total;
 
-  console.log(
-   autoCost,
-   housingExpense,
-   healthCareExpense,
-   livingExpensesData.total
-  );
   return {
    totalExpenses,
    autoCost,
@@ -928,8 +176,6 @@ const SettlementForm = () => {
  function calculateTotalIncome() {
   const { incomes, equity } = formResponse;
 
-  console.log(incomes, "incomes");
-
   const totalWages =
    incomes
     .filter((income) => income.type === "salary")
@@ -942,19 +188,22 @@ const SettlementForm = () => {
 
   const totalIncome = totalWages + totalPassiveIncome;
 
-  console.log(totalIncome, "tot in income");
-  console.log(totalWages, "wage in income");
-  console.log(totalPassiveIncome, "passive in income");
+  const wageIncomePercentage = (totalWages / totalIncome) * 100;
 
-  return { totalIncome, totalWages, totalPassiveIncome };
+  const passiveIncomePercentage = (totalPassiveIncome / totalIncome) * 100;
+
+  return {
+   totalIncome,
+   totalWages,
+   totalPassiveIncome,
+   wageIncomePercentage,
+   passiveIncomePercentage,
+  };
  }
 
  function calculateMonthlyCollectionAmount() {
   const totalExpenses = calculateTotalExpenses().totalExpenses;
   const { totalIncome } = calculateTotalIncome();
-
-  console.log(totalExpenses, "expenses in collection amount");
-  console.log(totalIncome, "income in collection amount");
 
   const monthlyCollectionAmount = totalIncome - totalExpenses;
 
@@ -966,20 +215,63 @@ const SettlementForm = () => {
   const collectionWindow = calculateCollectionWindow().collectionWindow;
   const plausibleOfferAmount = monthlyCollectionAmount * collectionWindow;
 
-  console.log(monthlyCollectionAmount, "collection amount in offer amount");
-
   return plausibleOfferAmount;
  }
 
  function determineSettlementCalculation() {
+  const parseAmountValue = (amount) => {
+   return parseFloat(amount.replace("$", ""));
+  };
   const plausibleOfferAmount = calculatePlausibleOfferAmount();
+
   const rcpWindow = calculateCollectionWindow().collectionWindow;
   const federalLiability = formResponse.taxLiabilities
    .filter((liability) => liability.plaintiff === "irs")
-   .map((liability) => parseFloat(liability.amount.replace("$", "")))[0];
+   .map((liability) => {
+    const portion = parseAmountValue(liability.amount) / liability.years.length;
+    const unfiledPortion = portion * 0.95;
+    const filedPortions = liability.years.map((year) =>
+     liability.unfiledYears.includes(year) ? unfiledPortion : portion
+    );
+    return filedPortions.reduce((total, portion) => total + portion, 0);
+   })[0];
 
-  console.log(plausibleOfferAmount / federalLiability, "poffer");
+  const stateLiability =
+   formResponse.taxLiabilities
+    .filter((liability) => liability.plaintiff === "state")
+    .map((liability) => {
+     const portion =
+      parseAmountValue(liability.amount) / liability.years.length;
+     const unfiledPortion = portion * 0.95;
+     const filedPortions = liability.years.map((year) =>
+      liability.unfiledYears.includes(year) ? unfiledPortion : portion
+     );
+     return filedPortions.reduce((total, portion) => total + portion, 0);
+    })[0] || 0;
 
+  const unfiledFederalLiability = formResponse.taxLiabilities
+   .filter((liability) => liability.plaintiff === "irs")
+   .map((liability) => parseAmountValue(liability.amount))[0];
+
+  const unfiledStateLiability = formResponse.taxLiabilities
+   .filter((liability) => liability.plaintiff === "state")
+   .map((liability) => parseAmountValue(liability.amount))[0];
+  const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+
+  const unfiledLiabilities = { unfiledFederalLiability, unfiledStateLiability };
+
+  function calculateReducedLiability() {
+   const liabilityToBeDivided =
+    federalLiability / calculateCollectionWindow().expirations.length;
+   const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
+    (expiration) => expiration.years.length > 6
+   );
+   const reducedLiability = csedYearsGreaterThan6.reduce((sum, expiration) => {
+    const numYearsGreaterThan6 = expiration.years.length - 6;
+    return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
+   }, 0);
+   return reducedLiability;
+  }
   const equity = formResponse.equity;
   const highEquityThreshold = 10000;
   const highLiabilityThreshold = 50000;
@@ -990,10 +282,8 @@ const SettlementForm = () => {
    equity >= highEquityThreshold &&
    federalLiability >= highLiabilityThreshold
   ) {
-   const maxLiabilityReduction = federalLiability - plausibleOfferAmount;
-   const equityReduction = Math.min(equity * 0.8, highEquityThreshold);
-   liabilityReduction = Math.min(equityReduction, maxLiabilityReduction);
-
+   const maxLiabilityReduction = 0.75 * federalLiability;
+   liabilityReduction = Math.min(equity * 0.8, maxLiabilityReduction);
    liabilityLessEquity -= liabilityReduction;
    offerLumpSumLessEquity -= liabilityReduction;
   }
@@ -1002,6 +292,10 @@ const SettlementForm = () => {
    return {
     offerStatus: "CNC",
     federalLiability,
+    formResponse,
+    income: calculateTotalIncome(),
+    unfiledLiabilities,
+    savings: liabilityLessEquity ? liabilityLessEquity : federalLiability,
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
      : null,
@@ -1015,46 +309,87 @@ const SettlementForm = () => {
     plausibleOfferAmount >= 0.5 * federalLiability &&
     plausibleOfferAmount <= 0.79 * federalLiability
    ) {
-    const stateLiability = formResponse.taxLiabilities
-     .filter((liability) => liability.plaintiff === "state")
-     .map((liability) => parseFloat(liability.amount.replace("$", "")))[0];
+    let statePayment = stateLiability / rcpWindow || 0;
 
-    console.log(stateLiability);
-
-    const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
-    let statePayment = stateLiability / rcpWindow;
-    let monthlyExpenses =
-     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
-    let updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
-
-    while (updatedPlausibleOfferAmount < 0.3 * federalLiability) {
-     statePayment *= 0.25;
-     monthlyExpenses =
+    if (statePayment > 0) {
+     let monthlyExpenses =
       calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
-     updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
-    }
+     let updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
 
-    return {
-     offerStatus: "OIC",
-     statePayment,
-     federalLiability,
-     rcpWindow,
-     plausibleOfferAmount:
-      updatedPlausibleOfferAmount > 0
-       ? updatedPlausibleOfferAmount
-       : plausibleOfferAmount,
-     monthlyExpenses,
-     offerLumpSum: plausibleOfferAmount * 0.8,
-     offerPaymentPlans: [
-      plausibleOfferAmount / 12,
-      plausibleOfferAmount / 24,
-      plausibleOfferAmount / 36,
-     ],
-    };
+     while (
+      updatedPlausibleOfferAmount < 0.3 * federalLiability &&
+      statePayment > 0
+     ) {
+      statePayment *= 0.75;
+      monthlyExpenses =
+       calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+      updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+     }
+     return {
+      offerStatus: "OIC WITH STATE PAYMENT",
+      statePayment,
+      unfiledLiabilities,
+      formResponse,
+      income: calculateTotalIncome(),
+      federalLiability,
+      rcpWindow,
+      liquidation: liabilityReduction
+       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+       : null,
+      plausibleOfferAmount:
+       updatedPlausibleOfferAmount > 0
+        ? updatedPlausibleOfferAmount
+        : plausibleOfferAmount,
+      monthlyExpenses,
+      savings: unfiledFederalLiability
+       ? unfiledFederalLiability - plausibleOfferAmount
+       : federalLiability - plausibleOfferAmount,
+
+      offerLumpSum: plausibleOfferAmount * 0.8,
+      offerPaymentPlans: [
+       plausibleOfferAmount / 12,
+       plausibleOfferAmount / 24,
+       plausibleOfferAmount / 36,
+      ],
+     };
+    } else {
+     const monthlyPaymentPlan = (0.75 * federalLiability) / rcpWindow;
+
+     return {
+      offerStatus: "OIC or DDIA",
+      statePayment,
+      federalLiability,
+      unfiledLiabilities,
+      formResponse,
+      monthlyPaymentPlan: plausibleOfferAmount > 0.66 && monthlyPaymentPlan,
+      rcpWindow,
+      liquidation: liabilityReduction
+       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+       : null,
+      plausibleOfferAmount,
+      monthlyExpenses: calculateTotalExpenses(),
+      offerLumpSum: plausibleOfferAmount * 0.8,
+      offerPaymentPlans: [
+       plausibleOfferAmount / 12,
+       plausibleOfferAmount / 24,
+       plausibleOfferAmount / 36,
+      ],
+      savings: {
+       ddiaSavings: unfiledFederalLiability
+        ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
+        : federalLiability - monthlyPaymentPlan * rcpWindow,
+       offerSavings: unfiledFederalLiability
+        ? unfiledFederalLiability - plausibleOfferAmount
+        : federalLiability - plausibleOfferAmount,
+      },
+     };
+    }
    } else {
     return {
      offerStatus: "OIC",
      federalLiability,
+     unfiledLiabilities,
+     formResponse,
      plausibleOfferAmount,
      rcpWindow,
      liquidation: liabilityReduction
@@ -1067,59 +402,92 @@ const SettlementForm = () => {
       plausibleOfferAmount / 24,
       plausibleOfferAmount / 36,
      ],
+     savings: unfiledFederalLiability
+      ? unfiledFederalLiability - plausibleOfferAmount
+      : federalLiability - plausibleOfferAmount,
     };
    }
-  } else if (
-   plausibleOfferAmount >= 0.8 * federalLiability &&
-   plausibleOfferAmount <= 1.2 * federalLiability
-  ) {
-   const stateLiability =
-    formResponse.taxLiabilities
-     .filter((liability) => liability.plaintiff === "state")
-     .map((liability) => liability.amount)[0] || 0;
-
-   const rcpWindow = calculateCollectionWindow().collectionWindow;
-   const statePayment = stateLiability / rcpWindow;
-   const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
+  } else if (plausibleOfferAmount <= 1.2 * federalLiability) {
+   let statePayment = stateLiability / rcpWindow || 0;
    let monthlyExpenses =
     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
    let updatedPlausibleOfferAmount =
-    calculatePlausibleOfferAmount() - debtPayment;
+    calculatePlausibleOfferAmount() - monthlyExpenses;
+   const totalIncome = calculateTotalIncome().totalIncome;
+   let maxStatePayment = 0.2 * totalIncome;
+   const maxStateCollectionWindow = stateLiability / maxStatePayment;
 
-   while (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
-    statePayment *= 0.75;
-    monthlyExpenses =
-     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
-    updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
+   if (statePayment * maxStateCollectionWindow > maxStatePayment) {
+    statePayment = maxStatePayment;
    }
 
-   const monthlyPaymentPlan =
-    (0.75 * federalLiability) / calculateCollectionWindow().collectionWindow;
-   const savings = 0.75 * federalLiability;
+   while (
+    (updatedPlausibleOfferAmount < 0.5 * federalLiability ||
+     updatedPlausibleOfferAmount > 0.8 * federalLiability) &&
+    statePayment < maxStatePayment
+   ) {
+    if (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
+     statePayment *= 0.75;
+    } else {
+     statePayment *= 1.25;
+    }
 
-   return {
-    offerStatus:
-     updatedPlausibleOfferAmount < 0.79 * federalLiability ? "OIC" : "DDIA",
-    plausibleOfferAmount:
-     updatedPlausibleOfferAmount > 0
-      ? updatedPlausibleOfferAmount
-      : plausibleOfferAmount,
-    statePayment,
-    federalLiability,
-    rcpWindow,
-    monthlyExpenses,
-    liquidation: liabilityReduction
-     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-     : null,
-    monthlyPaymentPlan: updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
-    savings: updatedPlausibleOfferAmount > 0.8 && savings,
-    offerLumpSum: plausibleOfferAmount * 0.8,
-    offerPaymentPlans: [
-     plausibleOfferAmount / 12,
-     plausibleOfferAmount / 24,
-     plausibleOfferAmount / 36,
-    ],
-   };
+    monthlyExpenses =
+     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+    updatedPlausibleOfferAmount =
+     calculatePlausibleOfferAmount() - monthlyExpenses;
+   }
+
+   const monthlyPaymentPlan = (0.75 * federalLiability) / rcpWindow;
+
+   if (updatedPlausibleOfferAmount < 0.8 * federalLiability) {
+    return {
+     offerStatus: statePayment > 0 ? "OIC WITH STATE PAYMENT" : "POSSIBLE OIC",
+     plausibleOfferAmount:
+      updatedPlausibleOfferAmount > 0
+       ? updatedPlausibleOfferAmount
+       : plausibleOfferAmount,
+     statePayment,
+     unfiledLiabilities,
+     federalLiability,
+     formResponse,
+     rcpWindow,
+     monthlyExpensesTotal: monthlyExpenses,
+     monthlyExpenses: calculateTotalExpenses(),
+     liquidation: liabilityReduction
+      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+      : null,
+     offerLumpSum: plausibleOfferAmount * 0.8,
+     offerPaymentPlans: [
+      plausibleOfferAmount / 12,
+      plausibleOfferAmount / 24,
+      plausibleOfferAmount / 36,
+     ],
+     savings: unfiledFederalLiability
+      ? unfiledFederalLiability - plausibleOfferAmount
+      : federalLiability - plausibleOfferAmount,
+    };
+   } else {
+    return {
+     offerStatus: "DDIA",
+     statePayment,
+     reducedLiability: calculateReducedLiability(),
+     federalLiability,
+     unfiledLiabilities,
+     formResponse,
+     rcpWindow,
+     monthlyExpensesTotal: monthlyExpenses,
+     monthlyExpenses: calculateTotalExpenses(),
+     liquidation: liabilityReduction
+      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
+      : null,
+     monthlyPaymentPlan:
+      updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
+     savings: unfiledFederalLiability
+      ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
+      : federalLiability - monthlyPaymentPlan * rcpWindow,
+    };
+   }
   } else if (
    plausibleOfferAmount >= 1.3 * federalLiability &&
    calculateMonthlyCollectionAmount() * 6 * 12 < federalLiability
@@ -1139,18 +507,21 @@ const SettlementForm = () => {
     const numYearsGreaterThan6 = expiration.years.length - 6;
     return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
    }, 0);
-   const monthlyPaymentPlan = liabilityToBeDivided / ddiaDuration;
-   const savings = federalLiability - reducedLiability;
+   const monthlyPaymentPlan = reducedLiability / ddiaDuration;
 
    return {
     offerStatus: "DDIA",
     federalLiability,
+    reducedLiability: calculateReducedLiability(),
     monthlyPaymentPlan,
-
+    formResponse,
+    monthlyExpenses: calculateTotalExpenses(),
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
      : null,
-    savings,
+    savings: unfiledFederalLiability
+     ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
+     : federalLiability - monthlyPaymentPlan * rcpWindow,
    };
   } else if (calculateMonthlyCollectionAmount() * 6 * 12 > federalLiability) {
    const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
@@ -1165,10 +536,15 @@ const SettlementForm = () => {
    return {
     offerStatus: "6-Year Payment Plan",
     federalLiability,
+    formResponse,
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
      : null,
     monthlyPaymentPlan,
+    monthlyExpenses: calculateTotalExpenses(),
+    estimatedCollectionAmount: calculateMonthlyCollectionAmount(),
+    savings:
+     totalDebtReduction === 0 ? 0.03 * federalLiability : totalDebtReduction,
    };
   }
 
@@ -1176,102 +552,18 @@ const SettlementForm = () => {
    offerStatus:
     "Please resubmit we were unable to make a proper determination, please review your information",
    federalLiability,
+   formResponse,
    plausibleOfferAmount,
    rcpWindow,
    monthlyExpenses: calculateTotalExpenses(),
   };
-
-  // Return null if no settlement calculation is determined
  }
- /*
- function generateFinancialSummaries() {
-  const { federalLiability, stateLiability, monthlyPaymentPlan } =
-   determineSettlementCalculation();
-  const {
-   monthlyExpenses,
-   housingExpense,
-   healthcareExpenses,
-   livingExpenses,
-   autoCost,
-  } = calculateTotalExpenses();
-  const { totalIncome, totalWages, totalPassiveIncome, totalEquity } =
-   calculateTotalIncome();
-  const settlementCalculation = determineSettlementCalculation();
 
-  const financialSummaries = {
-   liabilitySummary: {
-    federalLiability,
-    stateLiability,
-    ddiaLiability:
-     monthlyPaymentPlan * calculateCollectionWindow().collectionWindow,
-    sixYearPlanLiability: federalLiability * 0.9,
-    plausibleOfferAmount: settlementCalculation.plausibleOfferAmount,
-    monthlyPaymentPlan,
-   },
-   context: {
-    monthlyExpenses,
-    housingExpenses: housingExpense,
-    healthcareExpenses,
-    livingExpenses,
-    auto: autoCost,
-   },
-   incomeSummary: {
-    totalIncome,
-    wageIncomePercentage: (totalWages / totalIncome) * 100,
-    passiveIncomePercentage: (totalPassiveIncome / totalIncome) * 100,
-    equityIncomePercentage: (totalEquity / totalIncome) * 100,
-   },
-   formResponse,
-   settlementCalculation,
-   errors: [], // Add any errors encountered during processing to this array
-  };
-
-  return financialSummaries;
- }
-*/
  const handleSubmit = (e) => {
   e.preventDefault();
-  const totalExpenses = calculateTotalExpenses();
-  const collectionWindow = calculateCollectionWindow().collectionWindow;
-  const monthlyCollectionAmount = calculateMonthlyCollectionAmount();
-  const plausibleOfferAmount = calculatePlausibleOfferAmount();
+
   const settlementCalculation = determineSettlementCalculation();
-  const totalIncome = calculateTotalIncome();
-
-  // Generate the financial summaries object
-  /*
-  const financialSummaries = {
-   liabilitySummary: {
-    federalLiability: settlementCalculation.federalLiability,
-    stateLiability: settlementCalculation.stateLiability,
-    ddiaLiability: settlementCalculation.monthlyPaymentPlan * collectionWindow,
-    sixYearPlanLiability: settlementCalculation.federalLiability * 0.9,
-    plausibleOfferAmount: settlementCalculation.plausibleOfferAmount,
-    monthlyPaymentPlan: settlementCalculation.monthlyPaymentPlan,
-   },
-   context: {
-    monthlyExpenses: totalExpenses.totalExpenses,
-    housingExpenses: totalExpenses.housingExpense,
-    healthcareExpenses: totalExpenses.healthcareExpenses,
-    livingExpenses: totalExpenses.livingExpenses,
-    auto: totalExpenses.autoCost,
-   },
-   incomeSummary: {
-    totalIncome: totalIncome.totalIncome,
-    wageIncomePercentage:
-     (totalIncome.totalWages / totalIncome.totalIncome) * 100,
-    passiveIncomePercentage:
-     (totalIncome.totalPassiveIncome / totalIncome.totalIncome) * 100,
-    equityIncomePercentage:
-     (totalIncome.totalEquity / totalIncome.totalIncome) * 100,
-   },
-   formResponse,
-   settlementCalculation,
-   errors: [], // Add any errors encountered during processing to this array
-  };
-*/
-  console.log(settlementCalculation);
-
+  setSettlementCalculation(settlementCalculation);
   // Animate form transition
   setFormVisible(false);
   setTimeout(() => {
@@ -1387,59 +679,6 @@ const SettlementForm = () => {
  const hasUnfiledYears = formResponse.taxLiabilities.some(
   (debt) => debt.unfiledYears.length > 0
  );
-
- const states = [
-  { longName: "Alabama", abbreviation: "AL" },
-  { longName: "Alaska", abbreviation: "AK" },
-  { longName: "Arizona", abbreviation: "AZ" },
-  { longName: "Arkansas", abbreviation: "AR" },
-  { longName: "California", abbreviation: "CA" },
-  { longName: "Colorado", abbreviation: "CO" },
-  { longName: "Connecticut", abbreviation: "CT" },
-  { longName: "Delaware", abbreviation: "DE" },
-  { longName: "Florida", abbreviation: "FL" },
-  { longName: "Georgia", abbreviation: "GA" },
-  { longName: "Hawaii", abbreviation: "HI" },
-  { longName: "Idaho", abbreviation: "ID" },
-  { longName: "Illinois", abbreviation: "IL" },
-  { longName: "Indiana", abbreviation: "IN" },
-  { longName: "Iowa", abbreviation: "IA" },
-  { longName: "Kansas", abbreviation: "KS" },
-  { longName: "Kentucky", abbreviation: "KY" },
-  { longName: "Louisiana", abbreviation: "LA" },
-  { longName: "Maine", abbreviation: "ME" },
-  { longName: "Maryland", abbreviation: "MD" },
-  { longName: "Massachusetts", abbreviation: "MA" },
-  { longName: "Michigan", abbreviation: "MI" },
-  { longName: "Minnesota", abbreviation: "MN" },
-  { longName: "Mississippi", abbreviation: "MS" },
-  { longName: "Missouri", abbreviation: "MO" },
-  { longName: "Montana", abbreviation: "MT" },
-  { longName: "Nebraska", abbreviation: "NE" },
-  { longName: "Nevada", abbreviation: "NV" },
-  { longName: "New Hampshire", abbreviation: "NH" },
-  { longName: "New Jersey", abbreviation: "NJ" },
-  { longName: "New Mexico", abbreviation: "NM" },
-  { longName: "New York", abbreviation: "NY" },
-  { longName: "North Carolina", abbreviation: "NC" },
-  { longName: "North Dakota", abbreviation: "ND" },
-  { longName: "Ohio", abbreviation: "OH" },
-  { longName: "Oklahoma", abbreviation: "OK" },
-  { longName: "Oregon", abbreviation: "OR" },
-  { longName: "Pennsylvania", abbreviation: "PA" },
-  { longName: "Rhode Island", abbreviation: "RI" },
-  { longName: "South Carolina", abbreviation: "SC" },
-  { longName: "South Dakota", abbreviation: "SD" },
-  { longName: "Tennessee", abbreviation: "TN" },
-  { longName: "Texas", abbreviation: "TX" },
-  { longName: "Utah", abbreviation: "UT" },
-  { longName: "Vermont", abbreviation: "VT" },
-  { longName: "Virginia", abbreviation: "VA" },
-  { longName: "Washington", abbreviation: "WA" },
-  { longName: "West Virginia", abbreviation: "WV" },
-  { longName: "Wisconsin", abbreviation: "WI" },
-  { longName: "Wyoming", abbreviation: "WY" },
- ];
 
  const [showCheckboxes, setShowCheckboxes] = useState(false);
 
@@ -1715,4 +954,3 @@ const SettlementForm = () => {
 };
 
 export default SettlementForm;
-// Calculate the Reasonable Collection Potential (RCP)
