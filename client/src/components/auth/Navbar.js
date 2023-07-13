@@ -23,7 +23,6 @@ const Navbar = ({ toggleRegister }) => {
  } = useContext(AuthContext);
  const { setAlert } = useContext(AlertContext);
  // Define your Google OAuth configuration
- const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
  // Handle successful Google login
  const handleGoogleLoginSuccess = async (response) => {
@@ -50,7 +49,7 @@ const Navbar = ({ toggleRegister }) => {
   setAlert(error.message, "error");
  };
  const signIn = useGoogleLogin({
-  clientId: googleClientId,
+  clientId: clientId,
   onSuccess: handleGoogleLoginSuccess,
   onFailure: handleGoogleLoginFailure,
   scope: "openid",
