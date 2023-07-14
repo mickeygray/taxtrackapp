@@ -174,7 +174,7 @@ const SettlementForm = () => {
  }
 
  function calculateTotalIncome() {
-  const { incomes, equity } = formResponse;
+  const { incomes } = formResponse;
 
   const totalWages =
    incomes
@@ -260,6 +260,7 @@ const SettlementForm = () => {
 
   const unfiledLiabilities = { unfiledFederalLiability, unfiledStateLiability };
 
+  const income = calculateTotalIncome();
   function calculateReducedLiability() {
    const liabilityToBeDivided =
     federalLiability / calculateCollectionWindow().expirations.length;
@@ -293,7 +294,7 @@ const SettlementForm = () => {
     offerStatus: "CNC",
     federalLiability,
     formResponse,
-    income: calculateTotalIncome(),
+    income,
     unfiledLiabilities,
     savings: liabilityLessEquity ? liabilityLessEquity : federalLiability,
     liquidation: liabilityReduction
@@ -330,7 +331,7 @@ const SettlementForm = () => {
       statePayment,
       unfiledLiabilities,
       formResponse,
-      income: calculateTotalIncome(),
+      income,
       federalLiability,
       rcpWindow,
       liquidation: liabilityReduction
@@ -344,13 +345,12 @@ const SettlementForm = () => {
       savings: unfiledFederalLiability
        ? unfiledFederalLiability - plausibleOfferAmount
        : federalLiability - plausibleOfferAmount,
-
-      offerLumpSum: plausibleOfferAmount * 0.8,
-      offerPaymentPlans: [
-       plausibleOfferAmount / 12,
-       plausibleOfferAmount / 24,
-       plausibleOfferAmount / 36,
-      ],
+      offerPaymentPlans: {
+       shortTerm: plausibleOfferAmount / 24,
+       offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
+       offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
+       deferred: plausibleOfferAmount / rcpWindow,
+      },
      };
     } else {
      const monthlyPaymentPlan = (0.75 * federalLiability) / rcpWindow;
@@ -359,6 +359,7 @@ const SettlementForm = () => {
       offerStatus: "OIC or DDIA",
       statePayment,
       federalLiability,
+      income,
       unfiledLiabilities,
       formResponse,
       monthlyPaymentPlan: plausibleOfferAmount > 0.66 && monthlyPaymentPlan,
@@ -368,12 +369,12 @@ const SettlementForm = () => {
        : null,
       plausibleOfferAmount,
       monthlyExpenses: calculateTotalExpenses(),
-      offerLumpSum: plausibleOfferAmount * 0.8,
-      offerPaymentPlans: [
-       plausibleOfferAmount / 12,
-       plausibleOfferAmount / 24,
-       plausibleOfferAmount / 36,
-      ],
+      offerPaymentPlans: {
+       shortTerm: plausibleOfferAmount / 24,
+       offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
+       offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
+       deferred: plausibleOfferAmount / rcpWindow,
+      },
       savings: {
        ddiaSavings: unfiledFederalLiability
         ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
@@ -389,6 +390,7 @@ const SettlementForm = () => {
      offerStatus: "OIC",
      federalLiability,
      unfiledLiabilities,
+     income,
      formResponse,
      plausibleOfferAmount,
      rcpWindow,
@@ -396,12 +398,12 @@ const SettlementForm = () => {
       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
       : null,
      monthlyExpenses: calculateTotalExpenses(),
-     offerLumpSum: plausibleOfferAmount * 0.8,
-     offerPaymentPlans: [
-      plausibleOfferAmount / 12,
-      plausibleOfferAmount / 24,
-      plausibleOfferAmount / 36,
-     ],
+     offerPaymentPlans: {
+      shortTerm: plausibleOfferAmount / 24,
+      offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
+      offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
+      deferred: plausibleOfferAmount / rcpWindow,
+     },
      savings: unfiledFederalLiability
       ? unfiledFederalLiability - plausibleOfferAmount
       : federalLiability - plausibleOfferAmount,
@@ -449,6 +451,7 @@ const SettlementForm = () => {
        : plausibleOfferAmount,
      statePayment,
      unfiledLiabilities,
+     income,
      federalLiability,
      formResponse,
      rcpWindow,
@@ -457,12 +460,13 @@ const SettlementForm = () => {
      liquidation: liabilityReduction
       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
       : null,
-     offerLumpSum: plausibleOfferAmount * 0.8,
-     offerPaymentPlans: [
-      plausibleOfferAmount / 12,
-      plausibleOfferAmount / 24,
-      plausibleOfferAmount / 36,
-     ],
+
+     offerPaymentPlans: {
+      shortTerm: plausibleOfferAmount / 24,
+      offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
+      offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
+      deferred: plausibleOfferAmount / rcpWindow,
+     },
      savings: unfiledFederalLiability
       ? unfiledFederalLiability - plausibleOfferAmount
       : federalLiability - plausibleOfferAmount,
@@ -474,6 +478,7 @@ const SettlementForm = () => {
      reducedLiability: calculateReducedLiability(),
      federalLiability,
      unfiledLiabilities,
+     income,
      formResponse,
      rcpWindow,
      monthlyExpensesTotal: monthlyExpenses,
@@ -515,6 +520,7 @@ const SettlementForm = () => {
     reducedLiability: calculateReducedLiability(),
     monthlyPaymentPlan,
     formResponse,
+    income,
     monthlyExpenses: calculateTotalExpenses(),
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
@@ -536,6 +542,7 @@ const SettlementForm = () => {
    return {
     offerStatus: "6-Year Payment Plan",
     federalLiability,
+    income,
     formResponse,
     liquidation: liabilityReduction
      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
@@ -552,6 +559,7 @@ const SettlementForm = () => {
    offerStatus:
     "Please resubmit we were unable to make a proper determination, please review your information",
    federalLiability,
+   income: calculateTotalIncome(),
    formResponse,
    plausibleOfferAmount,
    rcpWindow,
