@@ -1,9 +1,31 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import ProfileContext from "../../context/profile/profileContext";
 import { Pie } from "react-chartjs-2";
-import { Chart } from "chart.js";
+import {
+ Chart as ChartJS,
+ CategoryScale,
+ LinearScale,
+ PointElement,
+ LineElement,
+ BarElement,
+ ArcElement,
+ Tooltip,
+ Legend,
+ registerables as registerablesJS,
+} from "chart.js";
 import Spinner from "../auth/Spinner";
+ChartJS.register(
+ CategoryScale,
+ LinearScale,
+ PointElement,
+ LineElement,
+ BarElement,
+ ArcElement,
+ Tooltip,
+ Legend
+);
 
+ChartJS.register(...registerablesJS);
 const MonthlyExpensesPieChart = ({
  monthlyExpenses,
  monthlyPaymentPlan,
@@ -26,85 +48,87 @@ const MonthlyExpensesPieChart = ({
   personalCare,
   miscellaneous,
  } = livingExpenses;
- useEffect(() => {
-  const chartInstance = chartRef.current;
 
-  // Destroy the previous chart instance if it exists
-  if (chartInstance) {
-   chartInstance.destroy();
-  }
+ let expenseTitle = totalExpenses;
 
-  // Create data for the pie chart
-  const data = {
-   labels: [
-    "Auto Cost",
-    "Housing Expense",
-    "Health Care Expense",
-    "Food",
-    "Housekeeping Supplies",
-    "Apparel and Services",
-    "Personal Care",
-    "Miscellaneous",
-    "State Payment",
-    "DDIA Payment Plan",
-   ],
-   datasets: [
-    {
-     data: [
-      autoCost,
-      housingExpense,
-      healthCareExpense,
-      food,
-      housekeepingSupplies,
-      apparelAndServices,
-      personalCare,
-      miscellaneous,
-      statePayment,
-      monthlyPaymentPlan,
-     ],
-     backgroundColor: [
-      "#FF6384",
-      "#36A2EB",
-      "#FFCE56",
-      "#FF4500",
-      "#32CD32",
-      "#8B008B",
-      "#FFA500",
-      "#00CED1",
-      "#FF1493",
-      "#FFD700",
-     ],
-     hoverBackgroundColor: [
-      "#FF6384",
-      "#36A2EB",
-      "#FFCE56",
-      "#FF4500",
-      "#32CD32",
-      "#8B008B",
-      "#FFA500",
-      "#00CED1",
-      "#FF1493",
-      "#FFD700",
-     ],
-    },
-   ],
-  };
+ if (statePayment !== undefined) expenseTitle += statePayment;
+ if (monthlyPaymentPlan !== undefined) expenseTitle += monthlyPaymentPlan;
 
-  // Render the new chart
-  const newChartInstance = new Chart(chartInstance, {
-   type: "pie",
-   data: data,
-  });
+ const data = {
+  labels: [
+   "Auto Cost",
+   "Housing Expense",
+   "Health Care Expense",
+   "Food",
+   "Housekeeping Supplies",
+   "Apparel and Services",
+   "Personal Care",
+   "Miscellaneous",
+   "State Payment",
+   "DDIA Payment Plan",
+  ],
+  datasets: [
+   {
+    data: [
+     autoCost,
+     housingExpense,
+     healthCareExpense,
+     food,
+     housekeepingSupplies,
+     apparelAndServices,
+     personalCare,
+     miscellaneous,
+     statePayment,
+     monthlyPaymentPlan,
+    ],
+    backgroundColor: [
+     "#FF6384",
+     "#36A2EB",
+     "#FFCE56",
+     "#FF4500",
+     "#32CD32",
+     "#8B008B",
+     "#FFA500",
+     "#00CED1",
+     "#FF1493",
+     "#FFD700",
+    ],
+    hoverBackgroundColor: [
+     "#FF6384",
+     "#36A2EB",
+     "#FFCE56",
+     "#FF4500",
+     "#32CD32",
+     "#8B008B",
+     "#FFA500",
+     "#00CED1",
+     "#FF1493",
+     "#FFD700",
+    ],
+   },
+  ],
+ };
 
-  // Store the chart instance in the ref
-  chartRef.current = newChartInstance;
- }, [monthlyExpenses]);
+ const options = {
+  plugins: {
+   title: {
+    display: true,
+    text:
+     "Total Monthly Expenses:" +
+     expenseTitle.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+     }),
+    position: "bottom",
+   },
+  },
+ };
 
  // Calculate the remaining expenses after subtracting state payment and DDIA payment plan
 
  // Create data for the pie chart
 
- return <canvas ref={chartRef} />;
+ return <Pie ref={chartRef} data={data} options={options} />;
 };
 
 const SettlementChart = () => {
@@ -118,7 +142,7 @@ const SettlementChart = () => {
  const { monthlyExpenses, monthlyPaymentPlan, statePayment } =
   settlementCalculation;
  return (
-  <div>
+  <div style={{ width: "400px", height: "400px" }}>
    {settlementCalculation != null && (
     <MonthlyExpensesPieChart
      monthlyExpenses={monthlyExpenses}
