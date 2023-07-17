@@ -3,7 +3,7 @@
  --primary-color: #77d215;
  --dark-color: #212226;
  --light-color: #f4f4f4;
- --danger-color:	#DC3545;
+ --danger-color: #dc3545;
  --success-color: #3c1361;
 }
 
@@ -959,7 +959,7 @@ table th {
 canvas {
  width: 100vw;
  background: var(--primary-color);
-
+ min-width: 100%;
  box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 9px 0px;
  height: 700px;
  max-height: 700px;

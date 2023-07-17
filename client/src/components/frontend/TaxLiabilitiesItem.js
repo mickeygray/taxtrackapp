@@ -23,7 +23,7 @@ const TaxLiabilitiesItem = ({
  handleTaxLiabilitiesInputChange,
  handleDeleteTaxLiabilities,
 }) => {
- const [expanded, setExpanded] = useState(false);
+ const [expanded, setExpanded] = useState(true);
  const [unfiledYearsSelected, setUnfiledYearsSelected] = useState(false);
 
  const handleToggle = () => {
@@ -59,14 +59,20 @@ const TaxLiabilitiesItem = ({
  };
 
  return (
-  <div key={index}>
+  <div key={index} className='m-1'>
    <Box display='flex' alignItems='center' marginBottom={2}>
     <Box flex={1}>
      {expanded ? (
       <Box key={index} display='flex' alignItems='center' marginBottom={2}>
-       <IconButton onClick={handleToggle}>
-        <VisibilityOff />
-       </IconButton>
+       <Box marginLeft={2}>
+        <IconButton onClick={handleToggle}>
+         <VisibilityOff />
+        </IconButton>
+        <IconButton onClick={() => handleDeleteTaxLiabilities(index)}>
+         <Delete />
+        </IconButton>
+       </Box>
+
        <Grid container spacing={2}>
         <Grid item xs={6}>
          <FormControl fullWidth>
@@ -165,12 +171,6 @@ const TaxLiabilitiesItem = ({
           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
          />
         </div>
-       </Box>
-
-       <Box marginLeft={2}>
-        <IconButton onClick={() => handleDeleteTaxLiabilities(index)}>
-         <Delete />
-        </IconButton>
        </Box>
       </Box>
      ) : (

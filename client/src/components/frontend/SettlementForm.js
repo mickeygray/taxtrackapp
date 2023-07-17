@@ -97,9 +97,11 @@ const SettlementForm = () => {
  const classes = useStyles();
  const [formVisible, setFormVisible] = useState(true);
  const [formResponse, setFormResponse] = useState({
-  taxLiabilities: [],
+  taxLiabilities: [
+   { plaintiff: "", amount: 0, payment: 0, years: [], unfiledYears: [] },
+  ],
   privateDebt: 0,
-  incomes: [],
+  incomes: [{ type: "", amount: 0 }],
   equity: 0,
   state: "",
   carsOwned: 0,
@@ -747,7 +749,7 @@ const SettlementForm = () => {
       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
        Income
       </InputLabel>
-      <div>
+      <div className='m-1'>
        {formResponse.incomes.map((income, index) => (
         <Grid container spacing={2} alignItems='center' key={index}>
          <Grid item xs={4}>
