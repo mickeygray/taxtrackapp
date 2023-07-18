@@ -15,7 +15,7 @@ import { gapi } from "gapi-script";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Landing from "./components/frontend/Landing";
 import axios from "axios";
-
+import Acorns from "./components/frontend/Acorns";
 const App = () => {
  const [clientId, setClientId] = useState("");
  useEffect(() => {
@@ -52,6 +52,7 @@ const App = () => {
        <Routes>
         <Route exact path='/login' element={<Login />} />
         <Route exact path='/' element={<Landing />} />
+        <Route exact path='/acorns' element={<Acorns />} />
         <Route path='/home' element={<PrivateRoute component={Home} />} />
         <Route
          path='/backend'
