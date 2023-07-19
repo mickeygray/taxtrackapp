@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import logo from "../../images/logo.png";
 import SettlementForm from "./SettlementForm";
@@ -271,56 +271,283 @@ const CenteredParagraph = styled.p`
  font-size: 16px;
  color: #555;
 `;
-const scrollLeftAnimation = keyframes`
-  0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-100% + 100vw)); }
+const rotatingAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% + 100vw));
+  }
 `;
 
-const scrollRightAnimation = keyframes`
-  0% { transform: translateX(calc(-100% + 100vw)); }
-  100% { transform: translateX(0); }
+const movingUpAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 `;
 
-const HorizontalScrollContainer = styled.div`
- position: fixed;
- bottom: 20px;
- left: 50%;
- transform: translateX(-50%);
- background-color: #333;
- color: #fff;
- padding: 10px 20px;
+const movingDownAnimation = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+`;
+const RotatingHeadline = styled.h2`
+ /* Add the rotating headline styles here */
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ font-family: "Avenir Next", Helvetica, Arial, sans-serif;
+ font-size: 140px;
+ line-height: 191px;
+ letter-spacing: 0;
+ font-weight: 400;
+ color: #dadada;
  white-space: nowrap;
- z-index: 999;
- animation: ${({ scrollingLeft }) =>
-   scrollingLeft ? scrollLeftAnimation : scrollRightAnimation}
-  5s linear infinite;
 `;
 
-const ScrollText = styled.span`
+const ScrollingDiv = styled.div`
+ overflow: hidden;
+ white-space: nowrap;
+ animation: ${rotatingAnimation} 40s linear infinite;
+`;
+
+const ScrollingText = styled.span`
  display: inline-block;
- padding: 0 20px;
+ padding-left: 20px;
+ padding-right: 20px;
+ animation: ${({ scrollingUp }) =>
+   scrollingUp ? movingUpAnimation : movingDownAnimation}
+  40s linear infinite;
 `;
 
+const OuterWrapper = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ border: 0;
+ height: 100%;
+ max-width: 1440px;
+ padding: 0 60px;
+ margin: 0 auto;
+ display: flex;
+ align-items: center;
+`;
+
+const ButtonWrapper = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ width: 120px;
+ margin-right: 40px;
+ display: flex;
+ align-items: center;
+`;
+
+const ButtonContainer = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ position: relative;
+ display: block;
+ box-sizing: border-box;
+ user-select: none;
+ touch-action: pan-y;
+ -webkit-tap-highlight-color: transparent;
+`;
+
+const Button = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ float: left;
+ min-height: 1px;
+ background: rgba(25, 25, 25, 0.15);
+ border-radius: 50%;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ width: 112px;
+ height: 112px;
+ transition: transform 150ms cubic-bezier(0.32, 0, 0.67, 0),
+  background 300ms ease-in-out;
+ &:hover {
+  background: rgba(25, 25, 25, 0.25);
+ }
+ transform: ${({ active }) => (active ? "translateX(0)" : "translateX(-100%)")};
+
+ margin-bottom: 36px;
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const InfoContainer = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ width: 50%;
+ flex-grow: 1;
+`;
+
+const InfoContent = styled.div`
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ height: 300px;
+ transition: opacity 300ms ease-in-out; /* Opacity transition */
+`;
+
+const TextWrapper = styled.div`
+ width: 50%;
+ padding-left: 40px;
+ padding-right: 40px;
+`;
+
+const SectionTitle = styled.h2`
+ font-size: 28px;
+ font-weight: 500;
+ margin-bottom: 16px;
+`;
+
+const SectionDescription = styled.p`
+ font-size: 18px;
+ line-height: 1.6;
+ color: #666;
+ margin-bottom: 24px;
+`;
+
+const SectionButton = styled.button`
+ padding: 12px 24px;
+ font-size: 16px;
+ font-weight: 500;
+ color: #fff;
+ background-color: #007bff;
+ border: none;
+ border-radius: 4px;
+ cursor: pointer;
+ transition: background-color 0.3s ease-in-out;
+
+ &:hover {
+  background-color: #0056b3;
+ }
+`;
+
+const InfoContentSection = ({ imageSrc, title, description, buttonText }) => {
+ return (
+  <InfoContent>
+   <div>
+    <Image src={imageSrc} alt='Info Image' />
+   </div>
+   <TextWrapper>
+    <SectionTitle>{title}</SectionTitle>
+    <SectionDescription>{description}</SectionDescription>
+    <SectionButton>{buttonText}</SectionButton>
+   </TextWrapper>
+  </InfoContent>
+ );
+};
 const Acorns = () => {
- const [scrollingLeft, setScrollingLeft] = useState(false);
+ const [scrollingUp, setScrollingUp] = useState(false);
 
  const handleScroll = () => {
-  const currentScrollY = window.scrollY;
-
-  if (currentScrollY > 0) {
-   setScrollingLeft(true);
-  } else {
-   setScrollingLeft(false);
-  }
+  let prevScrollY = window.scrollY;
+  setScrollingUp(window.scrollY < prevScrollY);
+  prevScrollY = window.scrollY;
  };
 
- React.useEffect(() => {
+ useEffect(() => {
   window.addEventListener("scroll", handleScroll);
 
   return () => {
    window.removeEventListener("scroll", handleScroll);
   };
  }, []);
+ const [activeSlide, setActiveSlide] = useState(0);
+
+ const handleButtonClick = (index) => {
+  setActiveSlide(index);
+ };
+
+ const sections = [
+  {
+   title: "Section 1 Title",
+   description: "Section 1 Description",
+   buttonText: "Button 1",
+   imageSrc: logo,
+  },
+  {
+   title: "Section 2 Title",
+   description: "Section 2 Description",
+   buttonText: "Button 2",
+   imageSrc: logo,
+  },
+  {
+   title: "Section 3 Title",
+   description: "Section 3 Description",
+   buttonText: "Button 3",
+   imageSrc: logo,
+  },
+  {
+   title: "Section 4 Title",
+   description: "Section 4 Description",
+   buttonText: "Button 4",
+   imageSrc: logo,
+  },
+ ];
+ const filteredSections = sections.filter(
+  (section, index) => index === activeSlide
+ );
  return (
   <>
    <Header>
@@ -394,9 +621,46 @@ const Acorns = () => {
      </FeatureText>
     </FeatureCard>
    </Features>
-   <HorizontalScrollContainer scrollingLeft={scrollingLeft}>
-    <ScrollText>WHY ACORNS</ScrollText>
-   </HorizontalScrollContainer>
+   <OuterWrapper>
+    <ButtonWrapper>
+     <ButtonContainer>
+      <Button active={activeSlide === 0} onClick={() => handleButtonClick(0)}>
+       BALANCE
+      </Button>
+      <Button active={activeSlide === 1} onClick={() => handleButtonClick(1)}>
+       MILESTONES
+      </Button>
+      <Button active={activeSlide === 2} onClick={() => handleButtonClick(2)}>
+       RETURNS
+      </Button>
+      <Button active={activeSlide === 3} onClick={() => handleButtonClick(3)}>
+       PLANNING
+      </Button>
+     </ButtonContainer>
+    </ButtonWrapper>
+
+    <InfoContainer activeSlide={activeSlide}>
+     {filteredSections.map((section, index) => (
+      <InfoContentSection
+       key={index}
+       imageSrc={section.imageSrc}
+       title={section.title}
+       description={section.description}
+       buttonText={section.buttonText}
+      />
+     ))}
+    </InfoContainer>
+   </OuterWrapper>
+   <ScrollingDiv>
+    <ScrollingText scrollingUp={scrollingUp}>
+     <RotatingHeadline>
+      WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX
+      TRACK WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY
+      TAX TRACK WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK -
+      WHY TAX TRACK
+     </RotatingHeadline>
+    </ScrollingText>
+   </ScrollingDiv>
    <SectionContainer>
     {/* First pair: Text then Image */}
     <LeftDiv>
