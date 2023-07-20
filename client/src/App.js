@@ -16,18 +16,23 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import Landing from "./components/frontend/Landing";
 import axios from "axios";
 import Profile from "./components/frontend/Home";
+
 const App = () => {
  const [clientId, setClientId] = useState("");
+
  useEffect(() => {
   const getGoogleClientId = async () => {
    try {
     const res = await axios.get("/api/auth/env");
     setClientId(res.data);
    } catch (err) {
-    console.err(err);
+    console.error(err);
    }
   };
   getGoogleClientId();
+ }, []); // Run this effect only once on the initial mount
+
+ useEffect(() => {
   if (clientId.length > 0) {
    const start = () => {
     gapi.client.init({
@@ -37,7 +42,7 @@ const App = () => {
    };
    gapi.load("client:auth2", start);
   }
- }, []);
+ }, [clientId]); // Run this effect whenever the clientId changes
 
  return (
   <GoogleOAuthProvider clientId={clientId}>
@@ -62,7 +67,7 @@ const App = () => {
      </AlertState>
     </ProfileState>
    </AuthState>
-   //{" "}
+   {/* Note: You cannot have any comment here, as it's not a valid JSX syntax */}
   </GoogleOAuthProvider>
  );
 };
