@@ -6,7 +6,6 @@ import AlertContext from "../../context/alert/alertContext";
 import goodbye from "../../images/goodbye.png";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useLocation } from "react-router-dom";
-import { Sign } from "crypto";
 import authContext from "../../context/auth/authContext";
 
 const Navbar = ({ toggleRegister }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import ProfileState from "./context/profile/ProfileState";
@@ -15,7 +15,7 @@ import { gapi } from "gapi-script";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Landing from "./components/frontend/Landing";
 import axios from "axios";
-import Profile from "./components/frontend/Home";
+import AuthContext from "./context/auth/authContext";
 
 const App = () => {
  const [clientId, setClientId] = useState("");
@@ -29,10 +29,8 @@ const App = () => {
     console.error(err);
    }
   };
-  getGoogleClientId();
- }, []); // Run this effect only once on the initial mount
 
- useEffect(() => {
+  getGoogleClientId();
   if (clientId.length > 0) {
    const start = () => {
     gapi.client.init({
@@ -40,9 +38,12 @@ const App = () => {
      scope: "",
     });
    };
+
    gapi.load("client:auth2", start);
   }
- }, [clientId]); // Run this effect whenever the clientId changes
+ }, []); // Run this effect only once on the initial mount
+
+ // Run this effect whenever the clientId changes
 
  return (
   <GoogleOAuthProvider clientId={clientId}>
