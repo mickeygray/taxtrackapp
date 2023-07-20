@@ -1,739 +1,1742 @@
-import React from "react";
-import group from "../../images/group.png";
-import group1 from "../../images/group-1.png";
-import group2 from "../../images/group-2.png";
-import group3 from "../../images/group-3.png";
-import group4 from "../../images/group-4.png";
-import group5 from "../../images/group-5.png";
-import vector from "../../images/vector.png";
-import vector1 from "../../images/vector-1.svg";
-import vector2 from "../../images/vector-2.png";
-import vector3 from "../../images/vector-3.png";
-import vector4 from "../../images/vector-4.png";
-import image21 from "../../images/image-2-1.png";
-import icround3 from "../../images/ic-round-dry-3.svg";
-import icround2 from "../../images/ic-round-dry-2.svg";
-import icround1 from "../../images/ic-round-dry-1.svg";
-import icround from "../../images/ic-round-dry.svg";
-import pictureenvoy from "../../images/picture-envoy-home-potential-png.png";
-import image10 from "../../images/image-10.png";
-import envoyhome1 from "../../images/envoy-home-clir-1-png.png";
-import envoyhome2 from "../../images/envoy-home-ilcr-1-png.png";
-import envoyhome3 from "../../images/envoy-home-clir-2-png.png";
-import image141 from "../../images/image-14-1.png";
-import footerlife from "../../images/footer-lifestyle-png.png";
-import image14 from "../../images/image-14.png";
-import pluswhite from "../../images/plus-sign-white-svg.svg";
-import slaycorns from "../../images/acorns-footer-logo-2x-2022-png.png";
-import instagram from "../../images/link-instagram-png.png";
-import facebook from "../../images/link-facebook-png.png";
-import twitter from "../../images/link-twitter-png.png";
-import buttonopen from "../../images/button-open-accessibility-menu-equalweb-ada-icon-green-svg.svg";
-import SettlementCalculator from "./SettlementCalculator";
-const Landing = () => {
+import React, { useState, useEffect, useContext } from "react";
+import styled, { keyframes, css } from "styled-components";
+import logo from "../../images/logo.png";
+import SettlementForm from "./SettlementForm";
+import PathToZero from "../../images/pathto0.png";
+import TaxReturnMachine from "../../images/tax-deduction-machine.jpg";
+import ProDash from "../../images/prodash.jpg";
+import blog from "../../images/blog.jpg";
+import ChartOne from "../../images/Chart1.png";
+import Person1 from "../../images/person1.jpg";
+import Person2 from "../../images/person2.jpg";
+import Person3 from "../../images/person3.jpg";
+import Person4 from "../../images/person4.jpg";
+import HeroImg from "../../images/Hero.jpg";
+import OicHero from "../../images/Offer-in-compromise.png";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+ faChartLine,
+ faFileAlt,
+ faChartBar,
+ faGraduationCap,
+ faBook,
+ faUser,
+ faGlobe,
+ faCog,
+} from "@fortawesome/free-solid-svg-icons";
+import SettlementChart from "./SettlementChart";
+import ProfileContext from "../../context/profile/profileContext";
+
+const Header = styled.header`
+ position: sticky;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 64px;
+ background-color: #333;
+ color: #fff;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 0 20px;
+ z-index: 1000;
+`;
+
+const Logo = styled.img`
+ height: 64px;
+ width: 64px;
+`;
+
+const Nav = styled.nav`
+ ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+ }
+
+ li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+ }
+
+ a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px;
+ }
+`;
+
+const Hero = styled.div`
+ position: relative;
+ height: calc(100vh - 100px); /* Subtracting the navbar height */
+ overflow: hidden;
+ margin-top: -20px;
+`;
+
+const HeroImage = styled.img`
+ position: absolute;
+ top: -100;
+ left: 0;
+ width: 100vw;
+ height: 100vh;
+ opacity: 0.5;
+ object-fit: cover;
+ z-index: -1;
+`;
+
+const HeroContent = styled.div`
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ text-align: center;
+`;
+
+const HeroTitle = styled.h1`
+ font-size: 36px;
+ margin-bottom: 20px;
+`;
+
+const HeroSubtitle = styled.p`
+ font-size: 18px;
+ margin-bottom: 30px;
+`;
+
+const HeroButton = styled.button`
+ padding: 10px 20px;
+ background-color: #333;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ font-size: 16px;
+ cursor: pointer;
+`;
+
+const Features = styled.section`
+ display: flex;
+ gap: 20px;
+ margin-bottom: 40px;
+
+ @media (max-width: 768px) {
+  flex-direction: column;
+ }
+`;
+
+const FeatureCard = styled.div`
+ flex: 1;
+ background-color: #f5f5f5;
+ padding: 20px;
+ border-radius: 4px;
+`;
+
+const FeatureTitle = styled.h2`
+ font-size: 24px;
+ margin-bottom: 10px;
+`;
+
+const FeatureText = styled.p`
+ font-size: 16px;
+ color: #555;
+ margin-bottom: 20px;
+`;
+
+const Testimonials = styled.section`
+ margin-bottom: 40px;
+`;
+
+const TestimonialCard = styled.div`
+ background-color: #f5f5f5;
+ padding: 20px;
+ border-radius: 4px;
+ margin-bottom: 20px;
+`;
+
+const TestimonialText = styled.p`
+ font-size: 16px;
+ color: #555;
+`;
+
+const SectionContainer = styled.div`
+ display: flex;
+ flex-wrap: wrap;
+ max-width: 1200px;
+ height: 400px;
+ margin: 50px auto;
+`;
+
+const LeftDiv = styled.div`
+ flex: 1;
+
+ padding: 20px;
+ border-radius: 4px;
+`;
+
+const RightDiv = styled.div`
+ flex: 1;
+ padding: 20px;
+ border-radius: 4px;
+`;
+
+const Text = styled.p`
+ font-size: 16px;
+ color: #555;
+ margin-bottom: 20px;
+ width: 400px;
+`;
+
+const Image = styled.img`
+ max-width: 600px;
+ height: 400px;
+ border-radius: 10px;
+`;
+
+const Paragraph = styled.p`
+ font-size: 16px;
+ color: #555;
+ line-height: 1.5;
+ margin-bottom: 5px;
+ text-indent: 10px;
+ padding: 2px;
+`;
+const MainContainer = styled.div`
+ display: flex;
+ height: 100vh;
+ margin-bottom: 100px;
+`;
+
+const FormContainer = styled.div`
+ flex: 1;
+ background-color: #f5f5f5;
+ padding: 20px;
+`;
+
+const Form = styled.form`
+ display: flex;
+ flex-direction: column;
+`;
+
+const FormInput = styled.input`
+ padding: 10px;
+ margin-bottom: 10px;
+`;
+
+const ChartContainer = styled.div`
+ flex: 4;
+ display: flex;
+`;
+
+const ImageContainer = styled.div`
+ flex: 1;
+ position: relative;
+ overflow: hidden;
+`;
+
+const StillImage = styled.img`
+ width: 100%;
+ height: 100%;
+ object-fit: cover;
+`;
+const BackgroundDiv = styled.div`
+ text-align: center;
+ padding: 20px;
+ background-color: #f5f5f5;
+`;
+
+const ContentContainer = styled.div`
+ text-align: center;
+ padding: 20px;
+ background-color: #f5f5f5;
+ max-width: 1200px;
+ margin: auto;
+`;
+
+const Subtitle = styled.h5`
+ font-size: 24px;
+ color: #333;
+ margin-bottom: 10px;
+`;
+
+const ContentTitle = styled.h1`
+ font-size: 36px;
+ margin-bottom: 20px;
+`;
+
+const CenteredParagraph = styled.p`
+ font-size: 16px;
+ color: #555;
+`;
+const rotatingAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% + 100vw));
+  }
+`;
+
+const movingUpAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+`;
+
+const movingDownAnimation = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+`;
+const RotatingHeadline = styled.h2`
+ /* Add the rotating headline styles here */
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ font-family: "Avenir Next", Helvetica, Arial, sans-serif;
+ font-size: 140px;
+ line-height: 191px;
+ letter-spacing: 0;
+ font-weight: 400;
+ color: #dadada;
+ white-space: nowrap;
+`;
+
+const ScrollingDiv = styled.div`
+ overflow: hidden;
+ white-space: nowrap;
+ animation: ${rotatingAnimation} 40s linear infinite;
+`;
+
+const ScrollingText = styled.span`
+ display: inline-block;
+ padding-left: 20px;
+ padding-right: 20px;
+ animation: ${({ scrollingUp }) =>
+   scrollingUp ? movingUpAnimation : movingDownAnimation}
+  40s linear infinite;
+`;
+
+const fadeInAnimation = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const OuterWrapper = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ border: 0;
+ height: 100%;
+ max-width: 1440px;
+ padding: 0 60px;
+ margin: 0 auto;
+ display: flex;
+ align-items: center;
+ animation: ${fadeInAnimation} 2s ease-in;
+`;
+
+const ButtonWrapper = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ width: 120px;
+ margin-right: 40px;
+ display: flex;
+ align-items: center;
+`;
+
+const ButtonContainer = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ position: relative;
+ display: block;
+ box-sizing: border-box;
+ user-select: none;
+ touch-action: pan-y;
+ -webkit-tap-highlight-color: transparent;
+`;
+
+const Button = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ float: left;
+ min-height: 1px;
+ background: rgba(25, 25, 25, 0.15);
+ border-radius: 50%;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ width: 112px;
+ height: 112px;
+ transition: transform 150ms cubic-bezier(0.32, 0, 0.67, 0),
+  background 300ms ease-in-out;
+ &:hover {
+  background: rgba(25, 25, 25, 0.25);
+ }
+ transform: ${({ active }) => (active ? "translateX(0)" : "translateX(-100%)")};
+
+ margin-bottom: 36px;
+`;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const InfoContainer = styled.div`
+ --sa-uid: "0-4c9de005-8753-5a91-4dd0-a68a2e0e3d93";
+ -webkit-font-smoothing: antialiased;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ box-sizing: border-box;
+ -webkit-text-size-adjust: none;
+ font: inherit;
+ vertical-align: baseline;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ width: 50%;
+ flex-grow: 1;
+`;
+
+const InfoContent = styled.div`
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ height: 300px;
+ transition: opacity 300ms ease-in-out; /* Opacity transition */
+`;
+
+const TextWrapper = styled.div`
+ width: 50%;
+ padding-left: 40px;
+ padding-right: 40px;
+`;
+
+const SectionTitle = styled.h2`
+ font-size: 28px;
+ font-weight: 500;
+ margin-bottom: 16px;
+`;
+
+const SectionDescription = styled.p`
+ font-size: 18px;
+ line-height: 1.6;
+ color: #666;
+ margin-bottom: 24px;
+`;
+
+const SectionButton = styled.button`
+ padding: 12px 24px;
+ font-size: 16px;
+ font-weight: 500;
+ color: #fff;
+ background-color: #007bff;
+ border: none;
+ border-radius: 4px;
+ cursor: pointer;
+ transition: background-color 0.3s ease-in-out;
+
+ &:hover {
+  background-color: #0056b3;
+ }
+`;
+
+const scaleUpAnimation = keyframes`
+  0% {
+    transform: scale(1) 
+    border-radius: 50%;
+  }
+  100% {
+    transform: scaleY(1.5) scaleX(1)
+    border-radius: 0;
+  }
+`;
+
+const moveDownAnimation = keyframes`
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  15% {
+    transform: translateY(150px) translateX(0);
+  }
+  100% {
+    transform: translateY(100px) translateX(-1100px);
+  }
+`;
+
+const moveUpAnimation = keyframes`
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  15% {
+    transform: translateY(-150px) translateX(0);
+  }
+  100% {
+    transform: translateY(-100px) translateX(-1100px);
+  }
+`;
+const moveLeftAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-730px);
+  }
+`;
+const fadeOutAnimation = keyframes`
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
+
+const CircleWrapper = styled.div`
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ position: relative;
+ height: 600px;
+ width: 600px;
+ margin-left: 220px;
+ ${({ animate }) => css`
+  animation: ${animate
+   ? css`
+      ${fadeOutAnimation} 1.5s linear 1s
+     `
+   : ""};
+  animation-play-state: ${animate ? "running" : "paused"};
+ `}
+`;
+const LearnMoreButton = styled.button`
+ width: 104px;
+ height: 104px;
+ border-radius: 50%;
+ background-color: #007bff;
+ color: white;
+ font-size: 16px;
+ font-weight: bold;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ margin: 10px;
+ position: absolute;
+ top: 56%;
+ left: 57%;
+ transform: translate(-50%, -50%);
+ ${({ animate }) => css`
+  animation: ${animate
+   ? css`
+      ${scaleUpAnimation} 1.5s linear 1s
+     `
+   : ""};
+  animation-play-state: ${animate ? "running" : "paused"};
+ `}
+`;
+
+const CircleButton = styled.button`
+ width: 104px;
+ height: 104px;
+ border-radius: 50%;
+ background-color: #007bff;
+ color: white;
+ font-size: 16px;
+ font-weight: bold;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ margin: 10px;
+ position: absolute;
+ ${({ angle }) => css`
+  top: ${50 - 50 * Math.sin((angle * Math.PI) / 180)}%;
+  left: ${50 + 50 * Math.cos((angle * Math.PI) / 180)}%;
+  animation: ${angle === 315
+   ? css`
+      ${moveUpAnimation} 4s linear
+     `
+   : angle === 45
+   ? css`
+      ${moveDownAnimation} 4s linear
+     `
+   : css`
+      ${moveLeftAnimation} 2.5s linear 1.5s
+     `};
+  animation-play-state: ${({ animate }) => (animate ? "running" : "paused")};
+ `}
+`;
+const Container = styled.div`
+ margin: auto;
+ width: 100%;
+ height: 100%;
+ max-width: 950px;
+ padding: 0 40px;
+ text-align: center;
+`;
+
+// Styled components for the headline
+const Headline = styled.h2`
+ color: solid-slate;
+ font-size: 24px;
+`;
+
+// Styled components for the image section
+const ImageSection = styled.div`
+ display: flex;
+ align-items: center;
+ overflow: hidden;
+ margin: auto;
+`;
+
+const ImageWrapper = styled.div`
+ width: 50%;
+ max-width: 560px;
+ padding-bottom: min(12vw, 200px);
+`;
+
+const ImageAsset = styled.img`
+ width: 400px;
+ height: 600px;
+`;
+
+// Styled components for the text section
+const TextSection = styled.div`
+ width: 50%;
+ max-width: 333px;
+ margin-top: -200px; /* Adjust the spacing between image and text */
+`;
+
+const HeadlineSecondSection = styled.h2`
+ color: solid-slate;
+`;
+
+const Body = styled.div`
+ color: solid-slate;
+`;
+
+// Styled components for the disclosure section
+const DisclosureSection = styled.div`
+ width: 100%;
+ margin-top: -200px;
+ /* Adjust the spacing between text and disclosure */
+`;
+
+const DisclosureCopy = styled.div`
+ color: light-grey;
+ font-size: 12px;
+`;
+
+const FirstImage = styled.img`
+ position: absolute;
+ width: 307px;
+ border-radius: 30px;
+ height: 458px;
+ right: 400px;
+ top: -107px;
+`;
+
+const SecondImage = styled.img`
+ position: absolute;
+ width: 392px;
+ border-radius: 30px;
+ height: 436px;
+ top: 140px;
+ left: 400px;
+`;
+
+const ThirdImage = styled.img`
+ width: 392px;
+ height: 436px;
+ border-radius: 30px;
+ position: absolute;
+ right: 400px;
+ bottom: -80px;
+`;
+
+const FourthImage = styled.img`
+ position: absolute;
+ bottom: 62px;
+ left: 400px;
+ border-radius: 30px;
+ width: 407px;
+ height: 436px; /* Set height equal to width for a square image */
+`;
+const HighlightedTextContainer = styled.div`
+ font-family: inherit;
+ font-size: inherit;
+ border: 0;
+ background: #191919;
+ margin: 200px 0 0;
+ position: relative;
+ padding: 372px 0 436px;
+ overflow: hidden;
+ text-align: center;
+`;
+
+const Tagline = styled.div`
+ font-family: inherit;
+ font-size: 32px;
+ text-transform: uppercase;
+ color: white;
+ position: relative;
+ z-index: 2;
+`;
+
+const Subheadline = styled.div`
+ font-family: inherit;
+ font-size: 24px;
+ color: white;
+ position: relative;
+ z-index: 2;
+`;
+
+const CountUpDollars = styled.div`
+ font-family: inherit;
+ font-size: 48px;
+ color: white;
+ position: relative;
+ z-index: 2;
+`;
+
+const testimonials = [
+ {
+  id: 1,
+  name: "John Doe",
+  image: "https://example.com/john-doe.jpg",
+  text: "Testimonial content for John Doe",
+ },
+ {
+  id: 2,
+  name: "Jane Smith",
+  image: "https://example.com/jane-smith.jpg",
+  text: "Testimonial content for Jane Smith",
+ },
+ // Add more testimonials as needed
+];
+
+const TestimonialCarouselContainer = styled.div`
+ display: flex;
+ flex-direction: column; /* Stack elements vertically */
+ align-items: center;
+
+ background-color: #6944ff;
+ height: 20vw;
+ margin: 0 auto;
+`;
+
+const TestimonialButtonWrapper = styled.div`
+ width: 120px;
+ margin-right: 40px;
+ display: flex;
+ align-items: center;
+`;
+
+const TestimonialInfoContainer = styled.div`
+ width: 50%;
+ flex-grow: 1;
+`;
+
+const TestimonialSlide = styled.div`
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ height: 300px;
+ opacity: ${({ active }) => (active ? 1 : 0)};
+ transition: opacity 300ms ease-in-out;
+`;
+
+const TestimonialImage = styled.img`
+ width: 100px;
+ height: 100px;
+ border-radius: 50%;
+ margin-right: 16px;
+`;
+
+const TestimonialContent = styled.div`
+ width: 50%;
+`;
+
+const TestimonialName = styled.h2`
+ font-size: 24px;
+ font-weight: 500;
+ margin-bottom: 16px;
+`;
+const TestimonialButtonContainer = styled.div`
+ display: flex;
+`;
+const TestimonialButton = styled.button`
+ background: rgba(25, 25, 25, 0.15);
+ border: 0;
+ outline: 0;
+ border-radius: 50% 0 0 50%;
+ width: 56px;
+ height: 56px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ transition: background 0.3s ease-in-out;
+ font-size: 18px;
+ overflow: hidden;
+ position: relative;
+ margin-right: -4px; /* Adjust this margin to fit your design */
+
+ &:hover {
+  background: rgba(25, 25, 25, 0.25);
+ }
+`;
+
+const NextButton = styled.button`
+ background: rgba(25, 25, 25, 0.15);
+ border: 0;
+ border-radius: 0 50% 50% 0;
+ outline: 0;
+ width: 56px;
+ height: 56px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ cursor: pointer;
+ transition: background 0.3s ease-in-out;
+ font-size: 18px;
+ position: relative;
+
+ &:hover {
+  background: rgba(25, 25, 25, 0.25);
+  font-family: "Font Awesome 6 Free";
+ }
+`;
+const EnvoyPricingModule = styled.div`
+ padding: 200px 0;
+ display: flex;
+ width: 800px;
+ height: ${(props) => (props.showHiddenInfo ? "125vh" : "800px")};
+ justify-content: center;
+ margin: auto;
+
+ gap: 20px;
+`;
+
+const LeftContent = styled.div`
+ width: 50%;
+`;
+
+const RightContent = styled.div`
+ width: 50%;
+ display: flex;
+ justify-content: center;
+`;
+
+const BodyCopy = styled.div`
+ color: #191919;
+ font-family: "Avenir Next", Helvetica, Arial, sans-serif;
+ font-size: 20px;
+ text-indent: 10px;
+ line-height: 32px;
+ letter-spacing: 0;
+ font-weight: 400;
+ max-width: 508px;
+ margin-bottom: 40px;
+`;
+
+const Disclosures = styled.div`
+ color: #767676;
+ font-size: 12px;
+ line-height: 18px;
+ max-width: 512px;
+`;
+const TierCardWrapper = styled.div`
+ background-color: #6944ff;
+ color: white;
+ padding: 20px;
+ height: 250px;
+ border-radius: 10px;
+ width: 300px;
+`;
+const TierName = styled.h2`
+ font-size: 24px;
+ color: white;
+ margin-bottom: 10px;
+`;
+
+const TierBodyCopy = styled.p`
+ font-size: 16px;
+ color: white;
+ margin-bottom: 20px;
+`;
+
+const StyledLink = styled.a`
+ background-color: #6944ff;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ padding: 8px 16px;
+ text-decoration: none;
+ cursor: pointer;
+`;
+const features = [
+ {
+  title: "Balance and Transactions",
+  icon: faChartLine,
+  items: [
+   "Real-time insights into your IRS debt.",
+   "Track changes in your balance for confident planning.",
+   "Visualize your path to zero IRS debt.",
+   "Transform complex financial data into a user-friendly format.",
+   "Take control with Tax Track's 'Balance and Transactions'.",
+  ],
+ },
+ {
+  title: "Simple Return Filing",
+  icon: faFileAlt,
+  items: [
+   "Prepare tax returns hassle-free with comprehensive guides.",
+   "Simplify tax documentation management with an upload process.",
+   "Experience a stress-free filing with streamlined returns.",
+   "Access a wealth of tax resources for smooth filing.",
+   "Stay updated with the latest tax laws for accurate filing.",
+  ],
+ },
+ {
+  title: "Tax Track Pro",
+  icon: faChartBar,
+  items: [
+   "Get pro-level analysis for identifying deductions.",
+   "Manage professional entities and filings with support.",
+   "Receive tailored deduction recommendations to optimize.",
+   "Stay ahead with streamlined entity filings and eliminate stress.",
+   "Empower your tax journey with Tax Track's 'Pro Dashboard'.",
+  ],
+ },
+ {
+  title: "Comprehensive Tax Code Resources",
+  icon: faGraduationCap,
+  items: [
+   "Explore extensive articles and videos on tax aspects.",
+   "Gain an in-depth understanding of tax laws and deductions.",
+   "Stay informed about changing tax laws and regulations.",
+   "Discover expert tax tips to maximize savings.",
+   "Empower yourself with a vast tax knowledge base using Tax Track.",
+  ],
+ },
+];
+
+const HiddenInfoWrapper = styled.div`
+ background-color: #6944ff;
+ width: 300px;
+ height: auto;
+ margin-left: -20px;
+ border-radius: 4px;
+ padding: 20px;
+`;
+
+const HiddenInfoHeader = styled.h2`
+ display: flex;
+ align-items: center;
+
+ font-weight: bold;
+ color: #555;
+ margin-bottom: 10px;
+`;
+
+const HiddenInfoTitle = styled.span`
+ margin-left: 10px;
+`;
+
+const HiddenInfoList = styled.ul`
+ list-style: none;
+ padding: 0;
+`;
+
+const HiddenInfoItem = styled.li`
+ margin-bottom: 5px;
+ font-size: 10px;
+`;
+
+const FeatureSection = styled.div`
+ margin-bottom: 20px;
+`;
+const ToggleButton = styled.button`
+ margin-top: 10px;
+ background-color: #6944ff;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ padding: 8px 16px;
+ cursor: pointer;
+`;
+
+const EnvoyClosingSignUpWrapper = styled.div`
+ position: relative;
+ margin: auto;
+ background: #77d215;
+ width: 1320px;
+ height: calc((100vw - 120px) * 0.7);
+ max-width: 100%;
+ max-height: 900px;
+ border-radius: 30px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ overflow: hidden;
+`;
+
+const CopyWrapper = styled.div`
+ width: 770px;
+ padding: 0 40px;
+ text-align: center;
+ z-index: 4;
+`;
+
+const ClosingTagline = styled.div`
+ font-size: 24px;
+ color: #fff;
+ margin-bottom: 10px;
+`;
+
+const ClosingHeadline = styled.h5`
+ font-size: 20px;
+ color: #fff;
+ margin-bottom: 20px;
+`;
+
+const CTAButton = styled.a`
+ cursor: pointer;
+ display: inline-block;
+ height: 56px;
+ line-height: 56px;
+ padding: 0 45px;
+ font-size: 16px;
+ letter-spacing: 0;
+ font-weight: 600;
+ text-decoration: none;
+ border-radius: 50px;
+ transition: background 300ms ease-in-out;
+ background: #fff;
+ color: #191919;
+`;
+
+const TreeImage = styled.img`
+ position: absolute;
+ z-index: 2;
+ bottom: 0;
+ width: 66%;
+ max-width: 860px;
+ opacity: 0.2;
+`;
+
+const PhoneImage = styled.img`
+ position: absolute;
+ z-index: 1;
+ width: 700px;
+ opacity: 0.5;
+ top: -15px;
+ right: 250px;
+`;
+
+const FooterWrapper = styled.div`
+ padding: 40px;
+ background-color: #f5f5f5;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+`;
+
+const FooterLinks = styled.div`
+ display: flex;
+ justify-content: center;
+ gap: 20px;
+ margin-top: 20px;
+`;
+
+const FooterSocialIcons = styled.div`
+ display: flex;
+ gap: 10px;
+ margin-top: 20px;
+`;
+
+const FooterDisclaimer = styled.p`
+ font-size: 12px;
+ color: #888;
+ margin-top: 20px;
+ text-align: center;
+`;
+
+const FooterLogoWrapper = styled.div`
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ margin-bottom: 20px;
+`;
+
+const FooterLogo = styled.img`
+ max-width: 100%;
+ height: 50px;
+ border-radius: 10px;
+`;
+
+const Footer = () => {
  return (
-  <div className='home-page'>
-   <div className='div'>
-    <div className='div-envoy-hero'>
-     <div className='overlap-group'>
-      <img
-       className='group'
-       alt='Group'
-       src={group5}
-       style={{ width: "100vw" }}
-      />
-      <div className='frame-4'>
-       <h1 className='tax-track-helps-you'>
-        <span className='span'>Tax Track</span>
-        <span className='text-wrapper-7'> Helps you save &amp; Invest</span>
-       </h1>
-       <p className='p'>
-        Invest spare change, invest while you bank, earn bonus investments, grow
-        your knowledge and more.
-       </p>
-       <div className='div-wrapper'>
-        <div className='text-wrapper-8'>Get started</div>
-       </div>
-      </div>
-     </div>
-    </div>
-    <div style={{ margin: "50px", marginTop: "150px" }}>
-     <SettlementCalculator />
-    </div>
-    <div className='div-homepage-2'>
-     <div className='frame-21'>
-      <div className='heading-compound-wrapper'>
-       <p className='heading-compound-2'>
-        Save Invest And Learn From One Easy App
-       </p>
-      </div>
-     </div>
-     <div className='overlap-3'>
-      <div className='frame-22'>
-       <div className='frame-23'>
-        <div className='ic-round-dry-wrapper'>
-         <img className='ic-round-dry' alt='Ic round dry' src={icround3} />
-        </div>
-        <div className='text-wrapper-50'>Invest</div>
-       </div>
-       <div className='frame-24'>
-        <div className='img-wrapper'>
-         <img className='ic-round-dry-2' alt='Ic round dry' src={icround2} />
-        </div>
-        <div className='text-wrapper-51'>Later</div>
-       </div>
-       <div className='frame-25'>
-        <div className='group-12'>
-         <img className='ic-round-dry-3' alt='Ic round dry' src={icround1} />
-        </div>
-        <div className='text-wrapper-52'>Early</div>
-       </div>
-       <div className='frame-26'>
-        <div className='group-13'>
-         <img className='ic-round-dry-4' alt='Ic round dry' src={icround} />
-        </div>
-        <div className='text-wrapper-53'>Banking</div>
-       </div>
-      </div>
-      <div className='frame-27'>
-       <div className='frame-28'>
-        <div className='text-wrapper-54'>Easy, automated investing</div>
-        <p className='text-wrapper-55'>
-         Every purchase you make means an opportunity to invest your spare
-         change! So coffee for $3.25 becomes a $0.75 investment in your future.
-        </p>
-       </div>
-       <img
-        className='picture-envoy-home'
-        alt='Picture envoy home'
-        src={pictureenvoy}
-       />
-      </div>
-     </div>
-    </div>
-    <div className='div-homepage-3'>
-     <div className='frame-29'>
-      <div className='frame-30'>
-       <p className='heading-compound-3'>
-        Save And Invest In The Background Of Life
-       </p>
-       <p className='text-wrapper-56'>
-        Acorns puts investing on autopilot. Sign up in minutes, we’ll recommend
-        an investment portfolio for your money goals, and you can set automated
-        investments starting with spare change.
-       </p>
-      </div>
-      <img className='image-3' alt='Image' src={image10} />
-     </div>
-    </div>
-    <p className='heading-why-acorns'>
-     Why Tax Track - Why Tax Track - Why Tax Track - Why Tax Track - Why Tax
-     Track - Why Tax Track - Why Tax Track - Why Tax Track - Why Tax Track
-    </p>
-    <div className='frame-31'>
-     <div className='frame-32'>
-      <div className='frame-33'>
-       <p className='text-wrapper-57'>
-        Automatically save and invest with Round- Ups® feature
-       </p>
-       <p className='text-wrapper-58'>
-        Every purchase you make means an opportunity to invest your spare
-        change! So coffee for $3.25 becomes a $0.75 investment in your future.
-       </p>
-      </div>
-      <img className='envoy-home-CLIR' alt='Envoy home CLIR' src={envoyhome1} />
-     </div>
-     <div className='frame-34'>
-      <img className='envoy-home-ILCR' alt='Envoy home ILCR' src={envoyhome2} />
-      <div className='frame-35'>
-       <div className='text-wrapper-59'>
-        Expert-built portfolios,suggested for you
-       </div>
-       <p className='acorns-diversified'>
-        Acorns diversified portfolios are built by experts and include ETFs
-        managed by pros at
-        <br />
-        the world’s top investment firms like Vanguard and BlackRock.
-       </p>
-      </div>
-     </div>
-     <div className='frame-36'>
-      <div className='frame-37'>
-       <p className='text-wrapper-60'>
-        Plus more ways to save, invest and learn
-       </p>
-       <p className='along-with-your'>
-        Along with your investment account, you get an easy, automated
-        retirement account,
-        <br />
-        banking that saves and invests for you, bonus investments when you shop
-        with thousands of brands and unique ways to grow your knowledge.
-       </p>
-      </div>
-      <img
-       className='envoy-home-CLIR-2'
-       alt='Envoy home CLIR'
-       src={envoyhome3}
-      />
-     </div>
-     <div className='frame-38'>
-      <img className='image-4' alt='Image' src={image141} />
-      <div className='frame-39'>
-       <div className='security-protection'>Security &amp; Protection</div>
-       <p className='acorns-invest-later'>
-        Acorns Invest, Later &amp; Early accounts are SIPC-protected up to
-        $500,000. SIPC does
-        <br />
-        not protect against market risk, which is the risk inherent in a
-        fluctuating market. For
-        <br />
-        details, please visit www.sipc.org. Acorns checking accounts are
-        FDIC-insured up to
-        <br />
-        $250,000, plus fraud protection, 256-bit data encryption, and
-        all-digital card lock. Learn
-        <br />
-        more about how FDIC protection works at www.fdic.gov.
-       </p>
-      </div>
-     </div>
-    </div>
-    <div className='div-homepage-4'>
-     <p className='text-wrapper-61'>
-      Give your money the chance to work as hard as you do
-     </p>
-     <div className='frame-40'>
-      <div className='frame-41'>
-       <div className='heading-compound-4'>
-        Harness The Power Of
-        <br />
-        compounding
-       </div>
-       <p className='money-doesn-t-grow'>
-        Money doesn’t grow on trees. But with compound returns, money can grow
-        on itself.
-        <br />
-        It’s a long-term investing principle foundational to how Acorns can work
-        for you.
-       </p>
-      </div>
-      <img
-       className='footer-lifestyle-png'
-       alt='Footer lifestyle png'
-       src={footerlife}
-      />
-     </div>
-    </div>
-    <div className='div-closing-sign-up'>
-     <div className='overlap-4'>
-      <div className='frame-42'>
-       <div className='join-the-movement'>JOIN THE MOVEMENT</div>
-       <p className='we-re-changing-the'>
-        We’re changing the way
-        <br />
-        Americans save &amp; invest
-        <br />
-        every day
-       </p>
-       <div className='link-2'>
-        <div className='text-wrapper-62'>Sign up today</div>
-       </div>
-      </div>
-      <img className='image-5' alt='Image' src={image14} />
-     </div>
-    </div>
-    <div className='div-envoy-pricing'>
-     <div className='div-pricing-module'>
-      <div className='div-copy-card'>
-       <div className='a-plan-for-everyone'>A PLAN FOR EVERYONE</div>
-       <div className='all-things-investing-wrapper'>
-        <p className='all-things-investing'>
-         All things
-         <br />
-         investing, for the
-         <br />
-         price of a latte
-        </p>
-       </div>
-       <div className='div-copy-card-body'>
-        <p className='acorns-was-built-to'>
-         Acorns was built to give everyone the tools of wealth-
-         <br />
-         building. Whether you’re new to investing or planning
-         <br />
-         ahead for your family’s future, we bundle our products,
-         <br />
-         tools, and education into subscription tiers — each
-         <br />
-         curated to meet you on whichever stage of life you’re
-         <br />
-         in.
-        </p>
-        <p className='that-means-no-hidden'>
-         That means no hidden costs or transaction fees — just
-         <br />
-         one, transparent monthly payment to take advantage of
-         <br />
-         everything our financial wellness system has to offer.
-        </p>
-       </div>
-       <div className='not-all-features-are-wrapper'>
-        <p className='not-all-features-are'>
-         Not all features are available to all customers at this time. Please
-         compare subscription tiers
-         <br />
-         during registration to see what is available to you. Acorns is only
-         available to US citizens or
-         <br />
-         other lawful residents who are currently located in the United States.
-         You must be 18 or older
-         <br />
-         to sign up for an Acorns account.
-        </p>
-       </div>
-      </div>
-      <div className='div-envoy-tier-card'>
-       <div className='div-tier-addtl-info'>
-        <div className='text-wrapper-63'>What’s included</div>
-        <img
-         className='plus-sign-white-svg'
-         alt='Plus sign white svg'
-         src={pluswhite}
-        />
-       </div>
-       <div className='div-tier-header'>
-        <div className='text-wrapper-64'>Starts at $3/month</div>
-        <div className='div-tier-body-copy'>
-         <p className='join-over-million'>
-          Join over 10 million all-time customers who have
-          <br />
-          signed up for Acorns.
-         </p>
-        </div>
-        <div className='link-3'>
-         <div className='text-wrapper-65'>Sign up today</div>
-        </div>
-       </div>
-      </div>
-     </div>
-    </div>
-    <div className='frame-43'>
-     <div className='frame-44'>
-      <div className='div-footer-hero'>
-       <div className='heading-have-any'>Have any questions?</div>
-       <div className='link-4'>
-        <div className='text-wrapper-66'>Contact support</div>
-       </div>
-      </div>
-      <div className='div-main-row-links'>
-       <div className='heading-products'>PRODUCTS</div>
-       <div className='invest-for-your-wrapper'>
-        <div className='invest-for-your'>
-         <span className='text-wrapper-67'>Invest</span>
-         <span className='text-wrapper-68'> for your future</span>
-        </div>
-       </div>
-       <div className='later-starts-today-wrapper'>
-        <div className='later-starts-today'>
-         <span className='text-wrapper-69'>Later</span>
-         <span className='text-wrapper-70'> starts today</span>
-        </div>
-       </div>
-       <div className='earn-extra-money-wrapper'>
-        <div className='earn-extra-money'>
-         <span className='text-wrapper-71'>Earn</span>
-         <span className='text-wrapper-72'> extra money</span>
-        </div>
-       </div>
-       <div className='early-investors-wrapper'>
-        <div className='early-investors'>
-         <span className='text-wrapper-73'>Early</span>
-         <span className='text-wrapper-74'> investors</span>
-        </div>
-       </div>
-       <div className='bank-smarter-wrapper'>
-        <div className='bank-smarter'>
-         <span className='text-wrapper-75'>Bank</span>
-         <span className='text-wrapper-76'> smarter</span>
-        </div>
-       </div>
-       <div className='heading-who-we-are'>WHO WE ARE</div>
-       <div className='link-about'>About</div>
-       <div className='link-careers'>Careers</div>
-       <div className='link-press'>Press</div>
-       <div className='link-oak-trees'>Oak Trees Planted</div>
-       <div className='heading-why-start'>WHY START NOW</div>
-       <div className='link-learn'>Learn</div>
-      </div>
-     </div>
-    </div>
-    <div className='div-footer-wrapper'>
-     <footer className='footer'>
-      <div className='div-footer-closing'>
-       <img
-        className='acorns-footer-logo'
-        alt='Acorns footer logo'
-        src={slaycorns}
-       />
-       <div className='div-closing-row'>
-        <div className='link-pricing'>Pricing</div>
-        <div className='link-store'>Store</div>
-        <div className='link-legal'>Legal</div>
-        <div className='link-privacy-policy'>Privacy Policy</div>
-       </div>
-       <div className='div-closing-row-2'>
-        <img
-         className='link-instagram-png'
-         alt='Link instagram png'
-         src={instagram}
-        />
-        <img
-         className='link-twitter-png'
-         alt='Link twitter png'
-         src={twitter}
-        />
-        <img
-         className='link-facebook-png'
-         alt='Link facebook png'
-         src={facebook}
-        />
-        <img className='button-open' alt='Button open' src={buttonopen} />
-       </div>
-      </div>
-      <div className='div-footer'>
-       <div className='strong-important'>Important Disclosures</div>
-       <div className='strong-investing-wrapper'>
-        <p className='strong-investing'>
-         <span className='text-wrapper-77'>
-          Investing involves risk, including loss of principal. Please consider,
-          among other important factors, your investment objectives, risk
-          tolerance and Acorns’ pricing before investing. Investment
-          <br />
-          advisory services offered by Acorns Advisers, LLC (Acorns), an
-          SEC-registered investment advisor. Brokerage services are provided to
-          clients of Acorns by Acorns Securities, LLC, an SEC-registered
-          <br />
-          broker-dealer and member{" "}
-         </span>
-         <span className='text-wrapper-78'>FINRA</span>
-         <span className='text-wrapper-79'>/</span>
-         <span className='text-wrapper-80'>SIPC</span>
-         <span className='text-wrapper-81'>.</span>
-        </p>
-       </div>
-       <div className='element-round-ups-wrapper'>
-        <p className='element-round-ups'>
-         1. Round-Ups® investments are transferred from your linked funding
-         source (checking account) to your Acorns Invest account, where the
-         funds are invested into a portfolio of selected ETFs.
-         <br />
-         If you do not maintain an adequate amount of funds in your funding
-         source sufficient to cover your Round-Ups® investment, you could incur
-         overdraft fees with your financial institution. Only
-         <br />
-         purchases made with Round-Up accounts linked to your Acorns account
-         with the feature activated are eligible for the Round- Ups® investment
-         feature. Round-Up investments from your
-         <br />
-         funding source will be processed when your Pending Round-Ups®
-         investments reach or exceed $5.
-        </p>
-       </div>
-       <div className='element-acorns-checking-wrapper'>
-        <p className='element-acorns-checking'>
-         2. Acorns Checking Real-Time Round-Ups® invests small amounts of money
-         from purchases made using an Acorns Checking account into the client’s
-         Acorns Investment account. Requires
-         <br />
-         both an active Acorns Checking account and an Acorns Investment account
-         in good standing. Real-Time Round-Ups® investments accrue instantly for
-         investment during the next trading
-         <br />
-         window.
-        </p>
-       </div>
-       <div className='element-a-properly-wrapper'>
-        <p className='element-a-properly'>
-         3. A properly suggested portfolio recommendation is dependent upon
-         current and accurate financial and risk profiles. Clients who have
-         experienced changes to their goals, financial
-         <br />
-         circumstances, or investment objectives, or who wish to modify their
-         portfolio recommendation, should promptly update their information in
-         the Acorns app or through the website.
-        </p>
-       </div>
-       <div className='element-acorns-earn-wrapper'>
-        <p className='element-acorns-earn'>
-         4. Acorns Earn provides subscribers access to shop with our partners
-         and earn bonus investments into your Acorns Invest portfolios when
-         purchasing items from the partner brands. Acorns
-         <br />
-         Earn rewards investments are made by Acorns Grow, Incorporated into
-         your Acorns Invest account through a partnership Acorns Grow maintains
-         with each Acorns Earn partner. Acorns may
-         <br />
-         receive compensation from business partners in connection with certain
-         promotions in which Acorns refers clients to such partners for the
-         purchase of non-investment consumer products or
-         <br />
-         services. This type of marketing partnership gives Acorns an incentive
-         to refer clients to business partners instead of to businesses that are
-         not partners of Acorns. This conflict of interest
-         <br />
-         affects the ability of Acorns to provide clients with unbiased,
-         objective promotions concerning the products and services of its
-         business partners. This could mean that the products and/or
-         <br />
-         services of other businesses, that do not compensate Acorns, may be
-         more appropriate for a client than the products and/or services of
-         Acorns business partners. Subscribers are, however,
-         <br />
-         not required to purchase the products and services Acorns promotes.
-        </p>
-       </div>
-       <div className='element-acorns-wrapper'>
-        <p className='element-acorns'>
-         5. Acorns Subscription Fees are assessed based on the tier of services
-         in which you are enrolled. Acorns does not charge transactional fees,
-         commissions or fees based on assets for
-         <br />
-         accounts under $1 million. Acorns may receive compensation from
-         business partners in connection with certain promotions in which Acorns
-         refers clients to such partners for the purchase
-         <br />
-         of non-investment consumer products or services. This type of marketing
-         partnership gives Acorns an incentive to refer clients to business
-         partners instead of to businesses that are not
-         <br />
-         partners of Acorns. This conflict of interest affects the ability of
-         Acorns to provide clients with unbiased, objective promotions
-         concerning the products and services of its business partners.
-         <br />
-         This could mean that the products and/or services of other businesses,
-         that do not compensate Acorns, may be more appropriate for a client
-         than the products and/or services of Acorns
-         <br />
-         business partners. Subscribers are, however, not required to purchase
-         the products and services Acorns promotes.
-        </p>
-       </div>
-       <div className='p-not-a-bank'>
-        <p className='element-acorns-is-not-a'>
-         <span className='text-wrapper-82'>
-          6. Acorns is not a bank. Acorns Visa™ debit cards and banking services
-          are issued by Lincoln Savings Bank or nbkc bank, members FDIC. Acorns
-          Checking clients are not charged overdraft
-          <br />
-          fees, maintenance fees, or ATM fees for cash withdrawals from
-          in-network ATMs. Please see your Acorns Subscription Center or Account
-          Statements for a description of the fees you pay to
-          <br />
-          Acorns for its services. Any balances you hold with Lincoln Savings
-          Bank or nbkc bank, including but not limited to those balances held in
-          Acorns Checking accounts are added together and
-          <br />
-          are insured up to $250,000 per depositor through Lincoln Savings Bank
-          or nbkc bank, Members FDIC. If you have funds jointly owned, these
-          funds would be separately insured for up to
-          <br />
-          $250,000 for each joint account owner. Lincoln Savings Bank or nbkc
-          bank utilizes a deposit network service, which means that at any given
-          time, all, none, or a portion of the funds in your
-          <br />
-          Acorns Checking accounts may be placed into and held beneficially in
-          your name at other depository institutions which are insured by the
-          Federal Deposit Insurance Corporation (FDIC). For
-          <br />a complete list of other depository institutions where funds may
-          be placed, please visit{" "}
-         </span>
-         <span className='text-wrapper-83'>
-          https://www.cambr.com/bank-list
-         </span>
-         <span className='text-wrapper-84'>
-          . Balances moved to network banks are eligible for FDIC insurance
-          <br />
-          once the funds arrive at a network bank. To learn more about
-          pass-through deposit insurance applicable to your account, please see
-          the Account Documentation. Additional information on
-          <br />
-          FDIC insurance can be found at{" "}
-         </span>
-         <span className='text-wrapper-85'>
-          https://www.fdic.gov/resources/deposit-insurance/
-         </span>
-         <span className='text-wrapper-86'>.</span>
-        </p>
-       </div>
-       <div className='element-early-payday-wrapper'>
-        <p className='element-early-payday'>
-         7. Early Payday depends on the timing of the submission of the payment
-         file from the payer and fraud prevention restrictions. Funds are
-         generally available on the day the payment file is
-         <br />
-         received, up to 2 days earlier than the scheduled payment date. Timing
-         may vary.
-        </p>
-       </div>
-       <div className='element-the-etfs-wrapper'>
-        <p className='element-the-etfs'>
-         8. The ETFs comprising the portfolios charge fees and expenses that
-         will reduce a client’s return. Investors should consider the investment
-         objectives, risks, charges and expenses of the
-         <br />
-         funds carefully before investing. Investment policies, management fees
-         and other information can be found in the individual ETF’s prospectus.
-         Please read each prospectus carefully before
-         <br />
-         investing.
-        </p>
-       </div>
-       <div className='element-acorns-does-not-wrapper'>
-        <p className='element-acorns-does-not'>
-         9. Acorns does not provide access to invest directly in Bitcoin.
-         Bitcoin exposure is provided through the ETF BITO, which invests in
-         Bitcoin futures. This is considered a high-risk investment
-         <br />
-         given the speculative and volatile nature. Investments in Bitcoin ETFs
-         may not be appropriate for all investors and should only be utilized by
-         those who understand and accept those risks.
-         <br />
-         Investors seeking direct exposure to the price of bitcoin should
-         consider a different investment.
-        </p>
-       </div>
-       <div className='element-the-ESG-wrapper'>
-        <p className='element-the-ESG'>
-         10. The ESG (Environmental, social, and governance) investment
-         strategies may limit the types and number of investment opportunities
-         available, as a result, the portfolio may
-         <br />
-         underperform others that do not have an ESG focus. Companies selected
-         for inclusion in the portfolio may not exhibit positive or favorable
-         ESG characteristics at all times and may shift into
-         <br />
-         and out of favor depending on market and economic conditions.
-         Environmental criteria considers how a company performs as a steward of
-         nature. Social criteria examine how it manages
-         <br />
-         relationships with employees, suppliers, customers, and the communities
-         where it operates. Governance deals with a company’s leadership,
-         executive pay, audits, internal controls, and
-         <br />
-         shareholder rights.
-        </p>
-       </div>
-       <div className='element-invest-an-wrapper'>
-        <p className='element-invest-an'>
-         11. Invest, an individual investment account which invests in a
-         portfolio of ETFs (exchange traded funds) recommended to clients based
-         on their investment objectives, time horizon, and risk
-         <br />
-         tolerance.
-        </p>
-       </div>
-       <div className='element-later-an-wrapper'>
-        <p className='element-later-an'>
-         12. Later, an Individual Retirement Account (either Traditional, ROTH
-         or SEP IRA) selected for clients based on their answers to a
-         suitability questionnaire. Please consult your tax advisor with
-         <br />
-         any questions.
-        </p>
-       </div>
-       <div className='element-early-an-UTMA-wrapper'>
-        <p className='element-early-an-UTMA'>
-         13. Early, an UTMA/UGMA investment account managed by an adult
-         custodian until the minor beneficiary comes of age, at which point they
-         assume control of the account. Money in a<br />
-         custodial account is the property of the minor.
-        </p>
-       </div>
-       <div className='element-it-is-not-wrapper'>
-        <p className='element-it-is-not'>
-         14. It is not possible to invest directly in an index. Past performance
-         is no guarantee of future results.
-        </p>
-       </div>
-       <p className='text-wrapper-87'>
-        15. Acorns reserves the right to restrict or revoke any and all offers
-        at any time.
-       </p>
-       <div className='element-compounding-is-wrapper'>
-        <p className='element-compounding-is'>
-         16. Compounding is the process in which an asset’s earning from either
-         capital gains or interest are reinvested to generate additional
-         earnings over time. It does not ensure positive
-         <br />
-         performance, nor does it protect against loss. Acorns clients may not
-         experience compound returns and investment results will vary based on
-         market volatility and fluctuating prices.
-        </p>
-       </div>
-       <div className='p-wrapper'>
-        <p className='text-wrapper-88'>
-         17. Diversification and asset allocation do not guarantee a profit, nor
-         do they eliminate the risk of loss of principal.
-        </p>
-       </div>
-       <p className='text-wrapper-89'>
-        18. App rating references the combined all-time star rating received in
-        Google Play and Apple App Store.
-       </p>
-       <div className='element-save-and-invest-wrapper'>
-        <p className='element-save-and-invest'>
-         19. ‘Save and Invest’ refers to a client’s ability to utilize the
-         Acorns Real-Time Round-Ups® investment feature to seamlessly invest
-         small amounts of money from purchases using an Acorns
-         <br />
-         investment account.
-        </p>
-       </div>
-       <div className='element-the-information-wrapper'>
-        <p className='element-the-information'>
-         20. The information contained on this website should not considered an
-         offer, solicitation of an offer or advice to buy or sell any security
-         or investment product. The information should not
-         <br />
-         be construed as tax or legal advice. Please consult your tax advisor
-         with any questions.
-        </p>
-       </div>
-       <div className='acorns-round-ups-wrapper'>
-        <p className='acorns-round-ups'>
-         Acorns, Round-Ups® investments, Real-Time Round-Ups® investments,
-         Invest the Change and the Acorns logo are registered trademarks of
-         Acorns Grow Incorporated. All product and company
-         <br />
-         names are trademarks™ or registered® trademarks of their respective
-         holders. Use of them does not imply any affiliation with or endorsement
-         by them.
-        </p>
-       </div>
-       <div className='for-additional-wrapper'>
-        <p className='for-additional'>
-         <span className='text-wrapper-90'>
-          For additional important risks, disclosures, and information, please
-          visit{" "}
-         </span>
-         <span className='text-wrapper-91'>https://www.acorns.com/terms/</span>
-        </p>
-       </div>
-       <div className='element-acorns-grow-wrapper'>
-        <p className='element-acorns-grow'>
-         <span className='text-wrapper-92'>
-          © 2023 Acorns Grow Incorporated |{" "}
-         </span>
-         <span className='text-wrapper-93'>Disclosures</span>
-         <span className='text-wrapper-94'> | </span>
-         <span className='text-wrapper-95'>Accessibility</span>
-        </p>
-       </div>
-      </div>
-     </footer>
-    </div>
+  <FooterWrapper>
+   <FooterLogoWrapper>
+    <FooterLogo src={logo} alt='Tax Track Logo' />
+   </FooterLogoWrapper>
+   <FooterLinks>
+    <a href='#'>Home</a>
+    <a href='#'>About</a>
+    <a href='#'>Services</a>
+    <a href='#'>Contact</a>
+   </FooterLinks>
+   <FooterSocialIcons>
+    <a href='#'>
+     <img
+      src='https://sqy7rm.media.zestyio.com/Instagram.png'
+      alt='Instagram'
+     />
+    </a>
+    <a href='#'>
+     <img src='https://sqy7rm.media.zestyio.com/Twitter.png' alt='Twitter' />
+    </a>
+    <a href='#'>
+     <img src='https://sqy7rm.media.zestyio.com/Facebook.png' alt='Facebook' />
+    </a>
+   </FooterSocialIcons>
+   <FooterDisclaimer>
+    © 2023 Tax Track. All rights reserved. For Informational Purposes Only.
+   </FooterDisclaimer>
+  </FooterWrapper>
+ );
+};
+
+const TestimonialCarousel = () => {
+ const [activeSlide, setActiveSlide] = useState(0);
+
+ const handleNextSlide = () => {
+  setActiveSlide((prevIndex) => (prevIndex + 1) % testimonials.length);
+ };
+
+ const handlePrevSlide = () => {
+  setActiveSlide(
+   (prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length
+  );
+ };
+
+ const currentTestimonial = testimonials[activeSlide];
+
+ return (
+  <TestimonialCarouselContainer>
+   <TestimonialInfoContainer>
+    <TestimonialSlide active>
+     <TestimonialImage
+      src={currentTestimonial.image}
+      alt={currentTestimonial.name}
+     />
+     <TestimonialContent>
+      <TestimonialName>{currentTestimonial.name}</TestimonialName>
+      <TestimonialText>{currentTestimonial.text}</TestimonialText>
+     </TestimonialContent>
+    </TestimonialSlide>
+   </TestimonialInfoContainer>
+   <TestimonialButtonWrapper>
+    <TestimonialButtonContainer>
+     <TestimonialButton
+      onClick={handlePrevSlide}
+      className='fa-solid fa-chevron-left'
+     />
+     <NextButton onClick={handleNextSlide} className='fas fa-chevron-right' />
+    </TestimonialButtonContainer>
+   </TestimonialButtonWrapper>
+  </TestimonialCarouselContainer>
+ );
+};
+const InfoContentSection = ({ imageSrc, title, description, buttonText }) => {
+ return (
+  <InfoContent>
+   <div>
+    <Image src={imageSrc} alt='Info Image' />
    </div>
-  </div>
+   <TextWrapper>
+    <SectionTitle>{title}</SectionTitle>
+    <SectionDescription>{description}</SectionDescription>
+    <SectionButton>{buttonText}</SectionButton>
+   </TextWrapper>
+  </InfoContent>
+ );
+};
+const Landing = () => {
+ const profileContext = useContext(ProfileContext);
+ const { settlementCalculation } = profileContext;
+ const [scrollingUp, setScrollingUp] = useState(false);
+ const [animateButtons, setAnimateButtons] = useState(false);
+ const [showHiddenInfo, setShowHiddenInfo] = useState(false);
+ const handleScroll = () => {
+  let prevScrollY = window.scrollY;
+  setScrollingUp(window.scrollY < prevScrollY);
+  prevScrollY = window.scrollY;
+ };
+
+ const handleToggle = () => {
+  setShowHiddenInfo((prevState) => !prevState);
+ };
+ useEffect(() => {
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+   window.removeEventListener("scroll", handleScroll);
+  };
+ }, []);
+ const [activeSlide, setActiveSlide] = useState(null);
+
+ const handleButtonClick = (index) => {
+  setAnimateButtons(true);
+  if (activeSlide === null) {
+   setTimeout(() => setActiveSlide(index), 2500);
+  } else {
+   setActiveSlide(index);
+  }
+ };
+
+ const sections = [
+  {
+   title: "Balance And Transactions",
+   description:
+    "Get real-time insights into your IRS debt with a clear and organized line chart. Easily track changes in your balance directly from the IRS, providing a clear roadmap to financial freedom.",
+   buttonText: "Learn More",
+   imageSrc: ChartOne,
+  },
+  {
+   title: "Growth and Milestones",
+   description:
+    "Navigate the twists and turns of your tax situation effortlessly. Our comprehensive tools and expert guidance help you achieve your financial milestones with ease and confidence.",
+   buttonText: "Learn More",
+   imageSrc: logo,
+  },
+  {
+   title: "Returns Made Easy",
+   description:
+    "Prepare tax returns hassle-free with our user-friendly tax forms and comprehensive guides. Streamline tax documentation management and experience a stress-free filing experience.",
+   buttonText: "Learn More",
+   imageSrc: logo,
+  },
+  {
+   title: "Plan For The Future",
+   description:
+    "Access an extensive library of articles and videos outlining an ever-growing and changing tax code. Stay informed about changing tax laws and regulations to plan and optimize your financial future.",
+   buttonText: "Learn More",
+   imageSrc: logo,
+  },
+ ];
+ const filteredSections = sections.filter(
+  (section, index) => index === activeSlide
+ );
+ return (
+  <>
+   <Hero>
+    <HeroImage src={HeroImg} alt='Hero' />
+    <HeroContent>
+     <HeroTitle> Tax Track Makes IRS Interactions Easy</HeroTitle>
+     <HeroSubtitle>
+      Keep up with the latest on your tax account at the click of a button
+     </HeroSubtitle>
+     <HeroButton>Get Started</HeroButton>
+    </HeroContent>
+   </Hero>
+   <BackgroundDiv>
+    <ContentContainer>
+     <Subtitle>Calculate Your Settlement</Subtitle>
+     <ContentTitle>Your Potential Offer In Compromise</ContentTitle>
+     <CenteredParagraph>
+      The Tax Track Settlement Calculator is a powerful tool that helps
+      individuals assess their eligibility for a potential settlement with the
+      IRS. By entering financial information, taxpayers can determine if they
+      qualify to settle their tax debt for less than the full amount owed.
+      Simplifying the process, it empowers users to explore debt relief options
+      confidently.
+     </CenteredParagraph>
+    </ContentContainer>
+   </BackgroundDiv>
+   <MainContainer>
+    <FormContainer>
+     <SettlementForm />
+    </FormContainer>
+
+    <ChartContainer>
+     <ImageContainer>
+      {settlementCalculation === null ? (
+       <StillImage src={OicHero} style={{ width: "100%" }} alt='Still Image' />
+      ) : (
+       <SettlementChart />
+      )}
+     </ImageContainer>
+    </ChartContainer>
+   </MainContainer>
+   <BackgroundDiv>
+    <ContentContainer>
+     <Subtitle>How Does Tax Track Work?</Subtitle>
+     <ContentTitle>
+      Everything You Need For Your Tax Settlement In One Place
+     </ContentTitle>
+
+     {activeSlide === null ? (
+      <CircleWrapper animate={animateButtons}>
+       <CircleButton
+        onClick={() => handleButtonClick(0)}
+        angle={225}
+        animate={animateButtons}
+        style={{
+         backgroundColor: "blue",
+         width: "100px",
+         zIndex: "1",
+         height: "110px",
+         borderRadius: "10px",
+        }}>
+        <FontAwesomeIcon icon={faCog} />
+        Balance
+       </CircleButton>
+       <CircleButton
+        onClick={() => handleButtonClick(1)}
+        angle={315}
+        animate={animateButtons}
+        style={{
+         backgroundColor: "green",
+         width: "130px",
+         height: "120px",
+         zIndex: "1",
+         borderRadius: "10px",
+        }}>
+        <FontAwesomeIcon icon={faGlobe} />
+        Milestones
+       </CircleButton>
+       <CircleButton
+        onClick={() => handleButtonClick(2)}
+        angle={45}
+        animate={animateButtons}
+        style={{
+         backgroundColor: "orange",
+         width: "125px",
+         height: "115px",
+         borderRadius: "10px",
+         zIndex: "1",
+        }}>
+        <FontAwesomeIcon icon={faUser} />
+        Returns
+       </CircleButton>
+       <CircleButton
+        onClick={() => handleButtonClick(3)}
+        angle={135}
+        animate={animateButtons}
+        style={{
+         backgroundColor: "purple",
+         width: "125px",
+         height: "90px",
+         borderRadius: "10px",
+         zIndex: "1",
+        }}>
+        <FontAwesomeIcon icon={faBook} />
+        Planning
+       </CircleButton>
+       <LearnMoreButton
+        animate={animateButtons}
+        onClick={() => handleButtonClick(0)}
+        style={{
+         width: "500px",
+         height: "500px",
+         zIndex: "0",
+         backgroundColor: "tan",
+        }}>
+        <Image
+         src={logo}
+         alt='Image 2'
+         style={{
+          width: "200px",
+          height: "400px",
+          zIndex: "0",
+          backgroundColor: "tan",
+         }}
+        />
+       </LearnMoreButton>
+      </CircleWrapper>
+     ) : (
+      <OuterWrapper>
+       <ButtonWrapper>
+        <ButtonContainer>
+         <Button
+          active={activeSlide === 0}
+          onClick={() => handleButtonClick(0)}
+          style={{
+           backgroundColor: "blue",
+           zIndex: "1",
+          }}>
+          {" "}
+          <FontAwesomeIcon icon={faCog} />
+          Balance
+         </Button>
+         <Button
+          active={activeSlide === 1}
+          onClick={() => handleButtonClick(1)}
+          style={{
+           backgroundColor: "green",
+           zIndex: "1",
+          }}>
+          {" "}
+          <FontAwesomeIcon icon={faCog} />
+          Milestones
+         </Button>
+         <Button
+          active={activeSlide === 2}
+          onClick={() => handleButtonClick(2)}
+          style={{
+           backgroundColor: "orange",
+
+           zIndex: "1",
+          }}>
+          {" "}
+          <FontAwesomeIcon icon={faCog} />
+          Returns
+         </Button>
+         <Button
+          active={activeSlide === 3}
+          onClick={() => handleButtonClick(3)}
+          style={{
+           backgroundColor: "purple",
+
+           zIndex: "1",
+          }}>
+          {" "}
+          <FontAwesomeIcon icon={faCog} />
+          Planning
+         </Button>
+        </ButtonContainer>
+       </ButtonWrapper>
+
+       <InfoContainer activeSlide={activeSlide}>
+        {filteredSections.map((section, index) => (
+         <InfoContentSection
+          key={index}
+          imageSrc={section.imageSrc}
+          title={section.title}
+          description={section.description}
+          buttonText={section.buttonText}
+         />
+        ))}
+       </InfoContainer>
+      </OuterWrapper>
+     )}
+    </ContentContainer>
+   </BackgroundDiv>
+   <ScrollingDiv>
+    <ScrollingText scrollingUp={scrollingUp}>
+     <RotatingHeadline>
+      WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX
+      TRACK WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY
+      TAX TRACK WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK - WHY TAX TRACK -
+      WHY TAX TRACK
+     </RotatingHeadline>
+    </ScrollingText>
+   </ScrollingDiv>
+   <SectionContainer>
+    {/* First pair: Text then Image */}
+    <LeftDiv>
+     <Headline>Unlock the Path to Zero with Balance and Transactions</Headline>
+     <Text>
+      <Paragraph>
+       {" "}
+       Discover the power of understanding your IRS account transcripts like
+       never before. Tax Track's "Balance and Transactions" feature transforms
+       your complex financial data into a clear and organized line chart,
+       providing you with real-time insights into your IRS debt. Easily track
+       every change in your balance directly from the IRS, allowing you to plan
+       your financial journey with confidence.
+      </Paragraph>
+      <Paragraph>
+       {" "}
+       Navigate the twists and turns of your tax situation effortlessly. With
+       Balance and Transactions you gain control over your financial future,
+       visualizing your path to zero IRS debt. Tax Track ensures you stay
+       informed about your progress, empowering you to make informed decisions
+       and create a solid financial foundation.
+      </Paragraph>
+     </Text>
+    </LeftDiv>
+    <RightDiv>
+     <Image src={PathToZero} alt='Image 1' />
+    </RightDiv>
+   </SectionContainer>
+   <SectionContainer>
+    <LeftDiv>
+     <Image src={TaxReturnMachine} alt='Image 2' />
+    </LeftDiv>
+    <RightDiv>
+     <Headline>Simplify Tax Return Preparation with Expert Guides</Headline>
+     <Text>
+      <Paragraph>
+       {" "}
+       Tax Track offers an unparalleled advantage with its Tax Return
+       Preparation and Guides. Our platform provides you with forms, uploads,
+       and step-by-step guides that streamline the process of preparing tax
+       returns. As a Tax Track subscriber, you enjoy the added benefit of
+       preparing your yearly returns for free while your subscription is active.
+      </Paragraph>
+      <Paragraph>
+       {" "}
+       No more tedious guesswork or stress during tax season. Access
+       comprehensive resources and stay up-to-date with the ever-changing tax
+       code. Our user-friendly interface ensures that you accurately file your
+       returns and maximize deductions. Feel confident that your taxes are
+       prepared efficiently, leaving you with peace of mind.
+      </Paragraph>
+     </Text>
+    </RightDiv>
+   </SectionContainer>
+   <SectionContainer>
+    {/* First pair: Text then Image */}
+    <LeftDiv>
+     <Headline>
+      Optimize Your Finances with Pro Dashboard and Deduction Analysis
+     </Headline>
+     <Text>
+      <Paragraph>
+       {" "}
+       Tax Track's Pro Dashboard is your financial partner, offering expert
+       analysis and insights into your books. Our advanced algorithms scrutinize
+       your financial data, searching for potential deductions and opportunities
+       to optimize your tax liabilities. Keep your professional filings and
+       entities organized effortlessly.
+      </Paragraph>
+      <Paragraph>
+       {" "}
+       With Pro Dashboard, managing your financials becomes seamless. Stay ahead
+       of the game with real-time data, ensuring you never miss crucial
+       deductions or compliance deadlines. Empower yourself with a high-tech
+       solution tailored to your financial success.
+      </Paragraph>
+     </Text>
+    </LeftDiv>
+    <RightDiv>
+     <Image src={ProDash} alt='Image 1' />
+    </RightDiv>
+   </SectionContainer>
+   <SectionContainer>
+    <LeftDiv>
+     <Image src={blog} alt='Image 2' />
+    </LeftDiv>
+    <RightDiv>
+     <Headline>
+      {" "}
+      Navigate the Tax Code Confidently with Comprehensive Resources
+     </Headline>
+     <Text>
+      <Paragraph>
+       {" "}
+       Tax Track boasts an extensive collection of articles and videos,
+       meticulously outlining the ever-growing and changing tax code. Our
+       platform ensures you stay informed on the latest tax regulations,
+       credits, and deductions. Empower yourself with the knowledge to make
+       informed financial decisions.
+      </Paragraph>
+      <Paragraph>
+       {" "}
+       By providing comprehensive and up-to-date resources, Tax Track serves as
+       your reliable tax guide. Our content covers a wide range of topics,
+       simplifying complex tax concepts and shedding light on frequently asked
+       questions. Prepare for the future and unlock the potential for financial
+       growth with our extensive tax code library.
+      </Paragraph>
+     </Text>
+    </RightDiv>
+   </SectionContainer>
+   <Container style={{ marginTop: "20px" }}>
+    <Headline style={{ marginBottom: "20px" }}>
+     Change The Way You Do Your Taxes Forever
+    </Headline>
+
+    <ImageSection>
+     <ImageWrapper>
+      <ImageAsset src={ChartOne} alt='Harness the power of compounding' />
+     </ImageWrapper>
+     <TextSection>
+      <HeadlineSecondSection>
+       Harness the power of information
+      </HeadlineSecondSection>
+      <Body>
+       Tax Track revolutionizes tax management, offering a modernized approach
+       to taxes and simplifying dealings with the IRS. With cutting-edge
+       technology, it transforms complex IRS data into user-friendly visuals,
+       enabling easy tracking of financial progress. Say goodbye to tax
+       headaches as Tax Track provides expert guidance, streamlines return
+       preparation, and empowers you to confidently navigate IRS challenges with
+       ease.
+      </Body>
+     </TextSection>
+    </ImageSection>
+    <DisclosureSection>
+     <DisclosureCopy>
+      Tax Track's platform and tools are intended for informational purposes
+      only and do not constitute financial, tax, or legal advice. While we
+      strive to provide accurate and up-to-date information, the tax laws and
+      regulations are subject to change, and individual circumstances can vary.
+      Users should consult with qualified professionals, such as tax advisors or
+      financial experts, to address specific financial situations or tax
+      concerns. Tax Track does not guarantee the accuracy, completeness, or
+      reliability of any information presented on the platform. Users are
+      responsible for their financial decisions and should conduct their due
+      diligence before making any financial or tax-related choices.
+     </DisclosureCopy>
+    </DisclosureSection>
+   </Container>
+   <HighlightedTextContainer>
+    <div className='highlighted-text-component'>
+     <Tagline>Thousands Have Saved Millions With ABC Tax Track</Tagline>
+     <Subheadline>
+      We have countless testemonials and have saved clients a total of
+     </Subheadline>
+     <CountUpDollars>$15,000,000</CountUpDollars>
+    </div>
+    <ImageWrapper>
+     <FirstImage src={Person1} />
+     <SecondImage src={Person2} />
+     <ThirdImage src={Person3} />
+     <FourthImage src={Person4} />
+    </ImageWrapper>
+   </HighlightedTextContainer>
+   <TestimonialCarousel />
+   <EnvoyPricingModule showHiddenInfo={showHiddenInfo}>
+    <LeftContent>
+     <Headline>Streamlines Your Taxes</Headline>
+     <br />
+     <BodyCopy>
+      Tax Track provides intuitive features like "Balance and Transactions" to
+      visualize your path to financial freedom in real-time. The "Returns Made
+      Easy" feature streamlines tax return preparation, while the "Pro
+      Dashboard" offers pro-level deductions analysis for maximizing savings.
+      Stay informed with the "Tax Education" feature, providing expert tips and
+      resources on changing tax laws.
+     </BodyCopy>
+     <Disclosures>
+      Tax Track is an online financial platform offering general informational
+      and educational content about taxes and IRS debt. While we strive for
+      accuracy, the information provided should not be considered professional
+      advice. Tax laws are subject to frequent changes, and individual
+      circumstances vary, so it is essential to consult qualified tax
+      professionals or financial advisors for personalized guidance.
+     </Disclosures>
+    </LeftContent>
+
+    <RightContent>
+     <TierCardWrapper>
+      <TierName>Three Months Free</TierName>
+      <TierBodyCopy>
+       Join over 10 million all-time customers who have signed up for TaxTrack.
+      </TierBodyCopy>
+      <StyledLink href='https://app.adjust.com/2frog1d_tjj61hy?fallback=https%3A%2F%2Fwww.acorns.com%2Ftier-signup%3Fkey%3DGOLD'>
+       Sign up today
+      </StyledLink>
+      <br />
+      {!showHiddenInfo && (
+       <ToggleButton
+        onClick={() => setShowHiddenInfo((prevState) => !prevState)}>
+        What's Included?
+       </ToggleButton>
+      )}
+      {showHiddenInfo && (
+       <HiddenInfoWrapper>
+        {features.map((feature, index) => (
+         <FeatureSection key={index}>
+          <h5>
+           {" "}
+           <FontAwesomeIcon
+            icon={feature.icon}
+            style={{ color: "white", marginLeft: "5px" }}
+           />
+           {feature.title}
+          </h5>
+          <HiddenInfoList>
+           {feature.items.map((item, idx) => (
+            <HiddenInfoItem key={idx}>{item}</HiddenInfoItem>
+           ))}
+          </HiddenInfoList>
+         </FeatureSection>
+        ))}
+       </HiddenInfoWrapper>
+      )}
+     </TierCardWrapper>
+     {/* Other tiers and content go here */}
+    </RightContent>
+   </EnvoyPricingModule>
+   <EnvoyClosingSignUpWrapper>
+    <CopyWrapper>
+     <ClosingTagline>A Modern Solution For Tax Resolution</ClosingTagline>
+     <ClosingHeadline>
+      Tax Track changing the way Americans communicate with the IRS
+     </ClosingHeadline>
+     <CTAButton href='https://app.adjust.com/lu9nsui_ww57nnm?fallback=https://www.acorns.com/tier-signup?key=GOLD'>
+      Sign up today
+     </CTAButton>
+    </CopyWrapper>
+    <TreeImage src={logo} alt='Tree stump image' />
+    <picture>
+     <source
+      media='(max-width: 767px)'
+      srcset='https://sqy7rm.media.zestyio.com/Closing-Signup-Updt-Mob-202210-2.png'
+     />
+     <PhoneImage src={ChartOne} alt='Phone image' />
+    </picture>
+   </EnvoyClosingSignUpWrapper>
+   <Footer />
+  </>
  );
 };
 

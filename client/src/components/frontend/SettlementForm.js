@@ -30,7 +30,7 @@ import ProfileContext from "../../context/profile/profileContext";
 const useStyles = makeStyles((theme) => ({
  formContainer: {
   backgroundColor: "#f9f9f9",
-  maxHeight: "85vh",
+
   height: "100%",
   width: "23vw",
   borderRadius: theme.spacing(2),
