@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ProfileState from "./context/profile/ProfileState";
 import AuthState from "./context/auth/AuthState";
 import "./App.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import Home from "./components/frontend/Home";
 import Login from "./components/auth/Login";
 import Navbar from "./components/auth/Navbar";
