@@ -18,35 +18,15 @@ import axios from "axios";
 import AuthContext from "./context/auth/authContext";
 
 const App = () => {
- const [clientId, setClientId] = useState("");
-
- useEffect(() => {
-  const getGoogleClientId = async () => {
-   try {
-    const res = await axios.get("/api/auth/env");
-    setClientId(res.data);
-   } catch (err) {
-    console.error(err);
-   }
-  };
-
-  getGoogleClientId();
-  if (clientId.length > 0) {
-   const start = () => {
-    gapi.client.init({
-     clientId: clientId,
-     scope: "",
-    });
-   };
-
-   gapi.load("client:auth2", start);
-  }
- }, []); // Run this effect only once on the initial mount
+ // Run this effect only once on the initial mount
 
  // Run this effect whenever the clientId changes
 
  return (
-  <GoogleOAuthProvider clientId={clientId}>
+  <GoogleOAuthProvider
+   clientId={
+    "228458250661-snd3uf70bgrdekaqv5db1us3v1nlrovg.apps.googleusercontent.com "
+   }>
    <AuthState>
     <ProfileState>
      <AlertState>
