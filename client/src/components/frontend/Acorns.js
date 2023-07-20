@@ -134,13 +134,6 @@ const TestimonialText = styled.p`
  color: #555;
 `;
 
-const Footer = styled.footer`
- padding: 20px 0;
- background-color: #333;
- color: #fff;
- text-align: center;
-`;
-
 const SectionContainer = styled.div`
  display: flex;
  flex-wrap: wrap;
@@ -848,35 +841,355 @@ const Disclosures = styled.div`
  line-height: 18px;
  max-width: 512px;
 `;
-
-const TierCard = styled.div`
- background-color: purple;
- color: #fff;
+const TierCardWrapper = styled.div`
+ background-color: #6944ff;
+ color: white;
  padding: 20px;
  height: 250px;
  border-radius: 10px;
  width: 300px;
 `;
-
-const TierName = styled.div`
+const TierName = styled.h2`
  font-size: 24px;
- font-weight: bold;
+ color: white;
  margin-bottom: 10px;
 `;
 
-const TierBodyCopy = styled.div`
+const TierBodyCopy = styled.p`
  font-size: 16px;
+ color: white;
+ margin-bottom: 20px;
 `;
 
 const StyledLink = styled.a`
- color: #fff;
  background-color: #6944ff;
- padding: 10px 20px;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ padding: 8px 16px;
  text-decoration: none;
- border-radius: 5px;
- display: inline-block;
+ cursor: pointer;
+`;
+
+const HiddenInfoWrapper = styled.div`
+ margin-top: 10px;
+ margin-left: -20px;
+ padding: 20px;
+ background-color: #6944ff;
+ border-radius: 20px;
+ width: 300px;
+ border: 1px solid #6944ff;
+ color: #fff;
+`;
+
+const HiddenInfoHeader = styled.h3`
+ font-size: 20px;
+`;
+
+const FontAwesomeIcon = styled.i`
+ margin-right: 8px;
+`;
+
+const HiddenInfoList = styled.ul`
+ list-style-type: disc;
+ padding-left: 20px;
  margin-top: 10px;
 `;
+
+const HiddenInfoItem = styled.li`
+ font-size: 16px;
+`;
+
+const ToggleButton = styled.button`
+ margin-top: 10px;
+ background-color: #6944ff;
+ color: #fff;
+ border: none;
+ border-radius: 4px;
+ padding: 8px 16px;
+ cursor: pointer;
+`;
+
+const EnvoyClosingSignUpWrapper = styled.div`
+ position: relative;
+ margin: auto;
+ background: #74c947;
+ width: 1320px;
+ height: calc((100vw - 120px) * 0.7);
+ max-width: 100%;
+ max-height: 900px;
+ border-radius: 30px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ overflow: hidden;
+`;
+
+const CopyWrapper = styled.div`
+ width: 770px;
+ padding: 0 40px;
+ text-align: center;
+ z-index: 4;
+`;
+
+const ClosingTagline = styled.div`
+ font-size: 24px;
+ color: #fff;
+ margin-bottom: 10px;
+`;
+
+const ClosingHeadline = styled.h5`
+ font-size: 20px;
+ color: #fff;
+ margin-bottom: 20px;
+`;
+
+const CTAButton = styled.a`
+ cursor: pointer;
+ display: inline-block;
+ height: 56px;
+ line-height: 56px;
+ padding: 0 45px;
+ font-size: 16px;
+ letter-spacing: 0;
+ font-weight: 600;
+ text-decoration: none;
+ border-radius: 50px;
+ transition: background 300ms ease-in-out;
+ background: #fff;
+ color: #191919;
+`;
+
+const TreeImage = styled.img`
+ position: absolute;
+ z-index: 1;
+ bottom: 0;
+ width: 66%;
+ max-width: 860px;
+ opacity: 0.2;
+`;
+
+const PhoneImage = styled.img`
+ position: absolute;
+ z-index: 2;
+ width: 32%;
+ max-width: 420px;
+ top: 60px;
+ right: 112px;
+ filter: brightness(0.9);
+`;
+
+const FooterWrapper = styled.div`
+ padding: 20px;
+ width: 1200px;
+ margin: auto;
+ border-radius: 10px;
+`;
+
+const FooterMainRow = styled.div`
+ display: flex;
+ justify-content: space-between;
+ flex-wrap: wrap;
+`;
+
+const FooterHero = styled.div`
+ flex: 1;
+`;
+
+const FooterCTA = styled.a`
+ display: block;
+ margin-top: 10px;
+ color: #007bff;
+`;
+
+const MainRowLinks = styled.div`
+ display: flex;
+ flex: 3;
+ flex-wrap: wrap;
+`;
+
+const MainRowLinkColumn = styled.div`
+ flex: 1;
+ padding: 0 10px;
+`;
+
+const FooterLink = styled.a`
+ display: block;
+ color: #007bff;
+ margin-bottom: 5px;
+`;
+
+const FooterClosingIconRow = styled.div`
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ margin-top: 20px;
+`;
+
+const LogoWrapper = styled.div`
+ flex: 1;
+`;
+
+const FooterLogo = styled.img`
+ max-width: 150px;
+`;
+
+const ClosingRowLinks = styled.div`
+ flex: 2;
+`;
+
+const ClosingRowSocialIcons = styled.div`
+ flex: 1;
+ display: flex;
+ justify-content: flex-end;
+`;
+
+const FooterSocialIcon = styled.img`
+ margin-right: 10px;
+ max-width: 30px;
+`;
+
+const Footer = () => {
+ return (
+  <FooterWrapper>
+   <FooterMainRow>
+    <FooterHero>
+     <h4>Have any questions?</h4>
+     <FooterCTA href='/support' data-track-id='footerContactSupport'>
+      Contact support
+     </FooterCTA>
+    </FooterHero>
+    <MainRowLinks>
+     <MainRowLinkColumn>
+      <h6>Products</h6>
+      <FooterLink
+       href='https://www.acorns.com/invest/'
+       data-track-id='footerInvest'>
+       <b>Invest</b> for your future
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/later/'
+       data-track-id='footerLater'>
+       <b>Later</b> starts today
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/earn/'
+       data-track-id='footerEarn'>
+       <b>Earn</b> extra money
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/early'
+       data-track-id='footerEarly'>
+       <b>Early</b> investors
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/banking/'
+       data-track-id='footerSpend'>
+       <b>Bank</b> smarter
+      </FooterLink>
+     </MainRowLinkColumn>
+     <MainRowLinkColumn>
+      <h6>Who we are</h6>
+      <FooterLink
+       href='https://www.acorns.com/about/'
+       data-track-id='footerAbout'>
+       <b></b> About
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/careers/'
+       data-track-id='footerCareers'>
+       <b></b> Careers
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/press/'
+       data-track-id='footerPress'>
+       <b></b> Press
+      </FooterLink>
+      <FooterLink
+       href='https://www.acorns.com/oak-trees-planted/'
+       data-track-id='footerTrees'>
+       <b></b> Oak Trees Planted
+      </FooterLink>
+     </MainRowLinkColumn>
+     <MainRowLinkColumn>
+      <h6>Why start now</h6>
+      <FooterLink href='/learn/' data-track-id='footerLearn'>
+       <b></b> Learn
+      </FooterLink>
+     </MainRowLinkColumn>
+    </MainRowLinks>
+   </FooterMainRow>
+   <FooterClosingIconRow>
+    <LogoWrapper>
+     <FooterLogo
+      src='https://sqy7rm.media.zestyio.com/Acorns-Footer-Logo-2x-2022.png'
+      alt='Acorns logo'
+     />
+    </LogoWrapper>
+    <ClosingRowLinks>
+     <FooterLink
+      href='https://www.acorns.com/pricing/'
+      data-track-id='footerPricing'>
+      <b>Pricing</b>
+     </FooterLink>
+     <FooterLink href='https://store.acorns.com/' data-track-id='footerStore'>
+      <b>Store</b>
+     </FooterLink>
+     <FooterLink
+      href='https://www.acorns.com/terms/'
+      data-track-id='footerLegal'>
+      <b>Legal</b>
+     </FooterLink>
+     <FooterLink
+      href='https://www.acorns.com/privacy/'
+      data-track-id='footerPrivacyPolicy'>
+      <b>Privacy Policy</b>
+     </FooterLink>
+     <a id='ot-sdk-btn-new-style' className='ot-sdk-show-settings'>
+      Your Privacy Choices
+     </a>
+    </ClosingRowLinks>
+    <ClosingRowSocialIcons>
+     <FooterLink
+      href='https://www.instagram.com/acorns/'
+      data-track-id='footerInstagram'>
+      <FooterSocialIcon
+       src='https://sqy7rm.media.zestyio.com/Instagram.png'
+       alt='Instagram'
+      />
+     </FooterLink>
+     <FooterLink
+      href='https://twitter.com/acorns'
+      data-track-id='footerTwitter'>
+      <FooterSocialIcon
+       src='https://sqy7rm.media.zestyio.com/Twitter.png'
+       alt='Twitter'
+      />
+     </FooterLink>
+     <FooterLink
+      href='https://www.facebook.com/AcornsGrow/'
+      data-track-id='footerFacebook'>
+      <FooterSocialIcon
+       src='https://sqy7rm.media.zestyio.com/Facebook.png'
+       alt='Facebook'
+      />
+     </FooterLink>
+     <a
+      id='equal-web-toggle'
+      aria-label='Open Accessibility Menu'
+      role='button'
+      data-track-id='footerEqualWebToggle'
+      data-onclick='window.interdeal.a11y.openMenu()'>
+      <FooterSocialIcon
+       src='https://sqy7rm.media.zestyio.com/EqualWeb-ADA-icon-green.svg'
+       alt='Wheelchair icon'
+      />
+     </a>
+    </ClosingRowSocialIcons>
+   </FooterClosingIconRow>
+  </FooterWrapper>
+ );
+};
 
 const TestimonialCarousel = () => {
  const [activeSlide, setActiveSlide] = useState(0);
@@ -936,19 +1249,15 @@ const InfoContentSection = ({ imageSrc, title, description, buttonText }) => {
 const Acorns = () => {
  const [scrollingUp, setScrollingUp] = useState(false);
  const [animateButtons, setAnimateButtons] = useState(false);
-
+ const [showHiddenInfo, setShowHiddenInfo] = useState(false);
  const handleScroll = () => {
   let prevScrollY = window.scrollY;
   setScrollingUp(window.scrollY < prevScrollY);
   prevScrollY = window.scrollY;
  };
 
- const handlePrev = () => {
-  // Handle previous slide
- };
-
- const handleNext = () => {
-  // Handle next slide
+ const handleToggle = () => {
+  setShowHiddenInfo((prevState) => !prevState);
  };
  useEffect(() => {
   window.addEventListener("scroll", handleScroll);
@@ -1255,7 +1564,7 @@ const Acorns = () => {
     </LeftContent>
 
     <RightContent>
-     <TierCard>
+     <TierCardWrapper>
       <TierName>Starts at $3/month</TierName>
       <TierBodyCopy>
        Join over 10 million all-time customers who have signed up for Acorns.
@@ -1263,13 +1572,56 @@ const Acorns = () => {
       <StyledLink href='https://app.adjust.com/2frog1d_tjj61hy?fallback=https%3A%2F%2Fwww.acorns.com%2Ftier-signup%3Fkey%3DGOLD'>
        Sign up today
       </StyledLink>
-     </TierCard>
+      <br />
+      {!showHiddenInfo && (
+       <ToggleButton
+        onClick={() => setShowHiddenInfo((prevState) => !prevState)}>
+        What's Included?
+       </ToggleButton>
+      )}
+      {showHiddenInfo && (
+       <HiddenInfoWrapper>
+        <HiddenInfoHeader>
+         <FontAwesomeIcon className='fa fa-info-circle' /> Hidden Content
+         Section
+        </HiddenInfoHeader>
+        <HiddenInfoList>
+         <HiddenInfoItem>Item 1</HiddenInfoItem>
+         <HiddenInfoItem>Item 2</HiddenInfoItem>
+         <HiddenInfoItem>Item 3</HiddenInfoItem>
+        </HiddenInfoList>
+       </HiddenInfoWrapper>
+      )}
+     </TierCardWrapper>
      {/* Other tiers and content go here */}
     </RightContent>
    </EnvoyPricingModule>
-   <Footer>
-    &copy; {new Date().getFullYear()} Acorns. All rights reserved.
-   </Footer>
+   <EnvoyClosingSignUpWrapper>
+    <CopyWrapper>
+     <ClosingTagline>Join the Movement</ClosingTagline>
+     <ClosingHeadline>
+      We’re changing the way Americans save & invest every day
+     </ClosingHeadline>
+     <CTAButton href='https://app.adjust.com/lu9nsui_ww57nnm?fallback=https://www.acorns.com/tier-signup?key=GOLD'>
+      Sign up today
+     </CTAButton>
+    </CopyWrapper>
+    <TreeImage
+     src='https://sqy7rm.media.zestyio.com/Tree-Asset.png'
+     alt='Tree stump image'
+    />
+    <picture>
+     <source
+      media='(max-width: 767px)'
+      srcset='https://sqy7rm.media.zestyio.com/Closing-Signup-Updt-Mob-202210-2.png'
+     />
+     <PhoneImage
+      src='https://sqy7rm.media.zestyio.com/Closing-Signup-Updt-202210-2.png'
+      alt='Phone image'
+     />
+    </picture>
+   </EnvoyClosingSignUpWrapper>
+   <Footer />
   </>
  );
 };
