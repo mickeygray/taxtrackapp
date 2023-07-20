@@ -55,7 +55,8 @@ const HomeHeroWrapper = styled.div`
  justify-content: space-between;
  align-items: center;
  padding: 20px;
- width: 1200px;
+ margin: auto;
+ max-width: 1200px;
  height: 400px;
  ${({ animateOut }) =>
   animateOut &&
@@ -83,8 +84,6 @@ const HomeHeroWrapper = styled.div`
 
 const ToggleComponentContainer = styled.div`
  padding: 20px;
- width: 1200px;
- height: 600px;
 
  ${({ animateIn }) =>
   animateIn &&
@@ -370,7 +369,7 @@ const Home = () => {
   }, 300); // Set a delay that matches the duration of the sucked-in animation
  };
  return (
-  <Container>
+  <>
    {selectedComponent !== null ? (
     <ToggleComponentContainer animateIn={animateIn}>
      {selectedComponent}
@@ -378,11 +377,13 @@ const Home = () => {
    ) : (
     <HomeHero savings={savings} animateOut={animateOut} />
    )}
-   <AccountSummaryContainer>
-    <AccountSummary handleButtonClick={handleButtonClick} />
-   </AccountSummaryContainer>
-   <Milestones />
-  </Container>
+   <Container>
+    <AccountSummaryContainer>
+     <AccountSummary handleButtonClick={handleButtonClick} />
+    </AccountSummaryContainer>
+    <Milestones />
+   </Container>
+  </>
  );
 };
 

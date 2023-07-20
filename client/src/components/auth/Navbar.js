@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../images/logo.png";
 import AuthContext from "../../context/auth/authContext";
@@ -22,8 +22,7 @@ const Navbar = ({ toggleRegister }) => {
   clearGoogleClientId,
  } = useContext(AuthContext);
  const { setAlert } = useContext(AlertContext);
- // Define your Google OAuth configuration
-
+ const [style, setStyle] = useState({});
  // Handle successful Google login
  const handleGoogleLoginSuccess = async (response) => {
   try {
@@ -32,7 +31,7 @@ const Navbar = ({ toggleRegister }) => {
    setAlert(error.message, "error");
   }
  };
-
+ const position = window.pageYOffset;
  // Handle Google login failure
  const handleGoogleLoginFailure = (error) => {
   setAlert(error.message, "error");
@@ -56,6 +55,7 @@ const Navbar = ({ toggleRegister }) => {
   responseType: "id_token",
   accessType: "offline",
  });
+
  useEffect(() => {
   if (clientId != null) {
    signIn();
@@ -63,20 +63,60 @@ const Navbar = ({ toggleRegister }) => {
   }
  }, [clientId, authContext]);
 
+ const [sticky, setSticky] = useState(false);
+
+ const handleScroll = () => {
+  setStyle({
+   overflowY: "hidden",
+   overflowX: "hidden",
+   height: "85px",
+   position: "sticky",
+   top: "0",
+
+   zIndex: "999999999999999",
+  });
+  setSticky(true);
+ };
+
+ useEffect(() => {
+  if (position === 0) {
+   setStyle({
+    height: "167px",
+    zIndex: "999999999999999",
+   });
+  }
+ }, [position, setStyle]);
+
+ useEffect(() => {
+  window.addEventListener("scroll", handleScroll);
+  setStyle({});
+  return () => {
+   window.removeEventListener("scroll", handleScroll);
+  };
+ }, []);
+
  return (
-  <div className='nav navbar grid-2 bg-primary' style={{ height: "187px" }}>
+  <div
+   className={`nav navbar grid-2 bg-primary `}
+   onScroll={handleScroll}
+   style={style}>
    <div className='m-2'>
     <Link to='/'>
      <img
       src={logo}
       alt='Tax Track'
-      style={{ height: "100px", width: "100px" }}
+      style={{
+       height: sticky ? "80px" : "50px",
+       width: sticky ? "80px" : "50px",
+      }}
      />
     </Link>
 
-    <h5>
-     Welcome To Tax Track <br /> {profileAuthenticated && profile.fullName}
-    </h5>
+    {!sticky ? (
+     <h5> Welcome To Tax Track {profileAuthenticated && profile.fullName} </h5>
+    ) : (
+     ""
+    )}
    </div>
    <div className='p-2 m-2'>
     <span style={{ float: "right" }}>
