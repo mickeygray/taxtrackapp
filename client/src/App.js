@@ -23,10 +23,7 @@ const App = () => {
  // Run this effect whenever the clientId changes
 
  return (
-  <GoogleOAuthProvider
-   clientId={
-    "228458250661-snd3uf70bgrdekaqv5db1us3v1nlrovg.apps.googleusercontent.com "
-   }>
+  <GoogleOAuthProvider clientId={clientId}>
    <AuthState>
     <ProfileState>
      <AlertState>
@@ -48,7 +45,6 @@ const App = () => {
      </AlertState>
     </ProfileState>
    </AuthState>
-   {/* Note: You cannot have any comment here, as it's not a valid JSX syntax */}
   </GoogleOAuthProvider>
  );
 };
