@@ -13,7 +13,7 @@ import {
  Checkbox,
  TextField,
 } from "@material-ui/core";
-import { VisibilityOff, Edit, Delete } from "@material-ui/icons";
+import { VisibilityOff, Edit, ExpandMore, Delete } from "@material-ui/icons";
 
 const TaxLiabilitiesItem = ({
  debt,
@@ -29,26 +29,35 @@ const TaxLiabilitiesItem = ({
  const handleToggle = () => {
   setExpanded((prevState) => !prevState);
  };
-
- const currentYear = new Date().getFullYear();
- const startYear = 2010;
- const years = Array.from(
-  { length: currentYear - startYear + 1 },
-  (_, index) => startYear + index
- );
-
- const handleUnfiledYearsChange = (index, year) => {
+ const handleUnfiledYearsChange = (year) => {
   setFormResponse((prevState) => {
    const updatedTaxLiabilities = [...prevState.taxLiabilities];
    const selectedDebt = updatedTaxLiabilities[index];
-   const isUnfiled = selectedDebt.unfiledYears.includes(year);
 
-   if (isUnfiled) {
-    selectedDebt.unfiledYears = selectedDebt.unfiledYears.filter(
-     (y) => y !== year
-    );
+   // Initialize years and unfiledYears as empty arrays if they're not already present
+   if (!selectedDebt.hasOwnProperty("years")) {
+    selectedDebt.years = [];
+   }
+
+   if (!selectedDebt.hasOwnProperty("unfiledYears")) {
+    selectedDebt.unfiledYears = [];
+   }
+
+   const yearIndex = selectedDebt.years.indexOf(year);
+   const unfiledYearIndex = selectedDebt.unfiledYears.indexOf(year);
+
+   if (yearIndex === -1) {
+    // Year is not in years, so we add it to years
+    selectedDebt.years.push(year);
    } else {
+    // Year is already in years, so we remove it from years and add it to unfiledYears
+    selectedDebt.years.splice(yearIndex, 1);
     selectedDebt.unfiledYears.push(year);
+   }
+
+   // If the year is already in unfiledYears, we remove it (toggle back to "filed")
+   if (unfiledYearIndex !== -1) {
+    selectedDebt.unfiledYears.splice(unfiledYearIndex, 1);
    }
 
    return {
@@ -57,175 +66,98 @@ const TaxLiabilitiesItem = ({
    };
   });
  };
+ const currentYear = new Date().getFullYear();
+ const startYear = 2010;
+ const years = Array.from(
+  { length: currentYear - startYear + 1 },
+  (_, index) => startYear + index
+ );
 
  return (
-  <div key={index} className='m-1'>
+  <div key={index} className='m-1' style={{ width: "300px" }}>
    <Box display='flex' alignItems='center' marginBottom={2}>
     <Box flex={1}>
-     {expanded ? (
-      <Box key={index} display='flex' alignItems='center' marginBottom={2}>
-       <Box marginLeft={2}>
-        <IconButton onClick={handleToggle}>
-         <VisibilityOff />
-        </IconButton>
-        <IconButton onClick={() => handleDeleteTaxLiabilities(index)}>
-         <Delete />
-        </IconButton>
-       </Box>
-
-       <Grid container spacing={2}>
-        <Grid item xs={6}>
-         <FormControl fullWidth>
-          <InputLabel>Plaintiff</InputLabel>
-          <Select
-           name='plaintiff'
-           value={debt.plaintiff}
-           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-           displayEmpty>
-           <MenuItem value='irs'>IRS</MenuItem>
-           <MenuItem value='state'>State</MenuItem>
-          </Select>
-         </FormControl>
-        </Grid>
-        <Grid item xs={6}>
-         <FormControl fullWidth>
-          <InputLabel>Year</InputLabel>
-          <Select
-           name='years'
-           multiple // Set the 'multiple' prop to allow multiple selections
-           value={debt.years}
-           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-           renderValue={(selected) => selected.join(", ")} // Render the selected values as a comma-separated string
-           fullWidth>
-           {years.map((year) => (
-            <MenuItem key={year} value={year}>
-             <ListItemText primary={year} />
-            </MenuItem>
-           ))}
-          </Select>
-
-          {!unfiledYearsSelected && (
-           <FormControlLabel
-            control={
-             <Checkbox
-              checked={unfiledYearsSelected}
-              onChange={(e) => setUnfiledYearsSelected(e.target.checked)}
-              name='unfiledYearsSelected'
-             />
-            }
-            label='Are any of these years unfiled?'
-           />
-          )}
-
-          {unfiledYearsSelected && (
-           <div>
-            <IconButton
-             onClick={() => setUnfiledYearsSelected(!unfiledYearsSelected)}>
-             <VisibilityOff />
-            </IconButton>
-
-            <div className='grid-4' style={{ marginLeft: "-150px" }}>
-             {debt.years.map((year) => (
-              <div>
-               <FormControlLabel
-                key={year}
-                control={
-                 <Checkbox
-                  checked={
-                   formResponse.taxLiabilities[index]?.unfiledYears.includes(
-                    year
-                   ) || false
-                  }
-                  onChange={() => handleUnfiledYearsChange(index, year)}
-                  name={`unfiledYear_${year}`}
-                 />
-                }
-                label={year}
-               />
-              </div>
-             ))}
-            </div>
-           </div>
-          )}
-         </FormControl>
-        </Grid>
+     <Box key={index} display='flex' alignItems='center' marginBottom={2}>
+      <Grid container spacing={2}>
+       <Grid item xs={6}>
+        <FormControl fullWidth>
+         <InputLabel>Plaintiff</InputLabel>
+         <Select
+          disabled
+          name='plaintiff'
+          value={debt.plaintiff}
+          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+          displayEmpty>
+          <MenuItem value='irs'>IRS</MenuItem>
+          <MenuItem value='state'>State</MenuItem>
+         </Select>
+        </FormControl>
        </Grid>
-       <Box flex={1} marginLeft={2}>
-        <div className='grid-2'>
-         <TextField
-          name='amount'
-          label='Amount'
-          value={debt.amount.toLocaleString("en-US", {
-           style: "currency",
-           currency: "USD",
-          })}
+       <Grid item xs={6}>
+        <FormControl style={{ width: "200px" }}>
+         <InputLabel>Year</InputLabel>
+         <Select
+          name='years'
+          multiple
+          value={
+           Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
+            (a, b) => a - b
+           ) || []
+          } // Initialize as an empty array if not present
           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-         />
-         <TextField
-          name='payment'
-          label='Monthly Payment'
-          value={debt.payment.toLocaleString("en-US", {
-           style: "currency",
-           currency: "USD",
-          })}
-          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-         />
-        </div>
-       </Box>
-      </Box>
-     ) : (
-      // Render the summary view
-      <div style={{ display: "flex", justifyContent: "center" }}>
-       <div>
-        <div
-         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-         }}>
-         <IconButton style={{ fontSize: "1rem" }} onClick={handleToggle}>
-          <Edit />
-         </IconButton>
-         <IconButton
-          style={{ fontSize: "1rem" }}
-          onClick={() => handleDeleteTaxLiabilities(index)}>
-          <Delete />
-         </IconButton>
-        </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-         <Typography variant='subtitle1' style={{ marginRight: "0.5rem" }}>
-          Plaintiff:{" "}
-          {debt.plaintiff === "irs"
-           ? "IRS"
-           : debt.plaintiff !== ""
-           ? "State"
-           : ""}
-         </Typography>
-         <Typography variant='subtitle1' style={{ marginRight: "0.5rem" }}>
-          Amount: {debt.amount}
-         </Typography>
-         <div>
-          <Typography variant='subtitle1'>
-           Years:
-           {debt.years
-            .sort((a, b) => parseInt(a) - parseInt(b))
-            .map((year, ind) => {
-             const isUnfiled = debt.unfiledYears.includes(year);
-             return (
-              <span key={year}>
-               {`'${year.toString().slice(-2)}`}
-               {isUnfiled && <span style={{ color: "red" }}>*</span>}
-               {ind === debt.years.length - 1 ? "" : ", "}
-              </span>
-             );
-            })}
-           <br />
-          </Typography>
-         </div>
-        </div>
+          renderValue={(selected) => selected.join(", ") || "Select years"}
+          fullWidth>
+          {years.map((year) => (
+           <MenuItem
+            key={year}
+            value={year}
+            onClick={() => handleUnfiledYearsChange(year)}
+            style={{
+             backgroundColor: debt.unfiledYears?.includes(year)
+              ? "#FFCDD2" // Unfiled year color (red)
+              : debt.years?.includes(year)
+              ? "#F5F5F5" // Filed year color (light neutral)
+              : "inherit", // Default background color
+            }}>
+            <ListItemText
+             primary={year}
+             secondary={
+              debt.years?.includes(year) && !debt.unfiledYears?.includes(year)
+               ? "Filed"
+               : debt.unfiledYears?.includes(year)
+               ? "Unfiled"
+               : ""
+             }
+            />
+           </MenuItem>
+          ))}
+         </Select>
+        </FormControl>
+       </Grid>
+      </Grid>
+      <Box flex={1} marginLeft={2}>
+       <div className='grid-2'>
+        <TextField
+         name='amount'
+         label='Amount'
+         value={debt.amount.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+         })}
+         onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+        />
+        <TextField
+         name='payment'
+         label='Monthly Payment'
+         value={debt.payment.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+         })}
+         onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+        />
        </div>
-      </div>
-     )}
+      </Box>
+     </Box>
     </Box>
    </Box>
   </div>

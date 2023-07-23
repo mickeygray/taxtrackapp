@@ -92,7 +92,6 @@ router.post("/authenticate", async (req, res) => {
 });
 
 router.post("/verify", async (req, res) => {
- console.log(req.body);
  const profile = await Profile.findOne({ token: req.body.code });
 
  const isMatch = await bcrypt.compare(req.body.ssn, profile.ssn);
@@ -162,7 +161,6 @@ router.get("/", auth, async (req, res) => {
  try {
   const profile = await Profile.findById(req.profile.id).select("-pin");
 
-  console.log(req.profile);
   res.json(profile);
  } catch (err) {
   console.error(err.message);
@@ -182,8 +180,6 @@ router.get("/env", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
- console.log(req.body);
-
  const profile = await Profile.findOne({ email: req.body.email });
 
  const isMatch = await bcrypt.compare(req.body.password, profile.pin);

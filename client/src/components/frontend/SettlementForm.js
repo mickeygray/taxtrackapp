@@ -98,7 +98,8 @@ const SettlementForm = () => {
  const [formVisible, setFormVisible] = useState(true);
  const [formResponse, setFormResponse] = useState({
   taxLiabilities: [
-   { plaintiff: "", amount: 0, payment: 0, years: [], unfiledYears: [] },
+   { plaintiff: "irs", amount: 0, payment: 0, years: [], unfiledYears: [] },
+   { plaintiff: "state", amount: 0, payment: 0, years: [], unfiledYears: [] },
   ],
   privateDebt: 0,
   incomes: [{ type: "", amount: 0 }],
@@ -699,6 +700,7 @@ const SettlementForm = () => {
  return (
   <div>
    <form
+    style={{ width: "400px" }}
     onSubmit={handleSubmit}
     className={`${classes.formContainer} ${
      !formVisible ? classes.flippedFormContainer : ""
@@ -714,13 +716,7 @@ const SettlementForm = () => {
       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
        Current Tax Liabilities
       </InputLabel>
-      <div
-       style={{
-        maxHeight: "300px",
-        width: "100%",
-        overflowY: "auto",
-        overflowX: "hidden",
-       }}>
+      <div>
        {formResponse.taxLiabilities.map((debt, index) => (
         <TaxLiabilitiesItem
          key={index}
@@ -732,17 +728,7 @@ const SettlementForm = () => {
          handleDeleteTaxLiabilities={handleDeleteTaxLiabilities}
         />
        ))}
-       {hasUnfiledYears && (
-        <Box marginLeft={2} marginBottom={2}>
-         <Typography variant='subtitle2' color='textSecondary'>
-          <span style={{ color: "red" }}>*</span> (Unfiled)
-         </Typography>
-        </Box>
-       )}
       </div>
-      <Button variant='outlined' onClick={handleAddTaxLiabilities}>
-       Add Tax Liability
-      </Button>
      </div>
 
      <div className={classes.sectionContainer}>
@@ -790,10 +776,17 @@ const SettlementForm = () => {
       </Button>
      </div>
 
-     <div style={{ display: "flex" }}>
-      <div className={classes.sectionContainer} style={{ marginRight: "16px" }}>
-       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-        Private Debts and Mortgage Balance
+     <div
+      style={{
+       display: "flex",
+       alignItems: "center",
+       justifyContent: "center",
+      }}>
+      <div
+       className={classes.sectionContainer}
+       style={{ width: "175px", marginRight: "16px" }}>
+       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "16px" }}>
+        Private Debts
        </InputLabel>
        <TextField
         name='privateDebt'
@@ -801,9 +794,11 @@ const SettlementForm = () => {
         onChange={handleInputChange}
        />
       </div>
-      <div className={classes.sectionContainer}>
-       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-        Non-Essential Property and Asset Equity
+      <div
+       className={classes.sectionContainer}
+       style={{ width: "175px", marginRight: "16px" }}>
+       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "16px" }}>
+        Non-Essential Equity
        </InputLabel>
        <TextField
         name='equity'
@@ -812,8 +807,8 @@ const SettlementForm = () => {
        />
       </div>
      </div>
-     <div style={{ marginBottom: "20px" }}>
-      <FormControl fullWidth>
+     <div style={{ margin: "20px" }}>
+      <FormControl style={{ width: "330px" }}>
        <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
         State
        </InputLabel>
@@ -832,9 +827,14 @@ const SettlementForm = () => {
       </FormControl>
      </div>
 
-     <div style={{ display: "flex", alignItems: "center" }}>
+     <div
+      style={{
+       display: "flex",
+       alignItems: "center",
+       justifyContent: "center",
+      }}>
       <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "80px" }}>
+       <FormControl style={{ width: "100px" }}>
         <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
          Cars
         </InputLabel>
@@ -850,7 +850,7 @@ const SettlementForm = () => {
        </FormControl>
       </div>
       <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "80px" }}>
+       <FormControl style={{ width: "100px" }}>
         <InputLabel style={{ color: "#3f51b5", fontSize: "20px" }} shrink>
          Residents
         </InputLabel>
@@ -867,7 +867,7 @@ const SettlementForm = () => {
        </FormControl>
       </div>
       <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "80px" }}>
+       <FormControl style={{ width: "100px" }}>
         <InputLabel style={{ color: "#3f51b5", fontSize: "20px" }} shrink>
          65+
         </InputLabel>

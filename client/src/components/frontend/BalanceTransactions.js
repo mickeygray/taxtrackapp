@@ -50,9 +50,11 @@ const BalanceTransactions = () => {
   },
   beforeDatasetsDraw: (chart, args, opts) => {
    const { ctx } = chart;
+
+   console.log(chart);
    const { top, bottom, left, right } = chart.chartArea;
-   const { x, y, draw } = chart.corsair;
-   if (!draw) return;
+   const { x, y } = chart.corsair;
+   // if (!draw) return;
 
    ctx.save();
 
