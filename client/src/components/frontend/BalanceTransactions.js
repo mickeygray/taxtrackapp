@@ -46,15 +46,13 @@ const BalanceTransactions = () => {
    const { type, x, y } = args.event;
 
    chart.corsair = { x, y, draw: inChartArea };
+   console.log(chart, "AE");
    chart.draw();
   },
   beforeDatasetsDraw: (chart, args, opts) => {
    const { ctx } = chart;
-
-   console.log(chart);
    const { top, bottom, left, right } = chart.chartArea;
-   const { x, y } = chart.corsair;
-   // if (!draw) return;
+   const corsair = chart.corsair; // Get the corsair object from the chart
 
    ctx.save();
 
@@ -62,10 +60,19 @@ const BalanceTransactions = () => {
    ctx.lineWidth = opts.width;
    ctx.strokeStyle = opts.color;
    ctx.setLineDash(opts.dash);
-   ctx.moveTo(x, bottom);
-   ctx.lineTo(x, top);
-   ctx.stroke();
 
+   if (corsair) {
+    // If corsair exists, draw the line using its x position
+    ctx.moveTo(corsair.x, bottom);
+    ctx.lineTo(corsair.x, top);
+   } else {
+    // If corsair does not exist, draw the line at the center of the chart
+    const centerX = (left + right) / 2;
+    ctx.moveTo(centerX, bottom);
+    ctx.lineTo(centerX, top);
+   }
+
+   ctx.stroke();
    ctx.restore();
   },
  };
