@@ -2,17 +2,17 @@ import React, { useState, useEffect, useContext } from "react";
 import styled, { keyframes, css } from "styled-components";
 import logo from "../../images/logo.png";
 import SettlementForm from "./SettlementForm";
-import PathToZero from "../../images/pathto0.png";
-import TaxReturnMachine from "../../images/tax-deduction-machine.jpg";
-import ProDash from "../../images/prodash.jpg";
+import pathtozero from "../../images/pathto0.png";
+import taxreturnmachine from "../../images/tax-deduction-machine.jpg";
+import prodash from "../../images/prodash.jpg";
 import blog from "../../images/blog.jpg";
-import ChartOne from "../../images/Chart1.png";
-import Person1 from "../../images/person1.jpg";
-import Person2 from "../../images/person2.jpg";
-import Person3 from "../../images/person3.jpg";
-import Person4 from "../../images/person4.jpg";
-import HeroImg from "../../images/Hero.jpg";
-import OicHero from "../../images/Offer-in-compromise.png";
+import chartone from "../../images/Chart1.png";
+import person1 from "../../images/person1.jpg";
+import person2 from "../../images/person2.jpg";
+import person3 from "../../images/person3.jpg";
+import person4 from "../../images/person4.jpg";
+import heroimg from "../../images/Hero.jpg";
+import oichero from "../../images/Offer-in-compromise.png";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -1255,7 +1255,7 @@ const Landing = () => {
    description:
     "Get real-time insights into your IRS debt with a clear and organized line chart. Easily track changes in your balance directly from the IRS, providing a clear roadmap to financial freedom.",
    buttonText: "Learn More",
-   imageSrc: ChartOne,
+   imageSrc: chartone,
   },
   {
    title: "Growth and Milestones",
@@ -1285,7 +1285,7 @@ const Landing = () => {
  return (
   <>
    <Hero>
-    <HeroImage src={HeroImg} alt='Hero' />
+    <HeroImage src={heroimg} alt='Hero' />
     <HeroContent>
      <HeroTitle> Tax Track Makes IRS Interactions Easy</HeroTitle>
      <HeroSubtitle>
@@ -1316,7 +1316,7 @@ const Landing = () => {
     <ChartContainer>
      <ImageContainer>
       {settlementCalculation === null ? (
-       <StillImage src={OicHero} style={{ width: "100%" }} alt='Still Image' />
+       <StillImage src={oichero} style={{ width: "100%" }} alt='Still Image' />
       ) : (
        <SettlementChart />
       )}
@@ -1512,12 +1512,12 @@ const Landing = () => {
      </Text>
     </LeftDiv>
     <RightDiv>
-     <Image src={PathToZero} alt='Image 1' />
+     <Image src={pathtozero} alt='Image 1' />
     </RightDiv>
    </SectionContainer>
    <SectionContainer>
     <LeftDiv>
-     <Image src={TaxReturnMachine} alt='Image 2' />
+     <Image src={taxreturnmachine} alt='Image 2' />
     </LeftDiv>
     <RightDiv>
      <Headline>Simplify Tax Return Preparation with Expert Guides</Headline>
@@ -1566,7 +1566,7 @@ const Landing = () => {
      </Text>
     </LeftDiv>
     <RightDiv>
-     <Image src={ProDash} alt='Image 1' />
+     <Image src={prodash} alt='Image 1' />
     </RightDiv>
    </SectionContainer>
    <SectionContainer>
@@ -1605,7 +1605,7 @@ const Landing = () => {
 
     <ImageSection>
      <ImageWrapper>
-      <ImageAsset src={ChartOne} alt='Harness the power of compounding' />
+      <ImageAsset src={chartone} alt='Harness the power of compounding' />
      </ImageWrapper>
      <TextSection>
       <HeadlineSecondSection>
@@ -1646,10 +1646,10 @@ const Landing = () => {
      <CountUpDollars>$15,000,000</CountUpDollars>
     </div>
     <ImageWrapper>
-     <FirstImage src={Person1} />
-     <SecondImage src={Person2} />
-     <ThirdImage src={Person3} />
-     <FourthImage src={Person4} />
+     <FirstImage src={person1} />
+     <SecondImage src={person2} />
+     <ThirdImage src={person3} />
+     <FourthImage src={person4} />
     </ImageWrapper>
    </HighlightedTextContainer>
    <TestimonialCarousel />
@@ -1732,7 +1732,7 @@ const Landing = () => {
       media='(max-width: 767px)'
       srcset='https://sqy7rm.media.zestyio.com/Closing-Signup-Updt-Mob-202210-2.png'
      />
-     <PhoneImage src={ChartOne} alt='Phone image' />
+     <PhoneImage src={chartone} alt='Phone image' />
     </picture>
    </EnvoyClosingSignUpWrapper>
    <Footer />
