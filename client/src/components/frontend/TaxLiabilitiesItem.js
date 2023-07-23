@@ -135,8 +135,8 @@ const TaxLiabilitiesItem = ({
         </FormControl>
        </Grid>
       </Grid>
-      <Box flex={1} marginLeft={2}>
-       <div className='grid-2'>
+      <Grid container spacing={2}>
+       <Grid item xs={6}>
         <TextField
          name='amount'
          label='Amount'
@@ -146,6 +146,8 @@ const TaxLiabilitiesItem = ({
          })}
          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
         />
+       </Grid>
+       <Grid item xs={6}>
         <TextField
          name='payment'
          label='Monthly Payment'
@@ -155,8 +157,8 @@ const TaxLiabilitiesItem = ({
          })}
          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
         />
-       </div>
-      </Box>
+       </Grid>
+      </Grid>
      </Box>
     </Box>
    </Box>
