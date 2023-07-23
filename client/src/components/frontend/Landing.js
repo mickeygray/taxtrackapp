@@ -6,7 +6,7 @@ import pathtozero from "../../images/pathto0.png";
 import taxreturnmachine from "../../images/tax-deduction-machine.jpg";
 import prodash from "../../images/prodash.jpg";
 import blog from "../../images/blog.jpg";
-import chartone from "../../images/Chart1.png";
+//import chartone from "../../images/Chart1.png";
 import person1 from "../../images/person1.jpg";
 import person2 from "../../images/person2.jpg";
 import person3 from "../../images/person3.jpg";
@@ -1255,7 +1255,7 @@ const Landing = () => {
    description:
     "Get real-time insights into your IRS debt with a clear and organized line chart. Easily track changes in your balance directly from the IRS, providing a clear roadmap to financial freedom.",
    buttonText: "Learn More",
-   imageSrc: chartone,
+   imageSrc: process.env.PUBLIC_URL + "/Chart1.png",
   },
   {
    title: "Growth and Milestones",
@@ -1605,7 +1605,10 @@ const Landing = () => {
 
     <ImageSection>
      <ImageWrapper>
-      <ImageAsset src={chartone} alt='Harness the power of compounding' />
+      <ImageAsset
+       src={process.env.PUBLIC_URL + "/Chart1.png"}
+       alt='Harness the power of compounding'
+      />
      </ImageWrapper>
      <TextSection>
       <HeadlineSecondSection>
@@ -1732,7 +1735,10 @@ const Landing = () => {
       media='(max-width: 767px)'
       srcset='https://sqy7rm.media.zestyio.com/Closing-Signup-Updt-Mob-202210-2.png'
      />
-     <PhoneImage src={chartone} alt='Phone image' />
+     <PhoneImage
+      src={process.env.PUBLIC_URL + "/Chart1.png"}
+      alt='Phone image'
+     />
     </picture>
    </EnvoyClosingSignUpWrapper>
    <Footer />

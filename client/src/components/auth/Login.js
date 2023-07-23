@@ -6,7 +6,7 @@ import styled, { css, keyframes } from "styled-components";
 import LoginForm from "./LoginForm";
 import ResetPassword from "./ResetPassword";
 import AlertContext from "../../context/alert/alertContext";
-import ChartOne from "../../images/Chart1.png";
+//import ChartOne from "../../images/Chart1.png";
 const GridContainer = styled.div`
  display: grid;
  grid-template-columns: 1fr 1fr;
@@ -93,7 +93,7 @@ const Login = () => {
     <DesignImage
      className='envoy-home-hero-subs'
      alt='Envoy home hero subs'
-     src={ChartOne}
+     src={process.env.PUBLIC_URL + "/Chart1.png"}
      style={{ height: "400px", width: "300px" }}
     />
     <ContentOverlay>

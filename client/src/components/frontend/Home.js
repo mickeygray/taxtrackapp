@@ -352,7 +352,7 @@ const Milestones = () => {
  );
 };
 const Home = () => {
- //const { profile } = useContext(AuthContext);
+ console.log("stuff");
 
  const profile = { startingBalance: 50000, currentBalance: 32000 };
 
