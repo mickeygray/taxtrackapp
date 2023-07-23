@@ -46,7 +46,6 @@ const BalanceTransactions = () => {
    const { type, x, y } = args.event;
 
    chart.corsair = { x, y, draw: inChartArea };
-   console.log(chart, "AE");
    chart.draw();
   },
   beforeDatasetsDraw: (chart, args, opts) => {
