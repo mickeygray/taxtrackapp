@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../../images/logo.png";
+
 import AuthContext from "../../context/auth/authContext";
 import AlertContext from "../../context/alert/alertContext";
-import goodbye from "../../images/goodbye.png";
+
 import { useGoogleLogin } from "@react-oauth/google";
 import { useLocation } from "react-router-dom";
 import authContext from "../../context/auth/authContext";
@@ -102,7 +102,7 @@ const Navbar = ({ toggleRegister }) => {
    <div className='m-2'>
     <Link to='/'>
      <img
-      src={logo}
+      src={process.env.PUBLIC_URL + "/images/logo.png"}
       alt='Tax Track'
       style={{
        height: sticky ? "80px" : "50px",
@@ -122,7 +122,7 @@ const Navbar = ({ toggleRegister }) => {
      {profileAuthenticated || userAuthenticated ? (
       <a onClick={() => logout()}>
        <img
-        src={goodbye}
+        src={process.env.PUBLIC_URL + "/images/goodbye.png"}
         style={{ borderRadius: "50%", height: "100px", width: "100px" }}
         alt='Logout'
        />
