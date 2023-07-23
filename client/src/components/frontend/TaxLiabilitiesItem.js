@@ -75,93 +75,87 @@ const TaxLiabilitiesItem = ({
 
  return (
   <div key={index} className='m-1' style={{ width: "300px" }}>
-   <Box display='flex' alignItems='center' marginBottom={2}>
-    <Box flex={1}>
-     <Box key={index} display='flex' alignItems='center' marginBottom={2}>
-      <Grid container spacing={2}>
-       <Grid item xs={6}>
-        <FormControl fullWidth>
-         <InputLabel>Plaintiff</InputLabel>
-         <Select
-          disabled
-          name='plaintiff'
-          value={debt.plaintiff}
-          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-          displayEmpty>
-          <MenuItem value='irs'>IRS</MenuItem>
-          <MenuItem value='state'>State</MenuItem>
-         </Select>
-        </FormControl>
-       </Grid>
-       <Grid item xs={6}>
-        <FormControl style={{ width: "200px" }}>
-         <InputLabel>Year</InputLabel>
-         <Select
-          name='years'
-          multiple
-          value={
-           Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
-            (a, b) => a - b
-           ) || []
-          } // Initialize as an empty array if not present
-          onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-          renderValue={(selected) => selected.join(", ") || "Select years"}
-          fullWidth>
-          {years.map((year) => (
-           <MenuItem
-            key={year}
-            value={year}
-            onClick={() => handleUnfiledYearsChange(year)}
-            style={{
-             backgroundColor: debt.unfiledYears?.includes(year)
-              ? "#FFCDD2" // Unfiled year color (red)
-              : debt.years?.includes(year)
-              ? "#F5F5F5" // Filed year color (light neutral)
-              : "inherit", // Default background color
-            }}>
-            <ListItemText
-             primary={year}
-             secondary={
-              debt.years?.includes(year) && !debt.unfiledYears?.includes(year)
-               ? "Filed"
-               : debt.unfiledYears?.includes(year)
-               ? "Unfiled"
-               : ""
-             }
-            />
-           </MenuItem>
-          ))}
-         </Select>
-        </FormControl>
-       </Grid>
-      </Grid>
-      <Grid container spacing={2}>
-       <Grid item xs={6}>
-        <TextField
-         name='amount'
-         label='Amount'
-         value={debt.amount.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-         })}
-         onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-        />
-       </Grid>
-       <Grid item xs={6}>
-        <TextField
-         name='payment'
-         label='Monthly Payment'
-         value={debt.payment.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-         })}
-         onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-        />
-       </Grid>
-      </Grid>
-     </Box>
-    </Box>
-   </Box>
+   <Grid container spacing={2}>
+    <Grid item xs={6}>
+     <FormControl fullWidth>
+      <InputLabel>Plaintiff</InputLabel>
+      <Select
+       disabled
+       name='plaintiff'
+       value={debt.plaintiff}
+       onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+       displayEmpty>
+       <MenuItem value='irs'>IRS</MenuItem>
+       <MenuItem value='state'>State</MenuItem>
+      </Select>
+     </FormControl>
+    </Grid>
+    <Grid item xs={6}>
+     <FormControl style={{ width: "200px" }}>
+      <InputLabel>Year</InputLabel>
+      <Select
+       name='years'
+       multiple
+       value={
+        Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
+         (a, b) => a - b
+        ) || []
+       } // Initialize as an empty array if not present
+       onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+       renderValue={(selected) => selected.join(", ") || "Select years"}
+       fullWidth>
+       {years.map((year) => (
+        <MenuItem
+         key={year}
+         value={year}
+         onClick={() => handleUnfiledYearsChange(year)}
+         style={{
+          backgroundColor: debt.unfiledYears?.includes(year)
+           ? "#FFCDD2" // Unfiled year color (red)
+           : debt.years?.includes(year)
+           ? "#F5F5F5" // Filed year color (light neutral)
+           : "inherit", // Default background color
+         }}>
+         <ListItemText
+          primary={year}
+          secondary={
+           debt.years?.includes(year) && !debt.unfiledYears?.includes(year)
+            ? "Filed"
+            : debt.unfiledYears?.includes(year)
+            ? "Unfiled"
+            : ""
+          }
+         />
+        </MenuItem>
+       ))}
+      </Select>
+     </FormControl>
+    </Grid>
+   </Grid>
+   <Grid container spacing={2}>
+    <Grid item xs={6}>
+     <TextField
+      name='amount'
+      label='Amount'
+      value={debt.amount.toLocaleString("en-US", {
+       style: "currency",
+       currency: "USD",
+      })}
+      onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+     />
+    </Grid>
+    <Grid item xs={6}>
+     <TextField
+      name='payment'
+      label='Monthly Payment'
+      value={debt.payment.toLocaleString("en-US", {
+       style: "currency",
+       currency: "USD",
+      })}
+      onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+     />
+    </Grid>
+   </Grid>
   </div>
  );
 };
