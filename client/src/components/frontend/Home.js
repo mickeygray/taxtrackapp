@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import AuthContext from "../../context/auth/authContext";
-import HomeHeroTree from "../../images/HomeHeroTree.png";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import BalanceTransactions from "./BalanceTransactions";
@@ -74,7 +74,7 @@ const HomeHeroWrapper = styled.div`
   right: 0;
   width: 100%;
   height: 100%;
-  background-image: url(${HomeHeroTree});
+  background-image: url(${process.env.PUBLIC_URL + "/images/HomeHeroTree.png"});
   background-position: center bottom; /* Start the image from the bottom */
   background-size: 100% calc(100% + 120px); /* Crop the image once it reaches the bounds of the container */
   opacity: 0.04; /* Adjust the opacity of the background image */

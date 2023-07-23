@@ -1120,7 +1120,10 @@ const Footer = () => {
  return (
   <FooterWrapper>
    <FooterLogoWrapper>
-    <FooterLogo src={logo} alt='Tax Track Logo' />
+    <FooterLogo
+     src={process.env.PUBLIC_URL + "/images/logo.png"}
+     alt='Tax Track Logo'
+    />
    </FooterLogoWrapper>
    <FooterLinks>
     <a href='#'>Home</a>
@@ -1250,21 +1253,21 @@ const Landing = () => {
    description:
     "Navigate the twists and turns of your tax situation effortlessly. Our comprehensive tools and expert guidance help you achieve your financial milestones with ease and confidence.",
    buttonText: "Learn More",
-   imageSrc: logo,
+   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
   },
   {
    title: "Returns Made Easy",
    description:
     "Prepare tax returns hassle-free with our user-friendly tax forms and comprehensive guides. Streamline tax documentation management and experience a stress-free filing experience.",
    buttonText: "Learn More",
-   imageSrc: logo,
+   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
   },
   {
    title: "Plan For The Future",
    description:
     "Access an extensive library of articles and videos outlining an ever-growing and changing tax code. Stay informed about changing tax laws and regulations to plan and optimize your financial future.",
    buttonText: "Learn More",
-   imageSrc: logo,
+   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
   },
  ];
  const filteredSections = sections.filter(
@@ -1390,7 +1393,7 @@ const Landing = () => {
          backgroundColor: "tan",
         }}>
         <Image
-         src={logo}
+         src={process.env.PUBLIC_URL + "/images/logo.png"}
          alt='Image 2'
          style={{
           width: "200px",

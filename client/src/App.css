@@ -138,7 +138,6 @@ img {
 }
 
 .hero-image {
- background-image: url("./images/loginhero.png");
  background-size: cover;
  background-position: center;
  height: 100vh;
