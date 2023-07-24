@@ -198,7 +198,6 @@ const MainContainer = styled.div`
 `;
 
 const FormContainer = styled.div`
- flex: 1;
  background-color: #f5f5f5;
  padding: 20px;
 `;

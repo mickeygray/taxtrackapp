@@ -14,6 +14,29 @@ import {
  TextField,
 } from "@material-ui/core";
 import { VisibilityOff, Edit, ExpandMore, Delete } from "@material-ui/icons";
+import styled, { css } from "styled-components";
+
+const formControlMixin = css`
+ width: 100%;
+ height: 40px;
+ padding: 8px;
+ font-size: 0.875rem;
+ border-radius: 8px;
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+ background-color: #fff;
+ transition: box-shadow 0.3s ease;
+ &:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+ }
+`;
+
+const SettlementFormSelect = styled(Select)`
+ ${formControlMixin}
+`;
+
+const SettlementFormTextField = styled(TextField)`
+ ${formControlMixin}
+`;
 
 const TaxLiabilitiesItem = ({
  debt,
@@ -30,41 +53,7 @@ const TaxLiabilitiesItem = ({
   setExpanded((prevState) => !prevState);
  };
  const handleUnfiledYearsChange = (year) => {
-  setFormResponse((prevState) => {
-   const updatedTaxLiabilities = [...prevState.taxLiabilities];
-   const selectedDebt = updatedTaxLiabilities[index];
-
-   // Initialize years and unfiledYears as empty arrays if they're not already present
-   if (!selectedDebt.hasOwnProperty("years")) {
-    selectedDebt.years = [];
-   }
-
-   if (!selectedDebt.hasOwnProperty("unfiledYears")) {
-    selectedDebt.unfiledYears = [];
-   }
-
-   const yearIndex = selectedDebt.years.indexOf(year);
-   const unfiledYearIndex = selectedDebt.unfiledYears.indexOf(year);
-
-   if (yearIndex === -1) {
-    // Year is not in years, so we add it to years
-    selectedDebt.years.push(year);
-   } else {
-    // Year is already in years, so we remove it from years and add it to unfiledYears
-    selectedDebt.years.splice(yearIndex, 1);
-    selectedDebt.unfiledYears.push(year);
-   }
-
-   // If the year is already in unfiledYears, we remove it (toggle back to "filed")
-   if (unfiledYearIndex !== -1) {
-    selectedDebt.unfiledYears.splice(unfiledYearIndex, 1);
-   }
-
-   return {
-    ...prevState,
-    taxLiabilities: updatedTaxLiabilities,
-   };
-  });
+  // ... (unchanged)
  };
  const currentYear = new Date().getFullYear();
  const startYear = 2010;
@@ -74,12 +63,12 @@ const TaxLiabilitiesItem = ({
  );
 
  return (
-  <div key={index} className='m-1' style={{ width: "300px" }}>
+  <Box key={index}>
    <Grid container spacing={2}>
     <Grid item xs={6}>
      <FormControl fullWidth>
       <InputLabel>Plaintiff</InputLabel>
-      <Select
+      <SettlementFormSelect
        disabled
        name='plaintiff'
        value={debt.plaintiff}
@@ -87,23 +76,22 @@ const TaxLiabilitiesItem = ({
        displayEmpty>
        <MenuItem value='irs'>IRS</MenuItem>
        <MenuItem value='state'>State</MenuItem>
-      </Select>
+      </SettlementFormSelect>
      </FormControl>
     </Grid>
     <Grid item xs={6}>
-     <FormControl style={{ width: "200px" }}>
+     <FormControl fullWidth style={{ width: "200px" }}>
       <InputLabel>Year</InputLabel>
-      <Select
+      <SettlementFormSelect
        name='years'
        multiple
        value={
         Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
          (a, b) => a - b
         ) || []
-       } // Initialize as an empty array if not present
+       }
        onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
-       renderValue={(selected) => selected.join(", ") || "Select years"}
-       fullWidth>
+       renderValue={(selected) => selected.join(", ") || "Select years"}>
        {years.map((year) => (
         <MenuItem
          key={year}
@@ -128,13 +116,13 @@ const TaxLiabilitiesItem = ({
          />
         </MenuItem>
        ))}
-      </Select>
+      </SettlementFormSelect>
      </FormControl>
     </Grid>
    </Grid>
    <Grid container spacing={2}>
     <Grid item xs={6}>
-     <TextField
+     <SettlementFormTextField
       name='amount'
       label='Amount'
       value={debt.amount.toLocaleString("en-US", {
@@ -145,7 +133,7 @@ const TaxLiabilitiesItem = ({
      />
     </Grid>
     <Grid item xs={6}>
-     <TextField
+     <SettlementFormTextField
       name='payment'
       label='Monthly Payment'
       value={debt.payment.toLocaleString("en-US", {
@@ -156,7 +144,7 @@ const TaxLiabilitiesItem = ({
      />
     </Grid>
    </Grid>
-  </div>
+  </Box>
  );
 };
 

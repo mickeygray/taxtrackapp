@@ -3,98 +3,129 @@ import {
  TextField,
  Button,
  Checkbox,
- Box,
  IconButton,
  FormControl,
+ ListItemText,
  InputLabel,
+ Box,
  Grid,
  Select,
- ListItemText,
- Typography,
  MenuItem,
  FormControlLabel,
  Collapse,
- makeStyles,
-} from "@material-ui/core";
+ Typography,
+} from "@mui/material";
 import {
  ExpandMore,
  ExpandLess,
  Delete,
  Edit,
  VisibilityOff,
-} from "@material-ui/icons";
+} from "@mui/icons-material"; // U
 import useExpenseData from "../../utils/useExpenseData";
 import TaxLiabilitiesItem from "./TaxLiabilitiesItem";
 import ProfileContext from "../../context/profile/profileContext";
+import styled, { css } from "styled-components";
+const formControlMixin = css`
+ width: 100%;
+ height: 40px;
+ padding: 8px;
+ font-size: 0.875rem;
+ border-radius: 8px;
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+ background-color: #fff;
+ position: relative; /* Add position relative */
+ transition: box-shadow 0.3s ease;
 
-const useStyles = makeStyles((theme) => ({
- formContainer: {
-  backgroundColor: "#f9f9f9",
+ /* Additional styles for TextField and Select */
+ & label {
+  position: absolute; /* Add position absolute */
+  top: -5px; /* Adjust the top value to move the label above the input */
+  left: -5px; /* Adjust the left value to move the label to the left */
+  font-size: 1rem;
+ }
 
-  height: "100%",
-  width: "23vw",
-  borderRadius: theme.spacing(2),
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-  transition: "box-shadow 0.3s ease",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  padding: theme.spacing(2),
-  padding: theme.spacing(1),
-  overflow: "auto", // Enable scrolling if the content exceeds the container height
-  transformStyle: "preserve-3d",
-  backfaceVisibility: "hidden",
-  transform: "rotateY(0)",
-  transformOrigin: "center",
-  transition: "transform 0.5s ease",
- },
- flippedFormContainer: {
-  // Styles for flipped form (hidden state)
-  transform: "rotateY(180deg)",
- },
- formContent: {
-  transform: "rotateY(0deg)", // Reset rotation on form content
- },
- flippedFormContent: {
-  transform: "rotateY(180deg)", // Apply rotation to flipped form content
- },
- sectionContainer: {
-  marginBottom: theme.spacing(1),
-  height: "auto",
-  maxHeight: "calc(80vh - 7rem)",
- },
- sectionTitle: {
-  marginBottom: theme.spacing(1),
-  fontSize: "0.95rem",
- },
- card: {
-  marginBottom: theme.spacing(1),
-  backgroundColor: "#fff",
-  padding: theme.spacing(1),
-  borderRadius: theme.spacing(1),
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-  transition: "box-shadow 0.3s ease",
-  "&:hover": {
-   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-  },
- },
- cardContent: {
-  display: "grid",
-  gap: theme.spacing(1),
-  fontSize: "0.875rem",
- },
- addButton: {
-  marginTop: theme.spacing(1),
-  fontSize: "0.875rem",
- },
-}));
+ & legend {
+  font-size: 0.6rem;
+ }
+
+ &:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+ }
+`;
+
+const SettlementFormContainer = styled.div`
+ background-color: #f9f9f9;
+ overflow-x: hidden;
+ width: 100%; /* Set the width to 100% */
+ max-width: 400px; /* Set the maximum width */
+ border-radius: 16px; /* Reasonable value for border-radius */
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+ transition: box-shadow 0.3s ease;
+ padding: 16px; /* Reasonable value for padding */
+ overflow: auto;
+ transform-style: preserve-3d;
+ backface-visibility: hidden;
+ transform: ${({ formVisible }) =>
+  formVisible ? "rotateY(0)" : "rotateY(180deg)"};
+ transform-origin: center;
+ transition: transform 0.5s ease;
+`;
+
+const SettlementFormInputLabel = styled(InputLabel)`
+ color: #3f51b5;
+ font-size: 16px;
+ margin-bottom: 5px;
+`;
+
+const SettlementFormSectionTitle = styled(Typography)`
+ color: #3f51b5;
+`;
+
+const SettlementFormControlFullWidth = styled(FormControl)`
+ ${formControlMixin}
+`;
+
+const SettlementFormTextField = styled(TextField)`
+ border-color: #f4f4f4;
+ ${formControlMixin}
+ & .MuiInputBase-root,
+  & .MuiInputBase-input {
+  height: 40px; /* Add this to set the height to 40px */
+
+  box-shadow: none;
+ }
+`;
+
+const SettlementFormButton = styled(Button)`
+ margin-top: 10px;
+ font-size: 0.875rem;
+`;
+
+const SettlementFormSelect = styled(Select)`
+ ${formControlMixin}
+ width: 100%;
+`;
+
+const SettlementFormSectionContainer = styled(Grid)`
+ display: grid;
+ place-items: center; // Center the content both horizontally and vertically
+ gap: 16px; /* Add spacing of 16px between items */
+ padding: 16px; /* Add padding to the box */
+ margin-bottom: -10px;
+`;
+
+const SettlementFormExpenseGridFormControl = styled(FormControl)`
+ width: 100px;
+ margin-right: 16px;
+ margin-top: 5px;
+`;
 
 const SettlementForm = () => {
  const profileContext = useContext(ProfileContext);
  const { setSettlementCalculation } = profileContext;
  const { housing, auto, healthCareExpenses, livingExpenses, states } =
   useExpenseData();
- const classes = useStyles();
  const [formVisible, setFormVisible] = useState(true);
  const [formResponse, setFormResponse] = useState({
   taxLiabilities: [
@@ -223,7 +254,10 @@ const SettlementForm = () => {
 
  function determineSettlementCalculation() {
   const parseAmountValue = (amount) => {
-   return parseFloat(amount.replace("$", ""));
+   if (typeof amount === "string") {
+    return parseFloat(amount.replace("$", ""));
+   }
+   return amount;
   };
   const plausibleOfferAmount = calculatePlausibleOfferAmount();
 
@@ -592,16 +626,6 @@ const SettlementForm = () => {
   }));
  };
 
- const handleAddTaxLiabilities = () => {
-  setFormResponse((prevFormResponse) => ({
-   ...prevFormResponse,
-   taxLiabilities: [
-    ...prevFormResponse.taxLiabilities,
-    { plaintiff: "", amount: 0, payment: 0, years: [], unfiledYears: [] },
-   ],
-  }));
- };
-
  const handleTaxLiabilitiesInputChange = (e, index) => {
   const { name, value } = e.target;
   if (name === "year") {
@@ -649,196 +673,219 @@ const SettlementForm = () => {
   });
  };
 
- const handleExtenuatingCircumstancesChange = (event) => {
-  const { name, checked } = event.target;
-  let additionalYears = formResponse.extenuatingCircumstances.additionalYears;
-
-  // Calculate additional years based on the selected checkbox
-  if (name === "hadChapter7" && checked) {
-   additionalYears += 1;
-  } else if (name === "hadChapter13" && checked) {
-   additionalYears += 2;
-  } else if (
-   (name === "filedOIC" || name === "startedPaymentPlan") &&
-   checked
-  ) {
-   additionalYears += 2;
-  }
-
-  setFormResponse((prevResponse) => ({
-   ...prevResponse,
-   extenuatingCircumstances: {
-    ...prevResponse.extenuatingCircumstances,
-    additionalYears,
-    [name]: checked,
-   },
-  }));
- };
-
- const handleDeleteTaxLiabilities = (index) => {
-  const updatedDebtList = [...formResponse.taxLiabilities];
-  updatedDebtList.splice(index, 1);
-  setFormResponse({ ...formResponse, taxLiabilities: updatedDebtList });
- };
-
  const handleDeleteIncome = (index) => {
   const updatedIncomeList = [...formResponse.incomes];
   updatedIncomeList.splice(index, 1);
   setFormResponse({ ...formResponse, incomes: updatedIncomeList });
  };
 
- const hasUnfiledYears = formResponse.taxLiabilities.some(
-  (debt) => debt.unfiledYears.length > 0
+ const handleUnfiledYearsChange = (year) => {
+  setFormResponse((prevResponse) => {
+   const updatedTaxLiabilities = prevResponse.taxLiabilities.map((debt) => {
+    if (debt.unfiledYears.includes(year)) {
+     const updatedUnfiledYears = debt.unfiledYears.filter(
+      (unfiledYear) => unfiledYear !== year
+     );
+     return {
+      ...debt,
+      unfiledYears: updatedUnfiledYears,
+      years: [...debt.years, year],
+     };
+    } else if (debt.years.includes(year)) {
+     const updatedYears = debt.years.filter((filedYear) => filedYear !== year);
+     return {
+      ...debt,
+      unfiledYears: [...debt.unfiledYears, year],
+      years: updatedYears,
+     };
+    }
+    return debt;
+   });
+
+   return {
+    ...prevResponse,
+    taxLiabilities: updatedTaxLiabilities,
+   };
+  });
+ };
+ const currentYear = new Date().getFullYear();
+ const startYear = 2010;
+ const years = Array.from(
+  { length: currentYear - startYear + 1 },
+  (_, index) => startYear + index
  );
 
- const [showCheckboxes, setShowCheckboxes] = useState(false);
-
- const toggleCheckboxes = () => {
-  setShowCheckboxes((prevShowCheckboxes) => !prevShowCheckboxes);
- };
-
  return (
-  <div>
-   <form
-    style={{ width: "400px" }}
-    onSubmit={handleSubmit}
-    className={`${classes.formContainer} ${
-     !formVisible ? classes.flippedFormContainer : ""
-    }`}>
-    <div
-     className={`${classes.formContent} ${
-      !formVisible ? classes.flippedFormContent : ""
-     }`}>
-     <div className='p-1'>
-      <Typography variant='h5'>Settlment Estimate Calculator</Typography>
-     </div>
-     <div className={classes.sectionContainer}>
-      <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-       Current Tax Liabilities
-      </InputLabel>
-      <div>
-       {formResponse.taxLiabilities.map((debt, index) => (
-        <TaxLiabilitiesItem
-         key={index}
-         debt={debt}
-         formResponse={formResponse}
-         setFormResponse={setFormResponse}
-         index={index}
-         handleTaxLiabilitiesInputChange={handleTaxLiabilitiesInputChange}
-         handleDeleteTaxLiabilities={handleDeleteTaxLiabilities}
-        />
-       ))}
-      </div>
-     </div>
+  <SettlementFormContainer formVisible={formVisible}>
+   <form onSubmit={handleSubmit}>
+    <SettlementFormSectionContainer>
+     <SettlementFormSectionTitle variant='h5'>
+      Settlement Estimate Calculator
+     </SettlementFormSectionTitle>
+    </SettlementFormSectionContainer>{" "}
+    <SettlementFormSectionContainer>
+     <SettlementFormSectionTitle shrink>Tax Debt</SettlementFormSectionTitle>
 
-     <div className={classes.sectionContainer}>
-      <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-       Income
-      </InputLabel>
-      <div className='m-1'>
-       {formResponse.incomes.map((income, index) => (
-        <Grid container spacing={2} alignItems='center' key={index}>
-         <Grid item xs={4}>
-          <FormControl style={{ width: "80px" }}>
-           <InputLabel>Type</InputLabel>
-           <Select
-            name='type'
-            value={income.type}
-            onChange={(e) => handleIncomeInputChange(e, index)}
-            displayEmpty>
-            <MenuItem value='salary'>Salary and Wages</MenuItem>
-            <MenuItem value='passive'>Passive</MenuItem>
-           </Select>
-          </FormControl>
-         </Grid>
-         <Grid item xs={4}>
-          <FormControl fullWidth>
-           <TextField
-            name='amount'
-            label='Amount'
-            value={income.amount}
-            onChange={(e) => handleIncomeInputChange(e, index)}
-           />
-          </FormControl>
-         </Grid>
-         <Grid item xs={4}>
-          <IconButton
-           style={{ fontSize: "1rem" }}
-           onClick={() => handleDeleteIncome(index)}>
-           <Delete />
-          </IconButton>
+     {formResponse.taxLiabilities.map((debt, index) => (
+      <Box key={index} marginBottom={2}>
+       <Grid spacing={2} container>
+        <Grid item xs={5.65}>
+         <SettlementFormControlFullWidth>
+          <SettlementFormInputLabel shrink>Plaintiff</SettlementFormInputLabel>
+          <SettlementFormSelect
+           disabled
+           name='plaintiff'
+           value={debt.plaintiff}
+           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+           displayEmpty>
+           <MenuItem value='irs'>IRS</MenuItem>
+           <MenuItem value='state'>State</MenuItem>
+          </SettlementFormSelect>
+         </SettlementFormControlFullWidth>
+        </Grid>
+        <Grid item xs={5.65}>
+         <SettlementFormControlFullWidth>
+          <SettlementFormTextField
+           name='amount'
+           label='Amount'
+           value={debt.amount.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+           })}
+           onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+          />
+         </SettlementFormControlFullWidth>
+        </Grid>
+       </Grid>
+       <Box marginTop={2}>
+        <Grid container>
+         <Grid item xs={11.25}>
+          {" "}
+          <SettlementFormControlFullWidth>
+           <SettlementFormInputLabel shrink>
+            Years With Debt
+           </SettlementFormInputLabel>
+           <SettlementFormSelect
+            name='years'
+            displayEmpty
+            multiple
+            value={
+             Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
+              (a, b) => a - b
+             ) || []
+            }
+            onChange={(e) => handleTaxLiabilitiesInputChange(e, index)}
+            renderValue={(selected) => selected.join(", ") || "Select years"}>
+            {years.map((year) => (
+             <MenuItem
+              key={year}
+              value={year}
+              onClick={() => handleUnfiledYearsChange(year)}
+              style={{
+               backgroundColor: debt.unfiledYears?.includes(year)
+                ? "#FFCDD2" // Unfiled year color (red)
+                : debt.years?.includes(year)
+                ? "#F5F5F5" // Filed year color (light neutral)
+                : "inherit", // Default background color
+              }}>
+              <ListItemText
+               primary={year}
+               secondary={
+                debt.years?.includes(year) && !debt.unfiledYears?.includes(year)
+                 ? "Filed"
+                 : debt.unfiledYears?.includes(year)
+                 ? "Unfiled"
+                 : ""
+               }
+              />
+             </MenuItem>
+            ))}
+           </SettlementFormSelect>
+          </SettlementFormControlFullWidth>
          </Grid>
         </Grid>
-       ))}
-      </div>
-      <Button variant='outlined' onClick={handleAddIncome}>
-       Add Income
-      </Button>
-     </div>
+       </Box>
+      </Box>
+     ))}
+    </SettlementFormSectionContainer>
+    <SettlementFormSectionContainer>
+     <SettlementFormSectionTitle shrink>Income</SettlementFormSectionTitle>
+     {formResponse.incomes.map((income, index) => (
+      <Box key={index}>
+       <Grid
+        container
+        alignItems='center'
+        spacing={2}
+        key={index}
+        direction='row'>
+        <Grid item xs={5.35}>
+         {/* Set xs to 8 to make the inputs take up 8 columns (80% of the width) */}
+         <SettlementFormControlFullWidth>
+          <SettlementFormInputLabel shrink>Type</SettlementFormInputLabel>
+          <SettlementFormSelect
+           name='type'
+           label='Type'
+           value={income.type}
+           onChange={(e) => handleIncomeInputChange(e, index)}>
+           <MenuItem value='salary'>Salary and Wages</MenuItem>
+           <MenuItem value='passive'>Passive</MenuItem>
+          </SettlementFormSelect>
+         </SettlementFormControlFullWidth>
+        </Grid>
+        <Grid item xs={5.35}>
+         {/* Set xs to 4 to make the input take up 4 columns (40% of the width) */}
+         <SettlementFormControlFullWidth>
+          <SettlementFormTextField
+           name='amount'
+           label='Amount'
+           value={income.amount}
+           onChange={(e) => handleIncomeInputChange(e, index)}
+          />
+         </SettlementFormControlFullWidth>
+        </Grid>
+        <Grid item xs={1}>
+         {/* Set xs to 4 to make the input take up 4 columns (40% of the width) */}
+         <Delete
+          style={{ fontSize: "1.4rem", float: "right", marginTop: "10px" }}
+          onClick={() => handleDeleteIncome(index)}
+         />
+        </Grid>
+       </Grid>
+      </Box>
+     ))}
 
-     <div
-      style={{
-       display: "flex",
-       alignItems: "center",
-       justifyContent: "center",
-      }}>
-      <div
-       className={classes.sectionContainer}
-       style={{ width: "175px", marginRight: "16px" }}>
-       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "16px" }}>
-        Private Debts
-       </InputLabel>
-       <TextField
-        name='privateDebt'
-        value={formResponse.privateDebt}
-        onChange={handleInputChange}
-       />
-      </div>
-      <div
-       className={classes.sectionContainer}
-       style={{ width: "175px", marginRight: "16px" }}>
-       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "16px" }}>
-        Non-Essential Equity
-       </InputLabel>
-       <TextField
-        name='equity'
-        value={formResponse.equity}
-        onChange={handleInputChange}
-       />
-      </div>
-     </div>
-     <div style={{ margin: "20px" }}>
-      <FormControl style={{ width: "330px" }}>
-       <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-        State
-       </InputLabel>
-       <Select
-        value={formResponse.state}
-        displayEmpty
-        name='state'
-        onChange={handleInputChange}
-        inputProps={{ "aria-label": "Select State" }}>
-        {states.map((state) => (
-         <MenuItem key={state.abbreviation} value={state.abbreviation}>
-          {state.longName}
-         </MenuItem>
-        ))}
-       </Select>
-      </FormControl>
-     </div>
-
-     <div
-      style={{
-       display: "flex",
-       alignItems: "center",
-       justifyContent: "center",
-      }}>
-      <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "100px" }}>
-        <InputLabel shrink style={{ color: "#3f51b5", fontSize: "20px" }}>
-         Cars
-        </InputLabel>
-        <Select
+     <SettlementFormButton variant='outlined' onClick={handleAddIncome}>
+      Add Income
+     </SettlementFormButton>
+    </SettlementFormSectionContainer>
+    <SettlementFormSectionContainer>
+     <Box>
+      <SettlementFormSectionTitle shrink>Expenses</SettlementFormSectionTitle>
+     </Box>
+     <Grid container spacing={1} alignItems='center'>
+      <Grid item xs={11.25}>
+       {" "}
+       {/* This Grid item will take up the full width */}
+       <SettlementFormControlFullWidth>
+        <SettlementFormInputLabel shrink>State</SettlementFormInputLabel>
+        <SettlementFormSelect
+         value={formResponse.state}
+         displayEmpty
+         name='state'
+         onChange={handleInputChange}
+         inputProps={{ "aria-label": "Select State" }}>
+         {states.map((state) => (
+          <MenuItem key={state.abbreviation} value={state.abbreviation}>
+           {state.longName}
+          </MenuItem>
+         ))}
+        </SettlementFormSelect>
+       </SettlementFormControlFullWidth>
+      </Grid>
+      <Grid xs={3.75} marginTop={1} item>
+       <SettlementFormControlFullWidth>
+        <SettlementFormInputLabel shrink>Cars</SettlementFormInputLabel>
+        <SettlementFormSelect
          labelId='cars-owned-label'
          id='cars-owned-select'
          name='carsOwned'
@@ -846,15 +893,14 @@ const SettlementForm = () => {
          onChange={handleInputChange}>
          <MenuItem value={1}>1</MenuItem>
          <MenuItem value={2}>2+</MenuItem>
-        </Select>
-       </FormControl>
-      </div>
-      <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "100px" }}>
-        <InputLabel style={{ color: "#3f51b5", fontSize: "20px" }} shrink>
-         Residents
-        </InputLabel>
-        <Select
+        </SettlementFormSelect>
+       </SettlementFormControlFullWidth>
+      </Grid>
+
+      <Grid xs={3.75} marginTop={1} item>
+       <SettlementFormControlFullWidth>
+        <SettlementFormInputLabel shrink>Residents</SettlementFormInputLabel>
+        <SettlementFormSelect
          name='residents'
          value={formResponse.residents}
          onChange={handleInputChange}>
@@ -863,15 +909,14 @@ const SettlementForm = () => {
          <MenuItem value='3'>3</MenuItem>
          <MenuItem value='4'>4</MenuItem>
          <MenuItem value='5'>5</MenuItem>
-        </Select>
-       </FormControl>
-      </div>
-      <div style={{ marginRight: "16px" }}>
-       <FormControl style={{ width: "100px" }}>
-        <InputLabel style={{ color: "#3f51b5", fontSize: "20px" }} shrink>
-         65+
-        </InputLabel>
-        <Select
+        </SettlementFormSelect>
+       </SettlementFormControlFullWidth>
+      </Grid>
+
+      <Grid xs={3.75} marginTop={1} item>
+       <SettlementFormControlFullWidth>
+        <SettlementFormInputLabel shrink>65+</SettlementFormInputLabel>
+        <SettlementFormSelect
          name='residents65'
          labelId='residents65-label'
          id='residents65-select'
@@ -882,84 +927,18 @@ const SettlementForm = () => {
          <MenuItem value='3'>3</MenuItem>
          <MenuItem value='4'>4</MenuItem>
          <MenuItem value='5'>5</MenuItem>
-        </Select>
-       </FormControl>
-      </div>
-     </div>
-     <div className={classes.sectionContainer}>
-      <div style={{ display: "flex", alignItems: "center" }}>
-       <IconButton onClick={toggleCheckboxes}>
-        {showCheckboxes ? <ExpandMore /> : <ExpandLess />}
-       </IconButton>
-       <Typography style={{ color: "#3f51b5" }} variant='subtitle1'>
-        Extenuating Circumstances
-       </Typography>
-      </div>
-
-      <div style={{ display: showCheckboxes ? "block" : "none" }}>
-       {showCheckboxes && (
-        <>
-         <FormControlLabel
-          control={
-           <Checkbox
-            name='filedOIC'
-            checked={formResponse.extenuatingCircumstances.filedOIC}
-            onChange={handleExtenuatingCircumstancesChange}
-           />
-          }
-          label='Filed OIC'
-         />
-         <FormControlLabel
-          control={
-           <Checkbox
-            name='startedPaymentPlan'
-            checked={formResponse.extenuatingCircumstances.startedPaymentPlan}
-            onChange={handleExtenuatingCircumstancesChange}
-           />
-          }
-          label='IRS Payment Plan'
-         />
-         <FormControlLabel
-          control={
-           <Checkbox
-            name='hadChapter7'
-            checked={formResponse.extenuatingCircumstances.hadChapter7}
-            onChange={handleExtenuatingCircumstancesChange}
-           />
-          }
-          label='Chapter 7'
-         />
-         <FormControlLabel
-          control={
-           <Checkbox
-            name='hadChapter11'
-            checked={formResponse.extenuatingCircumstances.hadChapter11}
-            onChange={handleExtenuatingCircumstancesChange}
-           />
-          }
-          label='Chapter 11'
-         />
-         <FormControlLabel
-          control={
-           <Checkbox
-            name='hadChapter13'
-            checked={formResponse.extenuatingCircumstances.hadChapter13}
-            onChange={handleExtenuatingCircumstancesChange}
-           />
-          }
-          label='Chapter 13'
-         />
-        </>
-       )}
-      </div>
-     </div>
-    </div>
-
-    <Button type='submit' variant='contained' color='primary'>
-     Calculate Settlement
-    </Button>
+        </SettlementFormSelect>
+       </SettlementFormControlFullWidth>
+      </Grid>
+     </Grid>
+    </SettlementFormSectionContainer>
+    <SettlementFormSectionContainer>
+     <SettlementFormButton type='submit' variant='contained' color='primary'>
+      Calculate Settlement
+     </SettlementFormButton>
+    </SettlementFormSectionContainer>
    </form>
-  </div>
+  </SettlementFormContainer>
  );
 };
 
