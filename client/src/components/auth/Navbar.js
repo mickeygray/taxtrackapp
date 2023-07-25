@@ -66,25 +66,12 @@ const Navbar = ({ toggleRegister }) => {
 
  const handleScroll = () => {
   setStyle({
-   overflowY: "hidden",
-   overflowX: "hidden",
-   height: "85px",
    position: "sticky",
    top: "0",
-
    zIndex: "999999999999999",
   });
   setSticky(true);
  };
-
- useEffect(() => {
-  if (position === 0) {
-   setStyle({
-    height: "167px",
-    zIndex: "999999999999999",
-   });
-  }
- }, [position, setStyle]);
 
  useEffect(() => {
   window.addEventListener("scroll", handleScroll);
@@ -99,7 +86,7 @@ const Navbar = ({ toggleRegister }) => {
    className={`nav navbar grid-2 bg-primary `}
    onScroll={handleScroll}
    style={style}>
-   <div className='m-2'>
+   <div>
     <Link to='/'>
      <img
       src={process.env.PUBLIC_URL + "/images/logo.png"}
@@ -117,7 +104,7 @@ const Navbar = ({ toggleRegister }) => {
      ""
     )}
    </div>
-   <div className='p-2 m-2'>
+   <div>
     <span style={{ float: "right" }}>
      {profileAuthenticated || userAuthenticated ? (
       <a onClick={() => logout()}>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled, { keyframes, css } from "styled-components";
 import SettlementForm from "./SettlementForm";
-
+import Hero from "./Hero";
+import SettlementCalculator from "./SettlementCalculator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
  faChartLine,
@@ -15,6 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import SettlementChart from "./SettlementChart";
 import ProfileContext from "../../context/profile/profileContext";
+import AnimatedCarousel from "./AnimatedCarousel";
 
 const Header = styled.header`
  position: sticky;
@@ -59,7 +61,7 @@ const Nav = styled.nav`
  }
 `;
 
-const Hero = styled.div`
+const HeroBody = styled.div`
  position: relative;
  height: calc(100vh - 100px); /* Subtracting the navbar height */
  overflow: hidden;
@@ -1274,203 +1276,10 @@ const Landing = () => {
  );
  return (
   <>
-   <Hero>
-    <HeroImage src={process.env.PUBLIC_URL + "/images/Hero.jpg"} alt='Hero' />
-    <HeroContent>
-     <HeroTitle> Tax Track Makes IRS Interactions Easy</HeroTitle>
-     <HeroSubtitle>
-      Keep up with the latest on your tax account at the click of a button
-     </HeroSubtitle>
-     <HeroButton>Get Started</HeroButton>
-    </HeroContent>
-   </Hero>
-   <BackgroundDiv>
-    <ContentContainer>
-     <Subtitle>Calculate Your Settlement</Subtitle>
-     <ContentTitle>Your Potential Offer In Compromise</ContentTitle>
-     <CenteredParagraph>
-      The Tax Track Settlement Calculator is a powerful tool that helps
-      individuals assess their eligibility for a potential settlement with the
-      IRS. By entering financial information, taxpayers can determine if they
-      qualify to settle their tax debt for less than the full amount owed.
-      Simplifying the process, it empowers users to explore debt relief options
-      confidently.
-     </CenteredParagraph>
-    </ContentContainer>
-   </BackgroundDiv>
-   <MainContainer>
-    <FormContainer>
-     <SettlementForm />
-    </FormContainer>
+   <Hero />
+   <SettlementCalculator />
+   <AnimatedCarousel />
 
-    <ChartContainer>
-     <ImageContainer>
-      {settlementCalculation === null ? (
-       <StillImage
-        src={process.env.PUBLIC_URL + "/images/Offer-in-compromise.png"}
-        style={{ width: "100%" }}
-        alt='Still Image'
-       />
-      ) : (
-       <SettlementChart />
-      )}
-     </ImageContainer>
-    </ChartContainer>
-   </MainContainer>
-   <BackgroundDiv>
-    <ContentContainer>
-     <Subtitle>How Does Tax Track Work?</Subtitle>
-     <ContentTitle>
-      Everything You Need For Your Tax Settlement In One Place
-     </ContentTitle>
-
-     {activeSlide === null ? (
-      <CircleWrapper animate={animateButtons}>
-       <CircleButton
-        onClick={() => handleButtonClick(0)}
-        angle={225}
-        animate={animateButtons}
-        style={{
-         backgroundColor: "blue",
-         width: "100px",
-         zIndex: "1",
-         height: "110px",
-         borderRadius: "10px",
-        }}>
-        <FontAwesomeIcon icon={faCog} />
-        Balance
-       </CircleButton>
-       <CircleButton
-        onClick={() => handleButtonClick(1)}
-        angle={315}
-        animate={animateButtons}
-        style={{
-         backgroundColor: "green",
-         width: "130px",
-         height: "120px",
-         zIndex: "1",
-         borderRadius: "10px",
-        }}>
-        <FontAwesomeIcon icon={faGlobe} />
-        Milestones
-       </CircleButton>
-       <CircleButton
-        onClick={() => handleButtonClick(2)}
-        angle={45}
-        animate={animateButtons}
-        style={{
-         backgroundColor: "orange",
-         width: "125px",
-         height: "115px",
-         borderRadius: "10px",
-         zIndex: "1",
-        }}>
-        <FontAwesomeIcon icon={faUser} />
-        Returns
-       </CircleButton>
-       <CircleButton
-        onClick={() => handleButtonClick(3)}
-        angle={135}
-        animate={animateButtons}
-        style={{
-         backgroundColor: "purple",
-         width: "125px",
-         height: "90px",
-         borderRadius: "10px",
-         zIndex: "1",
-        }}>
-        <FontAwesomeIcon icon={faBook} />
-        Planning
-       </CircleButton>
-       <LearnMoreButton
-        animate={animateButtons}
-        onClick={() => handleButtonClick(0)}
-        style={{
-         width: "500px",
-         height: "500px",
-         zIndex: "0",
-         backgroundColor: "tan",
-        }}>
-        <Image
-         src={process.env.PUBLIC_URL + "/images/logo.png"}
-         alt='Image 2'
-         style={{
-          width: "200px",
-          height: "400px",
-          zIndex: "0",
-          backgroundColor: "tan",
-         }}
-        />
-       </LearnMoreButton>
-      </CircleWrapper>
-     ) : (
-      <OuterWrapper>
-       <ButtonWrapper>
-        <ButtonContainer>
-         <Button
-          active={activeSlide === 0}
-          onClick={() => handleButtonClick(0)}
-          style={{
-           backgroundColor: "blue",
-           zIndex: "1",
-          }}>
-          {" "}
-          <FontAwesomeIcon icon={faCog} />
-          Balance
-         </Button>
-         <Button
-          active={activeSlide === 1}
-          onClick={() => handleButtonClick(1)}
-          style={{
-           backgroundColor: "green",
-           zIndex: "1",
-          }}>
-          {" "}
-          <FontAwesomeIcon icon={faCog} />
-          Milestones
-         </Button>
-         <Button
-          active={activeSlide === 2}
-          onClick={() => handleButtonClick(2)}
-          style={{
-           backgroundColor: "orange",
-
-           zIndex: "1",
-          }}>
-          {" "}
-          <FontAwesomeIcon icon={faCog} />
-          Returns
-         </Button>
-         <Button
-          active={activeSlide === 3}
-          onClick={() => handleButtonClick(3)}
-          style={{
-           backgroundColor: "purple",
-
-           zIndex: "1",
-          }}>
-          {" "}
-          <FontAwesomeIcon icon={faCog} />
-          Planning
-         </Button>
-        </ButtonContainer>
-       </ButtonWrapper>
-
-       <InfoContainer activeSlide={activeSlide}>
-        {filteredSections.map((section, index) => (
-         <InfoContentSection
-          key={index}
-          imageSrc={section.imageSrc}
-          title={section.title}
-          description={section.description}
-          buttonText={section.buttonText}
-         />
-        ))}
-       </InfoContainer>
-      </OuterWrapper>
-     )}
-    </ContentContainer>
-   </BackgroundDiv>
    <ScrollingDiv>
     <ScrollingText scrollingUp={scrollingUp}>
      <RotatingHeadline>
