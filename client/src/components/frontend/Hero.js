@@ -16,7 +16,6 @@ export default function Hero() {
 
  const HeroContainer = styled(Box)`
   ${mixins.heroMixin}
-  ${mixins.colors}
  `;
 
  const HeroImageBox = styled(Paper)`
@@ -75,6 +74,7 @@ export default function Hero() {
       sx={{
        backgroundColor: "var(--color-primary-green)",
        borderRadius: "20px",
+       color: "white",
       }}>
       Get Started
      </HeroButton>
