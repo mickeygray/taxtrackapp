@@ -76,6 +76,10 @@ img {
  margin-bottom: 1rem;
 }
 
+.x-largedinger {
+ height: 700px;
+}
+
 .large {
  font-size: 3rem;
  line-height: 1.2;

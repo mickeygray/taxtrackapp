@@ -9,34 +9,16 @@ import {
  useMediaQuery,
 } from "@mui/material";
 import styled from "styled-components";
-import useMixins from "../../utils/useMixins";
+import {
+ HeroButton,
+ HeroSubtitle,
+ HeroTitle,
+ HeroContentBox,
+ HeroImageBox,
+ HeroContainer,
+} from "../../utils/useMixins";
 
 export default function Hero() {
- const mixins = useMixins();
-
- const HeroContainer = styled(Box)`
-  ${mixins.heroMixin}
- `;
-
- const HeroImageBox = styled(Paper)`
-  ${mixins.heroImageMixin}
- `;
-
- const HeroContentBox = styled(Box)`
-  ${mixins.heroContentMixin}
- `;
-
- const HeroTitle = styled(Typography)`
-  ${mixins.heroTitleMixin}
- `;
-
- const HeroSubtitle = styled(Typography)`
-  ${mixins.heroSubtitleMixin}
- `;
-
- const HeroButton = styled(Button)`
-  ${mixins.heroButtonMixin}
- `;
  const theme = useTheme();
  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 

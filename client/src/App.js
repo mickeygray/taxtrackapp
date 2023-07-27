@@ -14,6 +14,8 @@ import AlertState from "./context/alert/AlertState";
 import { gapi } from "gapi-script";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Landing from "./components/frontend/Landing";
+import { ColorWrapper } from "./utils/useMixins";
+
 import axios from "axios";
 import AuthContext from "./context/auth/authContext";
 
@@ -31,19 +33,21 @@ const App = () => {
     <ProfileState>
      <AlertState>
       <Router>
-       <Navbar />
-       <div className='all-center'>
-        <Alerts />
-       </div>
-       <Routes>
-        <Route exact path='/login' element={<Login />} />
-        <Route exact path='/' element={<Landing />} />
-        <Route path='/home' element={<PrivateRoute component={Home} />} />
-        <Route
-         path='/backend'
-         element={<PrivateRoute component={TaxTrackBackEnd} />}
-        />
-       </Routes>
+       <ColorWrapper>
+        <Navbar />
+        <div className='all-center'>
+         <Alerts />
+        </div>
+        <Routes>
+         <Route exact path='/login' element={<Login />} />
+         <Route exact path='/' element={<Landing />} />
+         <Route path='/home' element={<PrivateRoute component={Home} />} />
+         <Route
+          path='/backend'
+          element={<PrivateRoute component={TaxTrackBackEnd} />}
+         />
+        </Routes>
+       </ColorWrapper>
       </Router>
      </AlertState>
     </ProfileState>

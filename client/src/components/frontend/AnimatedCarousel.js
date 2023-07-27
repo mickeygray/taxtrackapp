@@ -18,14 +18,24 @@ import {
  useMediaQuery,
 } from "@mui/material";
 
-import useMixins from "../../utils/useMixins";
+import {
+ AnimatedImage,
+ CarouselImage,
+ SectionButton,
+ InfoContent,
+ CarouselButton,
+ OuterWrapper,
+ TextWrapper,
+ CircleButton,
+ LearnMoreButton,
+ CircleWrapper,
+} from "../../utils/useMixins";
 
 // Define keyframes animations here
 
 // Styled components and animations go here
 
 const AnimatedCarousel = () => {
- const mixins = useMixins();
  const [activeSlide, setActiveSlide] = useState(null);
  const [animateButtons, setAnimateButtons] = useState(false);
 
@@ -37,43 +47,6 @@ const AnimatedCarousel = () => {
    setActiveSlide(index);
   }
  };
-
- const CircleWrapper = styled(Box)`
-  ${mixins.circleWrapperMixin}
- `;
- const LearnMoreButton = styled(Box)`
-  ${mixins.learnMoreButtonMixin}
- `;
- const CircleButton = styled(Box)`
-  ${mixins.circleButtonMixin}
- `;
- const TextWrapper = styled(Box)`
-  ${mixins.textWrapperMixin}
- `;
-
- const OuterWrapper = styled(Container)`
-  ${mixins.outerWrapperMixin}
- `;
-
- const CarouselButton = styled(Box)`
-  ${mixins.carouselButtonMixin}
- `;
-
- const InfoContent = styled(Box)`
-  ${mixins.infoContentMixin}
- `;
-
- const SectionButton = styled(Button)`
-  ${mixins.sectionButtonMixin}
- `;
-
- const CarouselImage = styled.img`
-  ${mixins.carouselImageMixin}
- `;
-
- const AnimatedImage = styled.img`
-  ${mixins.animatedImageMixin}
- `;
 
  const sections = [
   {

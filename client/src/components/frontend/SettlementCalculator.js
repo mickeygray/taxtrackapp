@@ -3,17 +3,12 @@ import { Grid, Box, Typography } from "@mui/material";
 import SettlementForm from "./SettlementForm";
 import SettlementChart from "./SettlementChart";
 import ProfileContext from "../../context/profile/profileContext";
-import { useTheme } from "@mui/material/styles";
-import styled from "styled-components";
-import useMixins from "../../utils/useMixins";
+
 const SettlementCalculator = () => {
- const mixins = useMixins();
  const { settlementCalculation } = useContext(ProfileContext);
- const SettlementCalculatorBox = styled(Box)`
-  ${mixins.colors}
- `;
+
  return (
-  <SettlementCalculatorBox textAlign='center' padding={3} bgcolor='#eae6de'>
+  <Box textAlign='center' padding={3} bgcolor='#eae6de'>
    <Box marginBottom={2}>
     <Typography variant='h6'>Calculate Your Settlement</Typography>
     <Typography variant='h3'>Your Potential Offer In Compromise</Typography>
@@ -61,7 +56,7 @@ const SettlementCalculator = () => {
      </Box>
     </Grid>
    </Grid>
-  </SettlementCalculatorBox>
+  </Box>
  );
 };
 

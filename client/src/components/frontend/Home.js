@@ -5,6 +5,7 @@ import AuthContext from "../../context/auth/authContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import BalanceTransactions from "./BalanceTransactions";
+import BlogLibrary from "./BlogLibrary";
 // SVG for Tree Illustration
 
 const suckedInAnimation = keyframes`
@@ -221,7 +222,7 @@ const AccountSummary = ({ handleButtonClick }) => {
     <AccountTypeItem>
      <AccountIcon className='fa-solid fa-book-open-reader' />
      <AccountTitle>Tax Education</AccountTitle>
-     <AccountButton onClick={() => handleButtonClick(ToggledBlogComponent)}>
+     <AccountButton onClick={() => handleButtonClick(<BlogLibrary />)}>
       Explore
      </AccountButton>
     </AccountTypeItem>
