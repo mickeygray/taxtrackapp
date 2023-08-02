@@ -110,7 +110,7 @@ const MonthlyExpensesPieChart = ({
  const percentageOfIncome = ((expenses / income.totalIncome) * 100).toFixed(2);
  const options = {
   responsive: true,
-
+  maintainAspectRatio: false,
   plugins: {
    title: {
     display: true,
@@ -122,7 +122,7 @@ const MonthlyExpensesPieChart = ({
      }),
     position: "top",
     font: {
-     size: 40, // Set the font size for the legend labels
+     size: 30, // Set the font size for the legend labels
     },
    },
 
@@ -226,7 +226,7 @@ const DDIAComparisonCharts = ({
     },
     {
      label: "Your Non Disposable Income",
-     value: income - (monthlyPaymentPlan + statePayment),
+     value: income - ((monthlyPaymentPlan || 0) + (statePayment || 0)),
      color: "rgba(54, 162, 235, 0.5)",
     },
    ],
@@ -240,7 +240,7 @@ const DDIAComparisonCharts = ({
    {chartsData.map((chartData, index) => {
     const options = {
      responsive: true,
-
+     maintainAspectRatio: false,
      plugins: {
       legend: {
        display: false,
@@ -258,7 +258,7 @@ const DDIAComparisonCharts = ({
          ? `This is how payments effect your income`
          : ``,
        font: {
-        size: 40, // Set the font size for the legend labels
+        size: 30, // Set the font size for the legend labels
        },
       },
 
@@ -267,7 +267,7 @@ const DDIAComparisonCharts = ({
        text: chartData.title,
        position: "top",
        font: {
-        size: 40, // Set the font size for the legend labels
+        size: 30, // Set the font size for the legend labels
        },
       },
      },
@@ -315,7 +315,13 @@ const PlausibleOfferPieChart = ({
 
  const options = {
   responsive: true,
-
+  layout: {
+   padding: 0, // disable padding around the chart area
+  },
+  legend: {
+   display: false, // disable legend to remove padding for it
+  },
+  maintainAspectRatio: false,
   plugins: {
    title: {
     display: true,
@@ -325,7 +331,7 @@ const PlausibleOfferPieChart = ({
     ).toFixed(2)}% of Federal Liability`,
     position: "top",
     font: {
-     size: 40, // Set the font size for the legend labels
+     size: 30, // Set the font size for the legend labels
     },
    },
    legend: {
@@ -345,7 +351,7 @@ const PlausibleOfferPieChart = ({
     })}`,
     position: "bottom",
     font: {
-     size: 40, // Set the font size for the legend labels
+     size: 30, // Set the font size for the legend labels
     },
    },
   },
@@ -367,11 +373,10 @@ const OfferPaymentPlansChart = ({
  const chartRefs = [useRef(), useRef(), useRef()];
 
  // Calculate the remaining income after subtracting the expenses
- const remainingIncome = totalIncome - totalExpenses;
 
  // Prepare the data for valid payment plans
  const validPaymentsData = [];
- if (deferred.plausibleOfferAmount <= remainingIncome) {
+ if (deferred.plausibleOfferAmount <= totalIncome) {
   validPaymentsData.push({
    label: "Deferred Payment Plan",
    subtitle: deferred.term,
@@ -420,7 +425,7 @@ const OfferPaymentPlansChart = ({
    {pieData.map((data, index) => {
     const options = {
      responsive: true,
-
+     maintainAspectRatio: false,
      plugins: {
       legend: {
        display: false,
@@ -436,7 +441,7 @@ const OfferPaymentPlansChart = ({
        text: data.labels[0],
        position: "top",
        font: {
-        size: 40, // Set the font size for the title
+        size: 30, // Set the font size for the title
        },
       },
 
@@ -451,7 +456,7 @@ const OfferPaymentPlansChart = ({
        )} for ${data.subtitle} months`,
        position: "bottom",
        font: {
-        size: 40, // Set the font size for the title
+        size: 30, // Set the font size for the title
        },
       },
      },
@@ -469,9 +474,7 @@ const OfferPaymentPlansChart = ({
       }
       key={index}
       style={{ width: "333px", height: "333px" }}>
-      <div style={{ width: "100%", height: "100%" }}>
-       <Pie ref={chartRefs[index]} data={data} options={options} />
-      </div>
+      <Pie ref={chartRefs[index]} data={data} options={options} />
      </div>
     );
    })}
@@ -522,7 +525,6 @@ const SettlementChart = () => {
           savings={settlementCalculation.savings}
          />
         </div>
-        <div></div>
        </>
       )}
       {settlementCalculation.offerStatus.includes("DDIA") && (

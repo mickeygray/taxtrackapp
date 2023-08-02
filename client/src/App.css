@@ -941,9 +941,7 @@ canvas {
  box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 9px 0px;
  height: 700px;
  max-height: 700px;
- margin: 0px auto;
- position: relative;
- padding: 95px 85px 75px;
+ box-sizing: border-box;
  text-align: center;
 }
 
