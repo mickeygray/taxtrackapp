@@ -132,15 +132,11 @@ const SettlementForm = () => {
    { plaintiff: "irs", amount: 0, payment: 0, years: [], unfiledYears: [] },
    { plaintiff: "state", amount: 0, payment: 0, years: [], unfiledYears: [] },
   ],
-  privateDebt: 0,
   incomes: [{ type: "", amount: 0 }],
-  equity: 0,
   state: "",
   carsOwned: 0,
-  currentAge: 0,
   residents: 0,
   residents65: 0,
-  extenuatingCircumstances: {},
  });
 
  function calculateTotalExpenses() {
@@ -189,22 +185,20 @@ const SettlementForm = () => {
    ...taxLiabilities.map((liability) => Math.max(...liability.years))
   );
 
-  const extendedTaxYears = taxLiabilities.map((liability) => ({
-   ...liability,
-   years: liability.years.map(
-    (year) => year + Math.min(5, extenuatingCircumstances.additionalYears || 0)
-   ),
-  }));
+  const csedYears = taxLiabilities
+   .filter((f) => f.plaintiff === "irs")
+   .map((liability) => {
+    const years = liability.years.map((year) => parseInt(year) + 10);
+    return years;
+   });
 
-  const averageYears =
-   (newestTaxYear + oldestTaxYear) / 2 +
-   10 +
-   Math.min(5, extenuatingCircumstances.additionalYears || 0);
+  const averageYears = (newestTaxYear + oldestTaxYear) / 2 + 10;
 
   const collectionWindow =
    (parseInt(averageYears) - parseInt(new Date().getFullYear())) * 12;
 
-  return { expirations: extendedTaxYears, collectionWindow };
+  console.log(csedYears);
+  return { expirations: csedYears, collectionWindow };
  }
 
  function calculateTotalIncome() {
@@ -262,69 +256,39 @@ const SettlementForm = () => {
   const plausibleOfferAmount = calculatePlausibleOfferAmount();
 
   const rcpWindow = calculateCollectionWindow().collectionWindow;
-  const federalLiability = formResponse.taxLiabilities
+  const adjustedFederalLiability = formResponse.taxLiabilities
    .filter((liability) => liability.plaintiff === "irs")
    .map((liability) => {
     const portion = parseAmountValue(liability.amount) / liability.years.length;
-    const unfiledPortion = portion * 0.95;
+    const unfiledPortion = portion * 0.85;
     const filedPortions = liability.years.map((year) =>
      liability.unfiledYears.includes(year) ? unfiledPortion : portion
     );
     return filedPortions.reduce((total, portion) => total + portion, 0);
    })[0];
 
-  const stateLiability =
+  const adjustedStateLiability =
    formResponse.taxLiabilities
     .filter((liability) => liability.plaintiff === "state")
     .map((liability) => {
      const portion =
       parseAmountValue(liability.amount) / liability.years.length;
-     const unfiledPortion = portion * 0.95;
+     const unfiledPortion = portion * 0.85;
      const filedPortions = liability.years.map((year) =>
       liability.unfiledYears.includes(year) ? unfiledPortion : portion
      );
      return filedPortions.reduce((total, portion) => total + portion, 0);
     })[0] || 0;
 
-  const unfiledFederalLiability = formResponse.taxLiabilities
+  const federalLiability = formResponse.taxLiabilities
    .filter((liability) => liability.plaintiff === "irs")
    .map((liability) => parseAmountValue(liability.amount))[0];
 
-  const unfiledStateLiability = formResponse.taxLiabilities
+  const stateLiability = formResponse.taxLiabilities
    .filter((liability) => liability.plaintiff === "state")
    .map((liability) => parseAmountValue(liability.amount))[0];
-  const debtPayment = formResponse.privateDebt > 50000 ? 150 : 0;
-
-  const unfiledLiabilities = { unfiledFederalLiability, unfiledStateLiability };
 
   const income = calculateTotalIncome();
-  function calculateReducedLiability() {
-   const liabilityToBeDivided =
-    federalLiability / calculateCollectionWindow().expirations.length;
-   const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
-    (expiration) => expiration.years.length > 6
-   );
-   const reducedLiability = csedYearsGreaterThan6.reduce((sum, expiration) => {
-    const numYearsGreaterThan6 = expiration.years.length - 6;
-    return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
-   }, 0);
-   return reducedLiability;
-  }
-  const equity = formResponse.equity;
-  const highEquityThreshold = 10000;
-  const highLiabilityThreshold = 50000;
-  let liabilityLessEquity = federalLiability;
-  let offerLumpSumLessEquity = plausibleOfferAmount;
-  let liabilityReduction;
-  if (
-   equity >= highEquityThreshold &&
-   federalLiability >= highLiabilityThreshold
-  ) {
-   const maxLiabilityReduction = 0.75 * federalLiability;
-   liabilityReduction = Math.min(equity * 0.8, maxLiabilityReduction);
-   liabilityLessEquity -= liabilityReduction;
-   offerLumpSumLessEquity -= liabilityReduction;
-  }
 
   if (calculateMonthlyCollectionAmount() < 50) {
    return {
@@ -332,11 +296,7 @@ const SettlementForm = () => {
     federalLiability,
     formResponse,
     income,
-    unfiledLiabilities,
-    savings: liabilityLessEquity ? liabilityLessEquity : federalLiability,
-    liquidation: liabilityReduction
-     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-     : null,
+    savings: federalLiability,
     plausibleOfferAmount,
     monthlyExpenses: calculateTotalExpenses(),
    };
@@ -351,7 +311,7 @@ const SettlementForm = () => {
 
     if (statePayment > 0) {
      let monthlyExpenses =
-      calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+      calculateTotalExpenses().totalExpenses + statePayment;
      let updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
 
      while (
@@ -359,97 +319,114 @@ const SettlementForm = () => {
       statePayment > 0
      ) {
       statePayment *= 0.75;
-      monthlyExpenses =
-       calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+      monthlyExpenses = calculateTotalExpenses().totalExpenses + statePayment;
       updatedPlausibleOfferAmount = calculatePlausibleOfferAmount();
      }
      return {
       offerStatus: "OIC WITH STATE PAYMENT",
       statePayment,
-      unfiledLiabilities,
+      stateLiability,
+      adjustedStateLiability,
+      federalLiability,
+      adjustedFederalLiability,
       formResponse,
       income,
-      federalLiability,
+
       rcpWindow,
-      liquidation: liabilityReduction
-       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-       : null,
       plausibleOfferAmount:
        updatedPlausibleOfferAmount > 0
         ? updatedPlausibleOfferAmount
         : plausibleOfferAmount,
       monthlyExpenses,
-      savings: unfiledFederalLiability
-       ? unfiledFederalLiability - plausibleOfferAmount
-       : federalLiability - plausibleOfferAmount,
+      savings: federalLiability - plausibleOfferAmount,
       offerPaymentPlans: {
-       shortTerm: plausibleOfferAmount / 24,
-       offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
-       offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
-       deferred: plausibleOfferAmount / rcpWindow,
+       shortTerm: {
+        plausibleOfferAmount: (plausibleOfferAmount * 0.8) / 24,
+        term: 24,
+       },
+       lumpSum: {
+        plausibleOfferAmount: (plausibleOfferAmount * 0.4) / 5,
+        term: 5,
+       },
+       deferred: {
+        plausibleOfferAmount: plausibleOfferAmount / rcpWindow,
+        term: rcpWindow,
+       },
       },
      };
     } else {
-     const monthlyPaymentPlan = (0.75 * federalLiability) / rcpWindow;
+     const monthlyPaymentPlan = adjustedFederalLiability / 72;
 
      return {
-      offerStatus: "OIC or DDIA",
-      statePayment,
       federalLiability,
-      income,
-      unfiledLiabilities,
+      expirations: calculateCollectionWindow().expirations,
+      monthlyPaymentPlan,
       formResponse,
-      monthlyPaymentPlan: plausibleOfferAmount > 0.66 && monthlyPaymentPlan,
+      stateLiability,
+      adjustedStateLiability,
+      federalLiability,
+      adjustedFederalLiability,
+      income,
+      monthlyExpenses: calculateTotalExpenses(),
+      disposableIncome: calculateMonthlyCollectionAmount(),
+      maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
+      offerStatus: "OIC or DDIA",
       rcpWindow,
-      liquidation: liabilityReduction
-       ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-       : null,
       plausibleOfferAmount,
       monthlyExpenses: calculateTotalExpenses(),
       offerPaymentPlans: {
-       shortTerm: plausibleOfferAmount / 24,
-       offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
-       offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
-       deferred: plausibleOfferAmount / rcpWindow,
+       shortTerm: {
+        plausibleOfferAmount: (plausibleOfferAmount * 0.8) / 24,
+        term: 24,
+       },
+       lumpSum: {
+        plausibleOfferAmount: (plausibleOfferAmount * 0.4) / 5,
+        term: 5,
+       },
+       deferred: {
+        plausibleOfferAmount: plausibleOfferAmount / rcpWindow,
+        term: rcpWindow,
+       },
       },
-      savings: {
-       ddiaSavings: unfiledFederalLiability
-        ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
-        : federalLiability - monthlyPaymentPlan * rcpWindow,
-       offerSavings: unfiledFederalLiability
-        ? unfiledFederalLiability - plausibleOfferAmount
-        : federalLiability - plausibleOfferAmount,
-      },
+      ddiaSavings: federalLiability - adjustedFederalLiability,
+      savings: federalLiability - plausibleOfferAmount,
      };
     }
    } else {
     return {
      offerStatus: "OIC",
+     stateLiability,
+     adjustedStateLiability,
      federalLiability,
-     unfiledLiabilities,
+     adjustedFederalLiability,
      income,
      formResponse,
      plausibleOfferAmount,
      rcpWindow,
-     liquidation: liabilityReduction
-      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-      : null,
      monthlyExpenses: calculateTotalExpenses(),
      offerPaymentPlans: {
-      shortTerm: plausibleOfferAmount / 24,
-      offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
-      offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
-      deferred: plausibleOfferAmount / rcpWindow,
+      shortTerm: {
+       plausibleOfferAmount: (plausibleOfferAmount * 0.8) / 24,
+       term: 24,
+      },
+      lumpSum: {
+       plausibleOfferAmount: (plausibleOfferAmount * 0.4) / 5,
+       term: 5,
+      },
+      deferred: {
+       plausibleOfferAmount: plausibleOfferAmount / rcpWindow,
+       term: rcpWindow,
+      },
      },
-     savings: unfiledFederalLiability
-      ? unfiledFederalLiability - plausibleOfferAmount
-      : federalLiability - plausibleOfferAmount,
+     savings: federalLiability - plausibleOfferAmount,
     };
    }
-  } else if (plausibleOfferAmount <= 1.2 * federalLiability) {
+  } else if (
+   plausibleOfferAmount <= 1.2 * federalLiability &&
+   stateLiability > 0
+  ) {
    let statePayment = stateLiability / rcpWindow || 0;
-   let monthlyExpenses =
-    calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+   let monthlyExpenses = calculateTotalExpenses().totalExpenses + statePayment;
    let updatedPlausibleOfferAmount =
     calculatePlausibleOfferAmount() - monthlyExpenses;
    const totalIncome = calculateTotalIncome().totalIncome;
@@ -463,7 +440,8 @@ const SettlementForm = () => {
    while (
     (updatedPlausibleOfferAmount < 0.5 * federalLiability ||
      updatedPlausibleOfferAmount > 0.8 * federalLiability) &&
-    statePayment < maxStatePayment
+    statePayment < maxStatePayment &&
+    statePayment > 0
    ) {
     if (updatedPlausibleOfferAmount < 0.5 * federalLiability) {
      statePayment *= 0.75;
@@ -471,13 +449,10 @@ const SettlementForm = () => {
      statePayment *= 1.25;
     }
 
-    monthlyExpenses =
-     calculateTotalExpenses().totalExpenses + statePayment + debtPayment;
+    monthlyExpenses = calculateTotalExpenses().totalExpenses + statePayment;
     updatedPlausibleOfferAmount =
      calculatePlausibleOfferAmount() - monthlyExpenses;
    }
-
-   const monthlyPaymentPlan = (0.75 * federalLiability) / rcpWindow;
 
    if (updatedPlausibleOfferAmount < 0.8 * federalLiability) {
     return {
@@ -487,88 +462,80 @@ const SettlementForm = () => {
        ? updatedPlausibleOfferAmount
        : plausibleOfferAmount,
      statePayment,
-     unfiledLiabilities,
+
      income,
+     stateLiability,
+     adjustedStateLiability,
      federalLiability,
+     adjustedFederalLiability,
      formResponse,
      rcpWindow,
      monthlyExpensesTotal: monthlyExpenses,
      monthlyExpenses: calculateTotalExpenses(),
-     liquidation: liabilityReduction
-      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-      : null,
 
      offerPaymentPlans: {
-      shortTerm: plausibleOfferAmount / 24,
-      offerLumpSumHigh: (plausibleOfferAmount * 0.8) / 5,
-      offerLumpSumLow: (plausibleOfferAmount * 0.2) / 5,
-      deferred: plausibleOfferAmount / rcpWindow,
+      shortTerm: {
+       plausibleOfferAmount: (plausibleOfferAmount * 0.8) / 24,
+       term: 24,
+      },
+      lumpSum: {
+       plausibleOfferAmount: (plausibleOfferAmount * 0.4) / 5,
+       term: 5,
+      },
+      deferred: {
+       plausibleOfferAmount: plausibleOfferAmount / rcpWindow,
+       term: rcpWindow,
+      },
      },
-     savings: unfiledFederalLiability
-      ? unfiledFederalLiability - plausibleOfferAmount
-      : federalLiability - plausibleOfferAmount,
+     savings: federalLiability - plausibleOfferAmount,
     };
    } else {
+    const monthlyPaymentPlan = adjustedFederalLiability / 72;
+
     return {
      offerStatus: "DDIA",
-     statePayment,
-     reducedLiability: calculateReducedLiability(),
+     stateLiability,
+     expirations: calculateCollectionWindow().expirations,
+     adjustedStateLiability,
      federalLiability,
-     unfiledLiabilities,
-     income,
+     adjustedFederalLiability,
+     monthlyPaymentPlan,
+     statePayment: Math.min(
+      statePayment,
+      calculateMonthlyCollectionAmount() - monthlyPaymentPlan
+     ),
      formResponse,
-     rcpWindow,
-     monthlyExpensesTotal: monthlyExpenses,
+     income,
      monthlyExpenses: calculateTotalExpenses(),
-     liquidation: liabilityReduction
-      ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-      : null,
-     monthlyPaymentPlan:
-      updatedPlausibleOfferAmount > 0.8 && monthlyPaymentPlan,
-     savings: unfiledFederalLiability
-      ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
-      : federalLiability - monthlyPaymentPlan * rcpWindow,
+     ddiaSavings: federalLiability - adjustedFederalLiability,
+     disposableIncome: calculateMonthlyCollectionAmount(),
+     maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
     };
    }
   } else if (
-   plausibleOfferAmount >= 1.3 * federalLiability &&
+   plausibleOfferAmount >= 0.81 * federalLiability &&
    calculateMonthlyCollectionAmount() * 6 * 12 < federalLiability
   ) {
-   const nextYearAfter6 = Math.min(
-    ...calculateCollectionWindow().expirations.filter(
-     (expiration) => expiration > 6
-    )
-   );
-   const ddiaDuration = (nextYearAfter6 - 1) * 12;
-   const liabilityToBeDivided =
-    federalLiability / calculateCollectionWindow().expirations.length;
-   const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
-    (expiration) => expiration.years.length > 6
-   );
-   const reducedLiability = csedYearsGreaterThan6.reduce((sum, expiration) => {
-    const numYearsGreaterThan6 = expiration.years.length - 6;
-    return sum + liabilityToBeDivided * numYearsGreaterThan6 * 0.15;
-   }, 0);
-   const monthlyPaymentPlan = reducedLiability / ddiaDuration;
+   const monthlyPaymentPlan = adjustedFederalLiability / 72;
 
    return {
     offerStatus: "DDIA",
-    federalLiability,
-    reducedLiability: calculateReducedLiability(),
+    expirations: calculateCollectionWindow().expirations,
     monthlyPaymentPlan,
+    stateLiability,
+    adjustedStateLiability,
+    federalLiability,
+    adjustedFederalLiability,
     formResponse,
     income,
     monthlyExpenses: calculateTotalExpenses(),
-    liquidation: liabilityReduction
-     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-     : null,
-    savings: unfiledFederalLiability
-     ? unfiledFederalLiability - monthlyPaymentPlan * rcpWindow
-     : federalLiability - monthlyPaymentPlan * rcpWindow,
+    ddiaSavings: federalLiability - adjustedFederalLiability,
+    disposableIncome: calculateMonthlyCollectionAmount(),
+    maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
    };
   } else if (calculateMonthlyCollectionAmount() * 6 * 12 > federalLiability) {
    const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
-    (expiration) => expiration.years.length > 6
+    (expiration) => expiration.years > 6
    );
    const totalDebtReduction =
     csedYearsGreaterThan6.length *
@@ -581,9 +548,6 @@ const SettlementForm = () => {
     federalLiability,
     income,
     formResponse,
-    liquidation: liabilityReduction
-     ? { liabilityLessEquity, offerLumpSumLessEquity, liabilityReduction }
-     : null,
     monthlyPaymentPlan,
     monthlyExpenses: calculateTotalExpenses(),
     estimatedCollectionAmount: calculateMonthlyCollectionAmount(),
@@ -609,6 +573,8 @@ const SettlementForm = () => {
 
   const settlementCalculation = determineSettlementCalculation();
   setSettlementCalculation(settlementCalculation);
+
+  console.log(settlementCalculation);
   // Animate form transition
   setFormVisible(false);
   setTimeout(() => {
@@ -809,7 +775,9 @@ const SettlementForm = () => {
      ))}
     </SettlementFormSectionContainer>
     <SettlementFormSectionContainer>
-     <SettlementFormSectionTitle shrink>Income</SettlementFormSectionTitle>
+     <SettlementFormSectionTitle shrink>
+      Monthly Income (Pre-tax)
+     </SettlementFormSectionTitle>
      {formResponse.incomes.map((income, index) => (
       <Box key={index}>
        <Grid

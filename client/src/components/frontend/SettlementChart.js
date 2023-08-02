@@ -13,8 +13,7 @@ import {
  Legend,
  registerables as registerablesJS,
 } from "chart.js";
-import useResizeParentNode from "../../utils/useResizeParentNode";
-import Spinner from "../auth/Spinner";
+
 ChartJS.register(
  CategoryScale,
  LinearScale,
@@ -51,11 +50,8 @@ const MonthlyExpensesPieChart = ({
   personalCare,
   miscellaneous,
  } = livingExpenses;
-
- let expenseTitle = totalExpenses;
-
- if (statePayment !== undefined) expenseTitle += statePayment;
- if (monthlyPaymentPlan !== undefined) expenseTitle += monthlyPaymentPlan;
+ const expenses =
+  (totalExpenses || 0) + (statePayment || 0) + (monthlyPaymentPlan || 0);
 
  const data = {
   labels: [
@@ -111,10 +107,7 @@ const MonthlyExpensesPieChart = ({
    },
   ],
  };
- const percentageOfIncome = (
-  (totalExpenses / income.totalIncome) *
-  100
- ).toFixed(2);
+ const percentageOfIncome = ((expenses / income.totalIncome) * 100).toFixed(2);
  const options = {
   responsive: true,
 
@@ -123,7 +116,7 @@ const MonthlyExpensesPieChart = ({
     display: true,
     text:
      "Total Monthly Expenses:" +
-     expenseTitle.toLocaleString("en-US", {
+     expenses.toLocaleString("en-US", {
       style: "currency",
       currency: "USD",
      }),
@@ -132,6 +125,7 @@ const MonthlyExpensesPieChart = ({
      size: 40, // Set the font size for the legend labels
     },
    },
+
    subtitle: {
     display: true,
     text: `${percentageOfIncome}% of your allowable income : ${income.totalIncome.toLocaleString(
@@ -140,7 +134,7 @@ const MonthlyExpensesPieChart = ({
       style: "currency",
       currency: "USD",
      }
-    )}`,
+    )} `,
     position: "bottom",
     font: {
      size: 40,
@@ -162,123 +156,141 @@ const MonthlyExpensesPieChart = ({
 
  // Create data for the pie chart
 
- return <Pie ref={chartRef} data={data} options={options} />;
+ return (
+  <div style={{ width: "333px", height: "333px" }}>
+   <Pie ref={chartRef} data={data} options={options} />
+  </div>
+ );
 };
 
 const DDIAComparisonCharts = ({
  federalLiability,
- reducedLiability,
  monthlyPaymentPlan,
  statePayment,
- monthlyExpenses,
- monthlyCollectionAmount,
- rcpWindow,
+ income,
+ ddiaSavings,
+
+ adjustedFederalLiability,
+ disposableIncome,
+ maxOfferDisposableIncome,
 }) => {
  // Calculate the remaining liability after reduction
 
  // Calculate the maximum offer threshold
- const maxOfferThreshold = (0.79 * federalLiability) / rcpWindow;
 
  // Create data for the pie charts
  const chartsData = [
   {
-   title: "Federal Liability vs Reduced Liability",
+   title: "Possible Savings",
    data: [
     {
      label: "Federal Liability",
-     value: federalLiability,
+     value: adjustedFederalLiability,
      color: "rgba(54, 162, 235, 0.5)",
     },
     {
-     label: "Reduced Liability",
-     value: reducedLiability,
+     label: "Liability Reduction With Expirations",
+     value: federalLiability - adjustedFederalLiability,
+     color: "rgba(255, 99, 132, 0.5)",
+    },
+   ],
+  },
+
+  {
+   title: "Your Income vs Qualifying Income ",
+   data: [
+    {
+     label: "Your Excess Income",
+     value: disposableIncome - maxOfferDisposableIncome,
+     color: "rgba(54, 162, 235, 0.5)",
+    },
+    {
+     label: "Offer Qualification Income",
+     value: maxOfferDisposableIncome,
      color: "rgba(255, 99, 132, 0.5)",
     },
    ],
   },
   {
-   title: "Federal Payment vs State Payment",
-   data: [
-    {
-     label: "Federal Payment",
-     value: monthlyPaymentPlan,
-     color: "rgba(75, 192, 192, 0.5)",
-    },
-    {
-     label: "State Payment",
-     value: statePayment,
-     color: "rgba(255, 205, 86, 0.5)",
-    },
-   ],
-  },
-  {
-   title: "Payment vs Expenses",
-   data: [
-    {
-     label: "Payment",
-     value: monthlyPaymentPlan + statePayment,
-     color: "rgba(54, 162, 235, 0.5)",
-    },
-    {
-     label: "Expenses",
-     value: monthlyExpenses,
-     color: "rgba(255, 99, 132, 0.5)",
-    },
-   ],
-  },
-  {
-   title: "Monthly Collection Amount vs Maximum Offer Threshold",
+   title: "Payment Plans Vs Total Income",
    data: [
     {
      label: "Monthly Collection Amount",
-     value: monthlyCollectionAmount,
+     value: monthlyPaymentPlan,
+     color: "rgba(255, 99, 132, 0.5)",
+    },
+    {
+     label: "State Payment Amount",
+     value: statePayment,
      color: "rgba(75, 192, 192, 0.5)",
     },
     {
-     label: "Maximum Offer Threshold",
-     value: maxOfferThreshold,
-     color: "rgba(255, 205, 86, 0.5)",
+     label: "Your Non Disposable Income",
+     value: income - (monthlyPaymentPlan + statePayment),
+     color: "rgba(54, 162, 235, 0.5)",
     },
    ],
   },
  ];
 
  // Create the options for the pie charts
- const options = {
-  responsive: true,
-
-  plugins: {
-   legend: {
-    display: false,
-    position: "bottom",
-   },
-  },
- };
-
- console.log(chartsData);
 
  return (
-  <div>
-   {chartsData.map((chartData, index) => (
-    <div key={index}>
-     <h3>{chartData.title}</h3>
-     <Pie
-      style={{ width: "100%", height: "100%" }}
-      data={{
-       labels: chartData.data.map((data) => data.label),
-       datasets: [
-        {
-         data: chartData.data.map((data) => data.value),
-         backgroundColor: chartData.data.map((data) => data.color),
-         borderColor: chartData.data.map((data) => data.color),
-         borderWidth: 1,
-        },
-       ],
-      }}
-      options={options}
-     />
-    </div>
-   ))}
+  <div className='grid-3'>
+   {chartsData.map((chartData, index) => {
+    const options = {
+     responsive: true,
+
+     plugins: {
+      legend: {
+       display: false,
+       position: "bottom",
+      },
+      subtitle: {
+       display: true,
+       position: "bottom",
+       text:
+        index === 0
+         ? `This Represents Savings From Filing Taxes`
+         : index === 1
+         ? `Reducing Your Income By This Amount May Help You Qualify`
+         : index === 2
+         ? `This is how payments effect your income`
+         : ``,
+       font: {
+        size: 40, // Set the font size for the legend labels
+       },
+      },
+
+      title: {
+       display: true,
+       text: chartData.title,
+       position: "top",
+       font: {
+        size: 40, // Set the font size for the legend labels
+       },
+      },
+     },
+    };
+    return (
+     <div key={index} style={{ width: "333px", height: "333px" }}>
+      <Pie
+       data={{
+        labels: chartData.data.map((data) => data.label),
+        datasets: [
+         {
+          data: chartData.data.map((data) => data.value),
+          backgroundColor: chartData.data.map((data) => data.color),
+          borderColor: chartData.data.map((data) => data.color),
+          borderWidth: 1,
+         },
+        ],
+       }}
+       options={options}
+      />
+     </div>
+    );
+   })}
   </div>
  );
 };
@@ -339,70 +351,61 @@ const PlausibleOfferPieChart = ({
   },
  };
 
- return (
-  <Pie
-   style={{ width: "100%", height: "100%" }}
-   ref={chartRef}
-   data={data}
-   options={options}
-  />
- );
+ return <Pie ref={chartRef} data={data} options={options} />;
 };
 
 const OfferPaymentPlansChart = ({
  totalIncome,
+ federalLiability,
  totalExpenses,
  offerPaymentPlans,
 }) => {
- const { shortTerm, deferred, offerLumpSumHigh, offerLumpSumLow } =
-  offerPaymentPlans;
+ const { settlementCalculation, setSettlementCalculation } =
+  useContext(ProfileContext);
+ const { shortTerm, deferred, lumpSum } = offerPaymentPlans;
 
- const chartRefs = [useRef(), useRef(), useRef(), useRef()];
+ const chartRefs = [useRef(), useRef(), useRef()];
 
  // Calculate the remaining income after subtracting the expenses
  const remainingIncome = totalIncome - totalExpenses;
 
  // Prepare the data for valid payment plans
  const validPaymentsData = [];
- if (shortTerm <= remainingIncome) {
+ if (deferred.plausibleOfferAmount <= remainingIncome) {
+  validPaymentsData.push({
+   label: "Deferred Payment Plan",
+   subtitle: deferred.term,
+   value: deferred.plausibleOfferAmount,
+   backgroundColor: "rgba(54, 162, 235, 0.5)",
+   borderColor: "#ff6384",
+  });
+ }
+ if (shortTerm.plausibleOfferAmount <= totalIncome) {
   validPaymentsData.push({
    label: "Short Term",
-   value: shortTerm,
+   subtitle: shortTerm.term,
+   value: shortTerm.plausibleOfferAmount,
    backgroundColor: "rgba(75, 192, 192, 0.5)",
    borderColor: "#4bc0c0",
   });
  }
- if (offerLumpSumHigh <= remainingIncome) {
+ if (lumpSum.plausibleOfferAmount <= totalIncome) {
   validPaymentsData.push({
-   label: "Offer Lump Sum High",
-   value: offerLumpSumHigh,
+   label: "Lump Sum",
+   subtitle: lumpSum.term,
+   value: lumpSum.plausibleOfferAmount,
    backgroundColor: "rgba(54, 162, 235, 0.5)",
    borderColor: "#36a2eb",
-  });
- }
- if (offerLumpSumLow <= remainingIncome) {
-  validPaymentsData.push({
-   label: "Offer Lump Sum Low",
-   value: offerLumpSumLow,
-   backgroundColor: "rgba(255, 205, 86, 0.5)",
-   borderColor: "#ffcd56",
-  });
- }
- if (deferred <= remainingIncome) {
-  validPaymentsData.push({
-   label: "Deferred",
-   value: deferred,
-   backgroundColor: "rgba(54, 162, 235, 0.5)",
-   borderColor: "#ff6384",
   });
  }
 
  // Create the data for the pie charts
  const pieData = validPaymentsData.map((payment) => ({
-  labels: [payment.label, ""],
+  labels: [payment.label, "Total Income"],
+  subtitle: payment.subtitle,
   datasets: [
    {
-    data: [payment.value, totalExpenses],
+    data: [payment.value, totalIncome],
     backgroundColor: [payment.backgroundColor, "rgba(255, 99, 132, 0.5)"],
     borderColor: [payment.borderColor, "#ff6384", "#36a2eb"],
     borderWidth: 1,
@@ -411,128 +414,75 @@ const OfferPaymentPlansChart = ({
  }));
 
  // Create the options for the pie charts
- const options = {
-  responsive: true,
-
-  plugins: {
-   legend: {
-    display: false,
-    position: "bottom",
-    labels: {
-     font: {
-      size: 16, // Set the font size for the legend labels
-     },
-    },
-   },
-   title: {
-    display: true,
-    text: () => {
-     // Get the title dynamically based on the validPaymentsData
-     const titles = validPaymentsData.map((payment) => payment.label);
-     return titles;
-    },
-    position: "top",
-    font: {
-     size: 40, // Set the font size for the title
-    },
-   },
-
-   subtitle: {
-    display: true,
-    text: () => {
-     // Get the title dynamically based on the validPaymentsData
-     const amount = validPaymentsData.map((payment) => payment.value);
-     return `${amount.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-     })} Monthly Payment `;
-    },
-    position: "bottom",
-    font: {
-     size: 40, // Set the font size for the title
-    },
-   },
-  },
- };
 
  return (
-  <div>
-   {pieData.map((data, index) => (
-    <div key={index} style={{ width: "366px", height: "366px" }}>
-     <div style={{ width: "100%", height: "100%" }}>
-      <Pie
-       style={{ width: "100%", height: "100%" }}
-       ref={chartRefs[index]}
-       data={data}
-       options={options}
-      />
-     </div>
-    </div>
-   ))}
-  </div>
- );
-};
+  <>
+   {pieData.map((data, index) => {
+    const options = {
+     responsive: true,
 
-const DeferredChart = () => {
- const chartRef = useRef(null);
+     plugins: {
+      legend: {
+       display: false,
+       position: "bottom",
+       labels: {
+        font: {
+         size: 16, // Set the font size for the legend labels
+        },
+       },
+      },
+      title: {
+       display: true,
+       text: data.labels[0],
+       position: "top",
+       font: {
+        size: 40, // Set the font size for the title
+       },
+      },
 
- useEffect(() => {
-  const canvas = chartRef.current;
-  canvas.setAttribute("width", "366");
-  canvas.setAttribute("height", "366");
-  const ctx = canvas.getContext("2d");
-
-  const chart = new ChartJS(ctx, {
-   type: "pie",
-   data: {
-    labels: ["Deferred"],
-    datasets: [
-     {
-      data: [1],
-      backgroundColor: ["rgba(255, 99, 132, 0.5)"],
-      borderColor: ["rgba(255, 99, 132, 1)"],
-      borderWidth: 1,
-     },
-    ],
-   },
-   options: {
-    responsive: true,
-    maintainAspectRatio: 1,
-    plugins: {
-     legend: {
-      display: false, // Set to false to hide the legend
-     },
-     title: {
-      display: true,
-      text: "Deferred",
-      font: {
-       size: 20,
+      subtitle: {
+       display: true,
+       text: `Monthly Payment: ${data.datasets[0].data[0].toLocaleString(
+        "en-US",
+        {
+         style: "currency",
+         currency: "USD",
+        }
+       )} for ${data.subtitle} months`,
+       position: "bottom",
+       font: {
+        size: 40, // Set the font size for the title
+       },
       },
      },
-    },
-   },
-  });
+    };
 
-  return () => {
-   chart.destroy();
-  };
- }, []);
-
- return (
-  <div
-   style={{
-    display: "inline-block",
-    position: "relative",
-    width: "500px",
-   }}>
-   <canvas ref={chartRef}></canvas>
-  </div>
+    return (
+     <div
+      onClick={() =>
+       setSettlementCalculation({
+        ...settlementCalculation,
+        ["plausibleOfferAmount"]: data.subtitle * data.datasets[0].data[0],
+        ["savings"]:
+         federalLiability - data.subtitle * data.datasets[0].data[0],
+       })
+      }
+      key={index}
+      style={{ width: "333px", height: "333px" }}>
+      <div style={{ width: "100%", height: "100%" }}>
+       <Pie ref={chartRefs[index]} data={data} options={options} />
+      </div>
+     </div>
+    );
+   })}
+  </>
  );
 };
 
 const SettlementChart = () => {
- const { settlementCalculation } = useContext(ProfileContext);
-
+ const { settlementCalculation, setSettlementCalculation } =
+  useContext(ProfileContext);
+ console.log(settlementCalculation);
  // Use the custom hook to adjust the size of the parent node for each chart
 
  // Keep track of a refresh state that will force a re-render of the charts
@@ -548,24 +498,13 @@ const SettlementChart = () => {
  return (
   <div id='settlementchart'>
    {settlementCalculation === null ? (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-     <div style={{ width: "33%", height: "366px" }}>
-      <DeferredChart />
-     </div>
-     <div style={{ width: "33%", height: "366px" }}>
-      <DeferredChart />
-     </div>
-     <div style={{ width: "33%", height: "366px" }}>
-      <DeferredChart />
-     </div>
-    </div>
+    <div style={{ display: "flex", justifyContent: "space-between" }}></div>
    ) : (
     <div>
-     <h1>{settlementCalculation.offerStatus}</h1>
-     <div className='grid-3'>
-      <div style={{ width: "366px", height: "366px" }}>
+     <h1 className='text-center'>{settlementCalculation.offerStatus}</h1>
+     <div className='grid-4'>
+      <div style={{ width: "333px", height: "333px" }}>
        <MonthlyExpensesPieChart
-        style={{ width: "100%", height: "100%" }}
         key={`monthly-expenses-${refresh}`}
         income={settlementCalculation.income}
         monthlyExpenses={settlementCalculation.monthlyExpenses}
@@ -575,7 +514,7 @@ const SettlementChart = () => {
       </div>
       {settlementCalculation.offerStatus.includes("OIC") && (
        <>
-        <div style={{ width: "366px", height: "366px" }}>
+        <div style={{ width: "333px", height: "333px" }}>
          <PlausibleOfferPieChart
           key={`plausible-offer-${refresh}`}
           plausibleOfferAmount={settlementCalculation.plausibleOfferAmount}
@@ -583,28 +522,40 @@ const SettlementChart = () => {
           savings={settlementCalculation.savings}
          />
         </div>
-        <div style={{ width: "366px", height: "366px" }}>
-         <OfferPaymentPlansChart
-          key={`offer-payment-plans-${refresh}`}
-          totalIncome={settlementCalculation.income.totalIncome}
-          totalExpenses={settlementCalculation.monthlyExpenses.totalExpenses}
-          offerPaymentPlans={settlementCalculation.offerPaymentPlans}
-         />
-        </div>
+        <div></div>
        </>
       )}
       {settlementCalculation.offerStatus.includes("DDIA") && (
        <DDIAComparisonCharts
         key={`ddia-comparison-${refresh}`}
         federalLiability={settlementCalculation.federalLiability}
-        reducedLiability={settlementCalculation.reducedLiability}
-        monthlyPaymentPlanPayment={settlementCalculation.monthlyPaymentPlan}
+        adjustedFederalLiability={
+         settlementCalculation.adjustedFederalLiability
+        }
+        monthlyPaymentPlan={settlementCalculation.monthlyPaymentPlan}
         statePayment={settlementCalculation.statePayment}
         monthlyExpenses={settlementCalculation.monthlyExpenses}
         rcpWindow={settlementCalculation.rcpWindow}
+        income={settlementCalculation.income.totalIncome}
+        ddiaSavings={settlementCalculation.ddiaSavings}
+        disposableIncome={settlementCalculation.disposableIncome}
+        maxOfferDisposableIncome={
+         settlementCalculation.maxOfferDisposableIncome
+        }
        />
       )}
-     </div>
+     </div>{" "}
+     {settlementCalculation.offerStatus.includes("OIC") && (
+      <div className='grid-3' style={{ width: "333px", height: "333px" }}>
+       <OfferPaymentPlansChart
+        key={`offer-payment-plans-${refresh}`}
+        totalIncome={settlementCalculation.income.totalIncome}
+        totalExpenses={settlementCalculation.monthlyExpenses.totalExpenses}
+        federalLiability={settlementCalculation.federalLiability}
+        offerPaymentPlans={settlementCalculation.offerPaymentPlans}
+       />
+      </div>
+     )}
     </div>
    )}
   </div>
