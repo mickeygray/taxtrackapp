@@ -306,7 +306,13 @@ const BalanceTransactions = () => {
     </div>
    )}
    <div id='custom-tooltip' className='custom-tooltip'></div>
-   <Line data={data} options={options} plugins={[plugin]} ref={chartRef} />
+   <Line
+    data={data}
+    options={options}
+    plugins={[plugin]}
+    style={{ padding: "95px 85px 75px" }}
+    ref={chartRef}
+   />
   </div>
  );
 };

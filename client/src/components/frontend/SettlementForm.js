@@ -294,9 +294,11 @@ const SettlementForm = () => {
    return {
     offerStatus: "CNC",
     federalLiability,
+    expirations: calculateCollectionWindow().expirations[0],
     formResponse,
     income,
     savings: federalLiability,
+    rcpWindow,
     plausibleOfferAmount,
     monthlyExpenses: calculateTotalExpenses(),
    };
@@ -370,7 +372,7 @@ const SettlementForm = () => {
       monthlyExpenses: calculateTotalExpenses(),
       disposableIncome: calculateMonthlyCollectionAmount(),
       maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
-      offerStatus: "OIC or DDIA",
+      offerStatus: "Offer Or Payment Plan",
       rcpWindow,
       plausibleOfferAmount,
       monthlyExpenses: calculateTotalExpenses(),
@@ -398,6 +400,7 @@ const SettlementForm = () => {
      stateLiability,
      adjustedStateLiability,
      federalLiability,
+
      adjustedFederalLiability,
      income,
      formResponse,
@@ -498,6 +501,7 @@ const SettlementForm = () => {
      expirations: calculateCollectionWindow().expirations,
      adjustedStateLiability,
      federalLiability,
+     rcpWindow,
      adjustedFederalLiability,
      monthlyPaymentPlan,
      statePayment: Math.min(
@@ -527,6 +531,7 @@ const SettlementForm = () => {
     federalLiability,
     adjustedFederalLiability,
     formResponse,
+    rcpWindow,
     income,
     monthlyExpenses: calculateTotalExpenses(),
     ddiaSavings: federalLiability - adjustedFederalLiability,
@@ -534,25 +539,23 @@ const SettlementForm = () => {
     maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
    };
   } else if (calculateMonthlyCollectionAmount() * 6 * 12 > federalLiability) {
-   const csedYearsGreaterThan6 = calculateCollectionWindow().expirations.filter(
-    (expiration) => expiration.years > 6
-   );
-   const totalDebtReduction =
-    csedYearsGreaterThan6.length *
-    (federalLiability / calculateCollectionWindow().expirations.length) *
-    0.9;
-   const monthlyPaymentPlan = (federalLiability - totalDebtReduction) / 72;
+   const monthlyPaymentPlan = adjustedFederalLiability / 72;
 
    return {
-    offerStatus: "6-Year Payment Plan",
-    federalLiability,
-    income,
-    formResponse,
+    offerStatus: "Six Year Payment Plan",
+    expirations: calculateCollectionWindow().expirations,
     monthlyPaymentPlan,
+    stateLiability,
+    adjustedStateLiability,
+    federalLiability,
+    adjustedFederalLiability,
+    formResponse,
+    rcpWindow,
+    income,
     monthlyExpenses: calculateTotalExpenses(),
-    estimatedCollectionAmount: calculateMonthlyCollectionAmount(),
-    savings:
-     totalDebtReduction === 0 ? 0.03 * federalLiability : totalDebtReduction,
+    ddiaSavings: federalLiability - adjustedFederalLiability,
+    disposableIncome: calculateMonthlyCollectionAmount(),
+    maxOfferDisposableIncome: (federalLiability * 0.79) / rcpWindow,
    };
   }
 

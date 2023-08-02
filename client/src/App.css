@@ -668,6 +668,25 @@ img {
  height: 100vh;
 }
 
+.oic-container {
+ padding-left: 166px;
+}
+
+.oic-topdiv {
+ padding-left: 174px;
+ margin-bottom: 20px;
+}
+
+.oic-bottomdiv {
+ width: 333px;
+ height: 333px;
+}
+
+.cnc-topdiv {
+ padding-left: 174px;
+ margin-bottom: 20px;
+}
+
 .chart-container {
  grid-row: 1 / 2;
 }
@@ -941,7 +960,7 @@ canvas {
  box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 9px 0px;
  height: 700px;
  max-height: 700px;
- box-sizing: border-box;
+
  text-align: center;
 }
 
@@ -1010,7 +1029,29 @@ canvas {
   transform: translateY(100%);
  }
 }
+.summary-container {
+ font-family: Arial, sans-serif;
+ margin: 0 auto;
+ width: 80%;
+ padding: 20px;
+ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ border-radius: 5px;
+}
 
+.summary-section {
+ margin-bottom: 30px;
+}
+
+.summary-section h2 {
+ color: #333;
+ font-size: 20px;
+ margin-bottom: 10px;
+}
+
+.summary-section p {
+ color: #666;
+ font-size: 12px;
+}
 @keyframes bounce {
  0%,
  20%,
@@ -1150,6 +1191,14 @@ canvas {
 }
 
 @media (max-width: 700px) {
+ .oic-container,
+ .oic-topdiv,
+ .oic-bottomdiv,
+ .cnc-topdiv,
+ .six-yearcontainer {
+  padding-left: 0;
+  margin-bottom: 0;
+ }
  .hide-sm {
   display: none;
  }
