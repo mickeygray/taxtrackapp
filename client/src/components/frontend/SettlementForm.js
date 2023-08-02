@@ -716,6 +716,7 @@ const SettlementForm = () => {
          <SettlementFormControlFullWidth>
           <SettlementFormTextField
            name='amount'
+           required
            label='Amount'
            value={debt.amount.toLocaleString("en-US", {
             style: "currency",
@@ -738,6 +739,7 @@ const SettlementForm = () => {
             name='years'
             displayEmpty
             multiple
+            required
             value={
              Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
               (a, b) => a - b
@@ -796,6 +798,7 @@ const SettlementForm = () => {
           <SettlementFormSelect
            name='type'
            label='Type'
+           required
            value={income.type}
            onChange={(e) => handleIncomeInputChange(e, index)}>
            <MenuItem value='salary'>Salary and Wages</MenuItem>
@@ -809,6 +812,7 @@ const SettlementForm = () => {
           <SettlementFormTextField
            name='amount'
            label='Amount'
+           required
            value={income.amount}
            onChange={(e) => handleIncomeInputChange(e, index)}
           />
@@ -842,6 +846,7 @@ const SettlementForm = () => {
         <SettlementFormSelect
          value={formResponse.state}
          displayEmpty
+         required
          name='state'
          onChange={handleInputChange}
          inputProps={{ "aria-label": "Select State" }}>
@@ -860,6 +865,7 @@ const SettlementForm = () => {
          labelId='cars-owned-label'
          id='cars-owned-select'
          name='carsOwned'
+         required
          value={formResponse.carsOwned}
          onChange={handleInputChange}>
          <MenuItem value={1}>1</MenuItem>
@@ -874,6 +880,7 @@ const SettlementForm = () => {
         <SettlementFormSelect
          name='residents'
          value={formResponse.residents}
+         required
          onChange={handleInputChange}>
          <MenuItem value='1'>1</MenuItem>
          <MenuItem value='2'>2</MenuItem>
@@ -890,6 +897,7 @@ const SettlementForm = () => {
         <SettlementFormSelect
          name='residents65'
          labelId='residents65-label'
+         required
          id='residents65-select'
          value={formResponse.residents65}
          onChange={handleInputChange}>
