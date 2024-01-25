@@ -739,7 +739,6 @@ const SettlementForm = () => {
             name='years'
             displayEmpty
             multiple
-            required
             value={
              Array.from(new Set([...debt.years, ...debt.unfiledYears])).sort(
               (a, b) => a - b

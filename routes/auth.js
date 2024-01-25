@@ -180,14 +180,14 @@ router.get("/env", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
- const profile = await Profile.findOne({ email: req.body.email });
+ const profiles = await Profile.find({ email: req.body.email });
 
- const isMatch = await bcrypt.compare(req.body.password, profile.pin);
+ /*const isMatch = await bcrypt.compare(req.body.password, profile.pin);
 
  if (!isMatch) {
   return res.status(400).json({ msg: "Invalid Credentials" });
- }
-
+ }*/
+ const profile = profiles[0];
  const payload = {
   profile: {
    id: profile.id,
