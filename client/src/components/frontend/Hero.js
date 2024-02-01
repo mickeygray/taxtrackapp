@@ -17,6 +17,7 @@ import {
  HeroImageBox,
  HeroContainer,
 } from "../../utils/useMixins";
+import { Link } from "react-router-dom";
 
 export default function Hero() {
  const theme = useTheme();
@@ -50,16 +51,18 @@ export default function Hero() {
      <HeroSubtitle variant={isMobile ? "body2" : "body1"}>
       Keep up with the latest on your tax account at the click of a button
      </HeroSubtitle>
-     <HeroButton
-      variant='contained'
-      color='primary'
-      sx={{
-       backgroundColor: "var(--color-primary-green)",
-       borderRadius: "20px",
-       color: "white",
-      }}>
-      Get Started
-     </HeroButton>
+     <Link to='/login'>
+      <HeroButton
+       variant='contained'
+       color='primary'
+       sx={{
+        backgroundColor: "var(--color-primary-green)",
+        borderRadius: "20px",
+        color: "white",
+       }}>
+       Get Started
+      </HeroButton>
+     </Link>
     </HeroContentBox>
    </Grid>
   </Grid>

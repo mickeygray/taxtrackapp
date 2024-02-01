@@ -242,6 +242,63 @@ router.post("/", auth, async (req, res) => {
  res.json(profile);
 });
 
+router.post("/:id/organizer", auth, async (req, res) => {
+ const profile = await Profile.findById(req.params._id);
+
+ const sourceFilePath = path.join(__dirname, "templates", "organizer.html");
+ const destinationFilePath = path.join(__dirname, "views", "template.hbs");
+
+ const transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 465,
+  secure: true,
+  auth: {
+   user: "apikey",
+   pass: process.env.SENDGRIDAPIKEY,
+  },
+ });
+
+ const options = {
+  viewEngine: {
+   extName: ".hbs",
+   partialsDir: path.join(__dirname, "views"),
+   layoutsDir: path.join(__dirname, "views"),
+   defaultLayout: false,
+  },
+  viewPath: "views",
+  extName: ".hbs",
+ };
+
+ fs.readFile(sourceFilePath, "utf8", (err, htmlContent) => {
+  if (err) {
+   console.error("Error reading the file:", err);
+   return;
+  }
+
+  // Write the HTML content to the destination file
+  fs.writeFile(destinationFilePath, htmlContent, (err) => {
+   if (err) {
+    console.error("Error writing to the file:", err);
+    return;
+   }
+   console.log(
+    `The content has been successfully written to ${destinationFilePath}`
+   );
+  });
+ });
+ transporter.use("compile", hbs(options));
+
+ const mailer = {
+  title: `Welcome To Tax Track ${profile.fullName}`,
+  from: `transcriptrequests@andersonbradshawtax.com`,
+  to: `mickeygray85@hotmail.com`,
+  subject: `Tax Organizers For ${profile.fullName}`,
+  template: "template",
+  context: { token: token, fullName: profile.fullName },
+ };
+
+ transporter.sendMail(mailer);
+});
 //delete a message from the text thread
 router.delete("/:id/messages/:id", auth, async (req, res) => {
  await Profile.findOneAndUpdate(

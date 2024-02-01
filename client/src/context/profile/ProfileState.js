@@ -22,6 +22,7 @@ import {
  CLEAR_PROFILE,
  CLEAR_PROFILES,
  UPDATE_PROFILE,
+ REQUEST_ORGANIZER,
 } from "../types";
 
 const ProfileState = (props) => {
@@ -199,6 +200,24 @@ const ProfileState = (props) => {
   });
  };
 
+ const requestOrganizer = async (formValues, profile) => {
+  const config = {
+   headers: {
+    "Content-Type": "application/json",
+   },
+  };
+  const res = await axios.post(
+   `/api/profiles/${profile._id}/organizer`,
+   formValues,
+   config
+  );
+  setProfile(res.data);
+  dispatch({
+   type: REQUEST_ORGANIZER,
+   payload: res.data,
+  });
+ };
+
  const addClient = (profile) => {
   dispatch({
    type: ADD_CLIENT,
@@ -293,6 +312,7 @@ const ProfileState = (props) => {
     updateProfile,
     setSettlementCalculation,
     clearSettlementCalculation,
+    requestOrganizer,
     message: state.message,
     settlementCalculation: state.settlementCalculation,
     range: state.range,

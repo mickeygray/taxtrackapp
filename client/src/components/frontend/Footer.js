@@ -9,20 +9,7 @@ const Footer = () => {
     src={process.env.PUBLIC_URL + "/images/logo.png"}
     alt='Tax Track Logo'
    />
-   <FooterLinks>
-    <Link href='#' color='inherit' underline='none'>
-     Home
-    </Link>
-    <Link href='#' color='inherit' underline='none'>
-     About
-    </Link>
-    <Link href='#' color='inherit' underline='none'>
-     Services
-    </Link>
-    <Link href='#' color='inherit' underline='none'>
-     Contact
-    </Link>
-   </FooterLinks>
+
    <FooterSocialIcons>
     <a href='#'>
      <img
@@ -38,7 +25,24 @@ const Footer = () => {
     </a>
    </FooterSocialIcons>
    <FooterDisclaimer>
-    © 2023 Tax Track. All rights reserved. For Informational Purposes Only.
+    <Typography variant='body2' style={{ color: "light-grey", fontSize: 12 }}>
+     Tax Track's platform and tools are intended for informational purposes only
+     and do not constitute financial, tax, or legal advice. While we strive to
+     provide accurate and up-to-date information, the tax laws and regulations
+     are subject to change, and individual circumstances can vary. Users should
+     consult with qualified professionals, such as tax advisors or financial
+     experts, to address specific financial situations or tax concerns. Tax
+     Track does not guarantee the accuracy, completeness, or reliability of any
+     information presented on the platform. Users are responsible for their
+     financial decisions and should conduct their due diligence before making
+     any financial or tax-related choices.Tax Track is an online financial
+     platform offering general informational and educational content about taxes
+     and IRS debt. While we strive for accuracy, the information provided should
+     not be considered professional advice. Tax laws are subject to frequent
+     changes, and individual circumstances vary, so it is essential to consult
+     qualified tax professionals or financial advisors for personalized
+     guidance.
+    </Typography>
    </FooterDisclaimer>
   </FooterWrapper>
  );
@@ -69,7 +73,10 @@ const FooterDisclaimer = styled(Typography)`
  font-size: 12px;
  color: #888;
  margin-top: 20px;
- text-align: center;
+ margin-bottom: 20px; // Add bottom margin
+ text-align: justify; // Justify the text, or keep 'center' if you want it centered
+ margin-left: 600px; // Add left padding if you want
+ margin-right: 600px; // Add right padding if you want
 `;
 
 const FooterLogo = styled("img")`

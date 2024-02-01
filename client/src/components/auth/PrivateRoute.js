@@ -8,6 +8,7 @@ const PrivateRoute = ({ component: Component }) => {
  const authContext = useContext(AuthContext);
  const { profileAuthenticated, userAuthenticated, loading } = authContext;
 
+ console.log(profileAuthenticated);
  if (loading) return <Spinner />;
 
  if (profileAuthenticated || userAuthenticated) {

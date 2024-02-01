@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import styled from "@emotion/styled";
-
+import { Link } from "react-router-dom";
 const ClosingSignUp = () => {
  const theme = useTheme();
  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -22,36 +22,10 @@ const ClosingSignUp = () => {
       textAlign: "center",
       p: isMobile ? "0px" : "40px",
      }}>
-     <Typography variant='h4' color='var(--color-ivory)'>
-      A Modern Solution For Tax Resolution
-     </Typography>
-     <Typography variant='h6' color='var(--color-ivory)'>
-      Tax Track changing the way Americans communicate with the IRS
-     </Typography>
-     <Button
-      href='#'
-      sx={{
-       backgroundColor: "var(--color-ivory)",
-       borderRadius: "20px",
-       display: "block",
-       margin: "auto",
-       width: "200px",
-       height: "50px",
-       mt: "20px",
-       color: "var(--color-primary-green)",
-      }}>
-      Sign up today
-     </Button>
+     <Link to='/login'>
+      <StyledButton>Sign up today</StyledButton>
+     </Link>
     </Box>
-    <TreeImage
-     src={process.env.PUBLIC_URL + "/images/logo.png"}
-     alt='Tree stump image'
-    />
-
-    <PhoneImage
-     src={process.env.PUBLIC_URL + "/images/Chart1.png"}
-     alt='Phone image'
-    />
    </Wrapper>
   </Container>
  );
@@ -60,12 +34,9 @@ const ClosingSignUp = () => {
 const Wrapper = styled(Box)`
  position: relative;
  margin: auto;
- background: #77d215;
+ background: #f4f4f4;
  width: 100%;
  max-width: 1320px;
- height: ${(props) =>
-  props.isMobile ? "500px" : "calc((100vw - 120px) * 0.7)"};
- max-height: ${(props) => (props.isMobile ? "500px" : "900px")};
  border-radius: 30px;
  display: flex;
  flex-direction: column;
@@ -96,4 +67,21 @@ const PhoneImage = styled.img`
  margin: auto;
 `;
 
+const StyledButton = styled(Button)`
+ color: var(--color-ivory);
+ border-radius: 20px;
+ display: block;
+ margin: auto;
+ padding-top: 10px;
+ width: 200px;
+ height: 50px;
+ background-color: var(--color-primary-green);
+
+ &:hover {
+  transform: scale(1.5); // Slightly enlarges the button on hover
+  background-color: var(
+   --success-color
+  ); // Optional: change the background color on hover
+ }
+`;
 export default ClosingSignUp;

@@ -42,6 +42,7 @@ const ComponentGrid = () => {
 
  return (
   <Container>
+   <h1 style={{ textAlign: "center" }}>Why Tax Track</h1>
    {sections.map((section, index) => (
     <Grid
      container

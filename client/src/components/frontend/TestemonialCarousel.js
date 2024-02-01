@@ -74,123 +74,73 @@ const TestimonialCarousel = () => {
     alignItems: "center",
     flexDirection: "column",
    }}>
-   <Grid container>
-    <Grid item xs={12} md={7}>
-     <Box
-      mt={isMobile ? 5 : 0}
-      width={isMobile ? "100%" : "50%"}
-      marginLeft={isMobile ? 0 : 50}
-      marginTop={isMobile ? 0 : 30}
-      display='flex'
-      flexDirection='column'
-      alignItems={"center"}
-      textAlign={isMobile ? "center" : "left"}
-      px={isMobile ? 2 : 0}>
+   <Box
+    mt={isMobile ? 5 : 0}
+    width={isMobile ? "100%" : "50%"}
+    display='flex'
+    flexDirection='column'
+    alignItems={"center"}
+    textAlign={isMobile ? "center" : "left"}
+    px={isMobile ? 2 : 0}>
+    <Box
+     display='flex'
+     justifyContent={isMobile ? "center" : "flex-end"}
+     alignItems='center'>
+     <Typography
+      variant={isMobile ? "body1" : "h6"}
+      gutterBottom
+      width={isMobile ? "100%" : "500px"}
+      color='var(--color-ivory)'>
+      {currentTestimonial.text}
+     </Typography>{" "}
+     <Box justifyContent={isMobile ? "center" : "flex-end"} alignItems='center'>
+      <img
+       src={currentTestimonial.image}
+       alt={currentTestimonial.name}
+       style={{
+        width: "200px",
+        height: "200px",
+        borderRadius: "40%",
+        margin: "10px",
+        maxWidth: isMobile ? "300px" : "600px",
+       }}
+      />
       <Typography
-       variant={isMobile ? "body1" : "h6"}
-       gutterBottom
-       color='var(--color-ivory)'>
-       {currentTestimonial.text}
-      </Typography>{" "}
-      <Typography
-       variant={isMobile ? "body2" : "h7"}
+       variant={isMobile ? "body2" : "h5"}
        gutterBottom
        color='var(--color-ivory)'>
        {currentTestimonial.name}
       </Typography>{" "}
-      {isMobile ? (
-       <Box
-        display='flex'
-        justifyContent={isMobile ? "center" : "flex-end"}
-        alignItems='center'>
-        <img
-         src={currentTestimonial.image}
-         alt={currentTestimonial.name}
-         style={{
-          width: isMobile ? "100%" : "auto",
-          height: "auto",
-          borderRadius: "40%",
-          maxWidth: isMobile ? "300px" : "600px",
-         }}
-        />
-       </Box>
-      ) : (
-       <CircleContainer>
-        <Box
-         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex",
-          gap: "18px",
-         }}>
-         <ArrowBackIcon
-          sx={{
-           color: "var(--color-ivory)",
-           cursor: "pointer",
-          }}
-          onClick={handlePrevSlide}
-         />
-         <ArrowForwardIcon
-          sx={{
-           color: "var(--color-ivory)",
-           cursor: "pointer",
-          }}
-          onClick={handleNextSlide}
-         />
-        </Box>
-       </CircleContainer>
-      )}
      </Box>
-    </Grid>
-    <Grid marginTop={5} marginLeft={isMobile ? 0 : -30} item xs={12} md={5}>
+    </Box>
+
+    <CircleContainer>
      <Box
-      display='flex'
-      justifyContent={isMobile ? "center" : "flex-end"}
-      alignItems='center'>
-      {isMobile ? (
-       <CircleContainer>
-        <Box
-         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          display: "flex",
-          gap: "18px",
-         }}>
-         <ArrowBackIcon
-          sx={{
-           color: "var(--color-ivory)",
-           cursor: "pointer",
-          }}
-          onClick={handlePrevSlide}
-         />
-         <ArrowForwardIcon
-          sx={{
-           color: "var(--color-ivory)",
-           cursor: "pointer",
-          }}
-          onClick={handleNextSlide}
-         />
-        </Box>
-       </CircleContainer>
-      ) : (
-       <img
-        src={currentTestimonial.image}
-        alt={currentTestimonial.name}
-        style={{
-         width: isMobile ? "100%" : "auto",
-         height: "auto",
-         borderRadius: "40%",
-         maxWidth: isMobile ? "300px" : "600px",
-        }}
-       />
-      )}{" "}
+      sx={{
+       position: "absolute",
+       top: "50%",
+       left: "50%",
+       transform: "translate(-50%, -50%)",
+       display: "flex",
+       gap: "18px",
+      }}>
+      <ArrowBackIcon
+       sx={{
+        color: "var(--color-ivory)",
+        cursor: "pointer",
+       }}
+       onClick={handlePrevSlide}
+      />
+      <ArrowForwardIcon
+       sx={{
+        color: "var(--color-ivory)",
+        cursor: "pointer",
+       }}
+       onClick={handleNextSlide}
+      />
      </Box>
-    </Grid>
-   </Grid>
+    </CircleContainer>
+   </Box>
   </Box>
  );
 };

@@ -51,6 +51,14 @@ const profileSchema = new Schema({
    amount: { type: String },
   },
  ],
+ organizers: [
+  {
+   year: { type: String },
+   forms: [{ type: String }],
+   incomeTypes: [{ type: String }],
+   requestDate: { type: Date },
+  },
+ ],
  city: { type: String },
  state: { type: String },
  zip: { type: String },

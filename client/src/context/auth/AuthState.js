@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect } from "react";
 import AuthContext from "./authContext";
 import axios from "axios";
+
 import authReducer from "./authReducer";
 import setAuthToken from "../../utils/setAuthToken";
 import {
@@ -129,7 +130,7 @@ const AuthState = (props) => {
  const loadProfile = async () => {
   try {
    const res = await axios.get("/api/auth");
-
+   console.log(res.data);
    dispatch({
     type: PROFILE_LOADED,
     payload: res.data,
@@ -169,6 +170,7 @@ const AuthState = (props) => {
   try {
    const res = await axios.post(`/api/auth/login`, pin, config);
 
+   console.log(res.data);
    setAuthToken(res.data.token);
    await loadProfile();
    dispatch({ type: LOGIN_SUCCESS, payload: res.data });

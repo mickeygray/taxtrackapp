@@ -5,7 +5,8 @@ import AuthContext from "../../context/auth/authContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine } from "@fortawesome/free-solid-svg-icons";
 import BalanceTransactions from "./BalanceTransactions";
-import BlogLibrary from "./BlogLibrary";
+import SettlementCalculator from "./SettlementCalculator";
+import ReturnOrganizer from "./ReturnOrganizer";
 // SVG for Tree Illustration
 
 const suckedInAnimation = keyframes`
@@ -115,7 +116,7 @@ const Button = styled.button`
  align-items: center;
 `;
 
-const HomeHero = ({ savings, animateOut }) => {
+const HomeHero = ({ savings, animateOut, handleButtonClick }) => {
  const formattedSavings = `${savings.toLocaleString("en-US", {
   style: "currency",
   currency: "USD",
@@ -129,7 +130,7 @@ const HomeHero = ({ savings, animateOut }) => {
       ? `You've saved ${formattedSavings} with ABC Tax Track`
       : "View your latest IRS Transactions"}
     </H3>
-    <Button>
+    <Button onClick={() => handleButtonClick(<BalanceTransactions />)}>
      Track Your Progress
      <FontAwesomeIcon
       icon={faChartLine}
@@ -186,17 +187,28 @@ const AccountButton = styled.button`
  cursor: pointer;
 `;
 
+const AccountLink = styled.a`
+ display: block;
+ background-color: #007bff;
+ color: white;
+ border: none;
+ padding: 5px 10px;
+ font-size: 14px;
+ border-radius: 5px;
+ cursor: pointer;
+`;
+
 const AccountHeading = styled.h3`
  font-size: 24px;
  margin-bottom: 10px;
 `;
-const ToggledReturnComponent = () => <div>Toggled Return Component</div>;
-const ToggledProComponent = () => <div>Toggled Pro Component</div>;
-const ToggledBlogComponent = () => <div>Toggled Blog Component</div>;
+
+const ToggledProComponent = () => <div>Tax Track Business Coming Soon</div>;
+
 const AccountSummary = ({ handleButtonClick }) => {
  return (
   <AccountSummaryWrapper>
-   <AccountHeading>Your Track</AccountHeading>
+   <AccountHeading>Your Hub</AccountHeading>
    <AccountTypesList>
     <AccountTypeItem>
      <AccountIcon className='fas fa-chart-line' />
@@ -208,23 +220,30 @@ const AccountSummary = ({ handleButtonClick }) => {
     <AccountTypeItem>
      <AccountIcon className='fas fa-clock' />
      <AccountTitle>Return Organizer</AccountTitle>
-     <AccountButton onClick={() => handleButtonClick(ToggledReturnComponent)}>
-      Set up
+     <AccountButton onClick={() => handleButtonClick(<ReturnOrganizer />)}>
+      Order Transcripts
+     </AccountButton>
+    </AccountTypeItem>
+    <AccountTypeItem>
+     <AccountIcon className='fas fa-calculator' />
+     <AccountTitle>Tax Settlement Calculator</AccountTitle>
+     <AccountButton onClick={() => handleButtonClick(<SettlementCalculator />)}>
+      Calculate OIC
      </AccountButton>
     </AccountTypeItem>
     <AccountTypeItem>
      <AccountIcon className='fas fa-credit-card' />
-     <AccountTitle>Tax Track Pro</AccountTitle>
+     <AccountTitle>Tax Track Business</AccountTitle>
      <AccountButton onClick={() => handleButtonClick(ToggledProComponent)}>
       Set up
      </AccountButton>
     </AccountTypeItem>
     <AccountTypeItem>
      <AccountIcon className='fa-solid fa-book-open-reader' />
-     <AccountTitle>Tax Education</AccountTitle>
-     <AccountButton onClick={() => handleButtonClick(<BlogLibrary />)}>
+     <AccountTitle>Latest Tax News</AccountTitle>
+     <AccountLink href='https://www.irs.gov/newsroom' target='_blank'>
       Explore
-     </AccountButton>
+     </AccountLink>
     </AccountTypeItem>
    </AccountTypesList>
   </AccountSummaryWrapper>
@@ -345,7 +364,7 @@ const MilestoneItem = ({ iconSrc, title, progressPercent, progressColor }) => {
 const Milestones = () => {
  return (
   <MilestonesContainer>
-   <AccountHeading>Milestones</AccountHeading>
+   <AccountHeading>Payment History</AccountHeading>
    {milestonesData.map((milestone, index) => (
     <MilestoneItem key={index} {...milestone} />
    ))}
@@ -376,7 +395,11 @@ const Home = () => {
      {selectedComponent}
     </ToggleComponentContainer>
    ) : (
-    <HomeHero savings={savings} animateOut={animateOut} />
+    <HomeHero
+     savings={savings}
+     animateOut={animateOut}
+     handleButtonClick={handleButtonClick}
+    />
    )}
    <Container>
     <AccountSummaryContainer>

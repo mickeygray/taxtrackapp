@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <style>
+   /* Add your styles here */
+   body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+   }
+   .content {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+   }
+   .footer {
+    margin-top: 20px;
+    font-size: 0.8em;
+    text-align: center;
+    color: #555;
+   }
+  </style>
+ </head>
+ <body>
+  <div class="content">
+   <h2>Tax Return Organizer Request</h2>
+   <p>Dear {{agentName}},</p>
+   <p>The following forms have been requested:</p>
+
+   {{#each requests}}
+   <div>
+    <h3>{{year}}</h3>
+    <p>Forms: {{#each this.forms}} {{this}} {{/each}}</p>
+    <p>Income Types: {{#each this.incomeTypes}} {{this}} {{/each}}</p>
+   </div>
+   {{/each}}
+
+   <p>
+    Kindly process these requests and ensure the forms are organized
+    accordingly.
+   </p>
+  </div>
+  <div class="footer">
+   <p>
+    This is an automated message. Please do not reply directly to this email.
+   </p>
+  </div>
+ </body>
+</html>

@@ -17,6 +17,7 @@ import {
  Box,
  useMediaQuery,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 import {
  AnimatedImage,
@@ -52,30 +53,30 @@ const AnimatedCarousel = () => {
   {
    title: "Balance And Transactions",
    description:
-    "Get real-time insights into your IRS debt with a clear and organized line chart. Easily track changes in your balance directly from the IRS, providing a clear roadmap to financial freedom.",
+    "Get insights into your IRS debt with a clear and organized line chart. Easily track changes in your balance directly from the IRS, providing a clear roadmap to financial freedom.",
    buttonText: "Learn More",
    imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
   },
   {
-   title: "Growth and Milestones",
+   title: "Wholistic Status Reports",
    description:
     "Navigate the twists and turns of your tax situation effortlessly. Our comprehensive tools and expert guidance help you achieve your financial milestones with ease and confidence.",
    buttonText: "Learn More",
-   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
+   imageSrc: process.env.PUBLIC_URL + "/images/statusimage.png",
   },
   {
    title: "Returns Made Easy",
    description:
     "Prepare tax returns hassle-free with our user-friendly tax forms and comprehensive guides. Streamline tax documentation management and experience a stress-free filing experience.",
    buttonText: "Learn More",
-   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
+   imageSrc: process.env.PUBLIC_URL + "/images/returnsimage.png",
   },
   {
    title: "Plan For The Future",
    description:
     "Access an extensive library of articles and videos outlining an ever-growing and changing tax code. Stay informed about changing tax laws and regulations to plan and optimize your financial future.",
    buttonText: "Learn More",
-   imageSrc: process.env.PUBLIC_URL + "/images/Chart1.png",
+   imageSrc: process.env.PUBLIC_URL + "/images/planning.png",
   },
  ];
  const filteredSections = sections.filter(
@@ -122,7 +123,7 @@ const AnimatedCarousel = () => {
       angle={315}
       animate={animateButtons}>
       <FontAwesomeIcon icon={faGlobe} />
-      Milestones
+      Status
      </CircleButton>
      <CircleButton
       onClick={() => handleButtonClick(2)}
@@ -183,7 +184,7 @@ const AnimatedCarousel = () => {
          }}>
          {" "}
          <FontAwesomeIcon icon={faCog} />
-         Milestones
+         Status
         </CarouselButton>
         <CarouselButton
          active={activeSlide === 2}
@@ -237,13 +238,16 @@ const AnimatedCarousel = () => {
              }}>
              <Typography variant='h5'>{section.title}</Typography>
              <Typography>{section.description}</Typography>
-             <SectionButton
-              sx={{
-               backgroundColor: "var(--color-primary-green)",
-               borderRadius: "20px",
-              }}>
-              {section.buttonText}
-             </SectionButton>
+             <Link to='/login'>
+              {" "}
+              <SectionButton
+               sx={{
+                backgroundColor: "var(--color-primary-green)",
+                borderRadius: "20px",
+               }}>
+               {section.buttonText}
+              </SectionButton>
+             </Link>
             </TextWrapper>
            </Grid>
           </Grid>

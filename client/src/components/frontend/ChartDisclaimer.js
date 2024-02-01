@@ -46,23 +46,6 @@ const ChartDisclaimer = () => {
         </Typography>
        </Box>
       </Grid>
-      <Box style={{ width: "100%" }}>
-       <Typography
-        variant='body2'
-        style={{ color: "light-grey", fontSize: 12 }}>
-        Tax Track's platform and tools are intended for informational purposes
-        only and do not constitute financial, tax, or legal advice. While we
-        strive to provide accurate and up-to-date information, the tax laws and
-        regulations are subject to change, and individual circumstances can
-        vary. Users should consult with qualified professionals, such as tax
-        advisors or financial experts, to address specific financial situations
-        or tax concerns. Tax Track does not guarantee the accuracy,
-        completeness, or reliability of any information presented on the
-        platform. Users are responsible for their financial decisions and should
-        conduct their due diligence before making any financial or tax-related
-        choices.
-       </Typography>
-      </Box>
      </>
     ) : (
      <>
@@ -79,21 +62,6 @@ const ChartDisclaimer = () => {
           marginLeft: "40px",
          }}
         />
-        <Typography
-         variant='body2'
-         style={{ color: "light-grey", fontSize: 8 }}>
-         Tax Track's platform and tools are intended for informational purposes
-         only and do not constitute financial, tax, or legal advice. While we
-         strive to provide accurate and up-to-date information, the tax laws and
-         regulations are subject to change, and individual circumstances can
-         vary. Users should consult with qualified professionals, such as tax
-         advisors or financial experts, to address specific financial situations
-         or tax concerns. Tax Track does not guarantee the accuracy,
-         completeness, or reliability of any information presented on the
-         platform. Users are responsible for their financial decisions and
-         should conduct their due diligence before making any financial or
-         tax-related choices.
-        </Typography>
        </Box>
       </Grid>
       <Grid item xs={12} md={6}>

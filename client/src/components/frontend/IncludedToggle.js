@@ -82,14 +82,6 @@ const IncludedToggle = () => {
       Stay informed with the "Tax Education" feature, providing expert tips and
       resources on changing tax laws.
      </Typography>
-     <Typography variant='body2' sx={{ color: "#767676", mt: 2 }}>
-      Tax Track is an online financial platform offering general informational
-      and educational content about taxes and IRS debt. While we strive for
-      accuracy, the information provided should not be considered professional
-      advice. Tax laws are subject to frequent changes, and individual
-      circumstances vary, so it is essential to consult qualified tax
-      professionals or financial advisors for personalized guidance.
-     </Typography>
     </Grid>
     <Grid item xs={12} sm={6}>
      <Paper
@@ -103,15 +95,7 @@ const IncludedToggle = () => {
       <Typography variant='body1' sx={{ mt: 2 }}>
        Join over 10 million all-time customers who have signed up for TaxTrack.
       </Typography>
-      <Button
-       variant='contained'
-       color='primary'
-       href='https://app.adjust.com/2frog1d_tjj61hy?fallback=https%3A%2F%2Fwww.acorns.com%2Ftier-signup%3Fkey%3DGOLD'
-       target='_blank'
-       rel='noopener noreferrer'
-       sx={{ mt: 2 }}>
-       Sign up today
-      </Button>{" "}
+
       <Button
        variant='contained'
        color='primary'
