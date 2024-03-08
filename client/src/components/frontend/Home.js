@@ -372,8 +372,6 @@ const Milestones = () => {
  );
 };
 const Home = () => {
- console.log("stuff");
-
  const profile = { startingBalance: 50000, currentBalance: 32000 };
 
  const savings = profile.startingBalance - profile.currentBalance;

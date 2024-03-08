@@ -4,8 +4,9 @@ const config = require("config");
 module.exports = function (req, res, next) {
  //Get Token from heaver
  const token = req.header("x-auth-token");
-
+ //console.log(req);
  //check if not token
+
  if (!token) {
   return res.status(401).json({ msg: "no token auth denied" });
  }

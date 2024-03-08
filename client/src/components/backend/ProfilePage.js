@@ -5,7 +5,28 @@ import AuthContext from "../../context/auth/authContext";
 import MessageFilter from "./MessageFilter";
 import MilestoneGenerator from "./MilestoneGenerator";
 import Upload from "./Upload";
-
+import {
+ Card,
+ CardContent,
+ Typography,
+ TextField,
+ Button,
+ Grid,
+ Box,
+ IconButton,
+ Select,
+ MenuItem,
+ FormControl,
+ InputLabel,
+ TextareaAutosize,
+ Dialog,
+ DialogTitle,
+ DialogContent,
+ DialogActions,
+ DialogContentText,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 const ProfilePage = () => {
  const profileContext = useContext(ProfileContext);
  const authContext = useContext(AuthContext);
@@ -18,17 +39,16 @@ const ProfilePage = () => {
   updateStatus,
   getMessages,
   profile,
+  deleteProfile,
  } = profileContext;
 
  const [putState, setPutState] = useState(true);
  const [status, setStatus] = useState("");
  const [update, setUpdate] = useState({});
  const [messageBody, setMessageBody] = useState({});
-
+ const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
  useEffect(() => {
-  const interval = setInterval(() => {
-   getMessages(profile);
-  }, 5000);
+  const interval = setInterval(() => {}, 5000);
 
   return () => clearInterval(interval);
  }, []);
@@ -61,144 +81,181 @@ const ProfilePage = () => {
   setMessageBody({});
  };
 
+ const handleDelete = async () => {
+  await deleteProfile(profile);
+  setProfile(null); // Clear the current profile from state, adjust as necessary
+  // Redirect or update the profile list here
+ };
+
+ const handleOpenDeleteDialog = () => {
+  setOpenDeleteDialog(true);
+ };
+
+ const handleCloseDeleteDialog = () => {
+  setOpenDeleteDialog(false);
+ };
+
  return (
-  <div className='card bg-dark'>
-   <span style={{ float: "right" }}>
-    {" "}
-    <button onClick={() => setProfile(null)}>X</button>
-   </span>
-   <div className='all-center'>
-    <Upload putState={putState} />
-   </div>
-   <div className='grid-3'>
-    <div className='card'>
-     <div>
-      <ul>
-       <li>
-        {profile.fullName && (
-         <>
-          {!update.fullName ? (
-           <a onClick={() => setUpdate({ fullName: profile.fullName })}>
-            Name: {profile.fullName}
-           </a>
-          ) : (
-           <input
-            type='text'
-            name='fullName'
-            placeholder={profile.fullName}
-            value={update.fullName || ""}
-            onChange={handleInputChange}
-           />
-          )}
-         </>
-        )}
-       </li>
-       <li>
-        {profile.email && (
-         <>
-          {!update.email ? (
-           <a onClick={() => setUpdate({ email: profile.email })}>
-            Email: {profile.email}
-           </a>
-          ) : (
-           <input
-            type='text'
-            name='email'
-            placeholder={profile.email}
-            value={update.email || ""}
-            onChange={handleInputChange}
-           />
-          )}
-         </>
-        )}
-       </li>
-       <li>
-        {profile.phone && (
-         <>
-          {!update.phone ? (
-           <a onClick={() => setUpdate({ phone: profile.phone })}>
-            Phone: {profile.phone}
-           </a>
-          ) : (
-           <input
-            type='text'
-            name='phone'
-            placeholder={profile.phone}
-            value={update.phone || ""}
-            onChange={handleInputChange}
-           />
-          )}
-         </>
-        )}
-       </li>
-      </ul>
-      {Object.keys(update).length > 0 && (
-       <button onClick={handleSubmit}>Update Profile</button>
-      )}
-     </div>
-
-     <div>
-      <form>
-       <select
-        name='status'
+  <Box
+   sx={{
+    maxWidth: 800,
+    mx: "auto",
+    p: 2,
+    position: "relative",
+    boxShadow: 3,
+   }}>
+   {" "}
+   <Card
+    variant='outlined'
+    sx={{
+     backgroundColor: "#ABCDEF",
+     boxShadow: 3,
+    }}>
+    <CardContent>
+     <Box
+      sx={{
+       maxWidth: 800,
+       mx: "auto",
+       p: 2,
+       boxShadow: 3,
+      }}
+      display='flex'
+      justifyContent='space-between'
+      alignItems='center'>
+      <Typography variant='h5' component='h2'>
+       Profile Details
+      </Typography>
+      <IconButton onClick={() => setProfile(null)} color='error'>
+       <CloseIcon />
+      </IconButton>
+      <IconButton
+       onClick={handleOpenDeleteDialog}
+       color='error'
+       sx={{ position: "absolute", right: 8, top: 8 }}>
+       <DeleteIcon />
+      </IconButton>
+      <Dialog
+       open={openDeleteDialog}
+       onClose={handleCloseDeleteDialog}
+       aria-labelledby='alert-dialog-title'
+       aria-describedby='alert-dialog-description'>
+       <DialogTitle id='alert-dialog-title'>{"Confirm Delete"}</DialogTitle>
+       <DialogContent>
+        <DialogContentText id='alert-dialog-description'>
+         Are you sure you want to delete this profile? This action cannot be
+         undone.
+        </DialogContentText>
+       </DialogContent>
+       <DialogActions>
+        <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+        <Button onClick={handleDelete} autoFocus color='error'>
+         Delete
+        </Button>
+       </DialogActions>
+      </Dialog>
+     </Box>
+     <Upload putState={true} />
+     {/* Profile details form and update status section */}
+     <Box mt={2}>
+      <Grid container spacing={2}>
+       <Grid item xs={12} sm={6}>
+        <TextField
+         fullWidth
+         label='Name'
+         sx={{
+          backgroundColor: "#f5f5dc",
+          boxShadow: 3,
+         }}
+         variant='outlined'
+         name='fullName'
+         value={update.fullName || profile.fullName || ""}
+         onChange={handleInputChange}
+        />
+       </Grid>
+       <Grid item xs={12} sm={6}>
+        <TextField
+         fullWidth
+         sx={{
+          backgroundColor: "#f5f5dc",
+          boxShadow: 3,
+         }}
+         label='Email'
+         variant='outlined'
+         name='email'
+         value={update.email || profile.email || ""}
+         onChange={handleInputChange}
+        />
+       </Grid>
+       {/* Additional fields as needed */}
+      </Grid>
+     </Box>
+     <Box mt={2}>
+      <FormControl fullWidth>
+       <InputLabel>Status</InputLabel>
+       <Select
+        sx={{
+         backgroundColor: "#f5f5dc",
+         boxShadow: 3,
+        }}
         value={status || profile.status}
-        onChange={(e) => setStatus(e.target.value)}>
-        <option value='Active'>Active - First 3 Months</option>
-        <option value='Current'>Active - Current Billing</option>
-        <option value='LateOne'>Active - Late 1 Billing Cycle</option>
-        <option value='LateTwo'>Active - Late 2 or More Billing Cycles</option>
-        <option value='InactiveClient'>Inactive - Client's Choice</option>
-        <option value='InactivePayment'>Inactive - Payment Delinquent</option>
-        <option value='InactiveCancel'>Inactive - Canceled By ABC</option>
-       </select>
-      </form>
-      <button onClick={() => updateStatus(status, profile)}>
+        onChange={(e) => setStatus(e.target.value)}
+        label='Status'>
+        {/* Status options */}
+        <MenuItem value='Active'>Active - First 3 Months</MenuItem>
+        {/* More options */}
+       </Select>
+      </FormControl>
+      <Button
+       variant='contained'
+       color='primary'
+       onClick={() => updateStatus(status, profile)}
+       sx={{ mt: 2 }}>
        Update Subscription Status
-      </button>
-     </div>
-     <div>
-      <div className='card'>
-       Starting Balance: {profile.startingBalance}
-       <br />
-       Current Balance: {profile.currentBalance || "First Update Not Complete"}
-      </div>
-     </div>
-    </div>
-
-    <div className='card'>
-     <p>Send A Message Or Assign A Task</p>
-     <div>
-      <div className='card'>
-       <legend>Name</legend>
-       <input
-        type='text'
-        name='name'
-        value={user?.name || ""}
-        onChange={handleInputChange}
-       />
-       <legend>Content</legend>
-       <textarea
-        name='content'
-        value={messageBody.content || ""}
-        onChange={(e) =>
-         setMessageBody({ ...messageBody, content: e.target.value })
-        }
-       />
-       <br />
-       <button className='btn btn-light' onClick={handleSendMessage}>
-        Create A New Message
-       </button>
-      </div>
-     </div>
-    </div>
-    <div className='card'>
+      </Button>
+     </Box>
+     {/* Message sending section */}
+     <Box mt={2}>
+      <Typography variant='h6'>Send A Message Or Assign A Task</Typography>
+      <TextField
+       sx={{
+        backgroundColor: "#f5f5dc",
+        boxShadow: 3,
+        mt: 1,
+        my: 1,
+        width: "300px",
+       }}
+       fullWidth
+       label='Your Name'
+       variant='outlined'
+       name='name'
+       value={user?.name || ""}
+       onChange={handleInputChange}
+      />
+      <TextareaAutosize
+       minRows={3}
+       placeholder='Message content'
+       style={{ width: "100%" }}
+       name='content'
+       value={messageBody.content || ""}
+       onChange={(e) =>
+        setMessageBody({ ...messageBody, content: e.target.value })
+       }
+       sx={{ mt: 1 }}
+      />
+      <Button
+       variant='contained'
+       color='primary'
+       onClick={handleSendMessage}
+       sx={{ mt: 2 }}>
+       Send Message
+      </Button>
+     </Box>
+     {/* Additional sections */}
      <MessageFilter profile={profile} />
-    </div>
-   </div>
-   <div>
-    <MilestoneGenerator />
-   </div>
-  </div>
+     <MilestoneGenerator />
+    </CardContent>
+   </Card>
+  </Box>
  );
 };
 

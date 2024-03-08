@@ -5,7 +5,7 @@ import {
  EMAIL_CLEARED,
  REGISTER_FAIL,
  REGISTER_SUCCESS,
- AUTHENTICATE_USER,
+ ADMIN_LOGIN_SUCCESS,
  LOGIN_FAIL,
  LOGIN_SUCCESS,
  CLEAR_ERRORS,
@@ -13,16 +13,25 @@ import {
  TOGGLE_REMEMBER_ME,
  LOAD_CRED,
  CLEAR_CRED,
+ SEND_OTP_SUCCESS,
+ VERIFY_OTP_SUCCESS,
+ TOGGLE_IS_ADMIN,
+ SET_USER_VERIFIED,
+ VERIFY_ADMIN_OTP_SUCCESS,
+ SEND_ADMIN_OTP_SUCCESS,
+ SET_ADMIN_USER_VERIFIED,
+ TOGGLE_NOT_ADMIN,
 } from "../types";
 
 export default (state, action) => {
  switch (action.type) {
-  case AUTHENTICATE_USER:
+  case ADMIN_LOGIN_SUCCESS:
+   localStorage.setItem("token", action.payload); // Optionally store the token in localStorage
    return {
     ...state,
+    token: action.payload,
     userAuthenticated: true,
     loading: false,
-    ...action.payload,
    };
   case PROFILE_LOADED:
    return {
@@ -46,6 +55,62 @@ export default (state, action) => {
     profileAuthenticated: true,
     loading: false,
     ...action.payload,
+   };
+  case SEND_OTP_SUCCESS:
+   return {
+    ...state,
+    otpSent: true,
+    // You can also store additional data from action.payload if necessary
+   };
+  case VERIFY_OTP_SUCCESS:
+   return {
+    ...state,
+    userVerified: true,
+    // Update state based on verification success
+   };
+
+  case SEND_OTP_SUCCESS:
+   return {
+    ...state,
+    otpSent: true,
+    // You can also store additional data from action.payload if necessary
+   };
+  case VERIFY_ADMIN_OTP_SUCCESS:
+   return {
+    ...state,
+    userVerified: true,
+    // Update state based on verification success
+   };
+
+  case SEND_ADMIN_OTP_SUCCESS:
+   return {
+    ...state,
+    otpSent: true,
+    // You can also store additional data from action.payload if necessary
+   };
+
+  case SET_USER_VERIFIED:
+   return {
+    ...state,
+    // Update state to reflect user's verified status
+    // and any other relevant state updates based on action.payload
+   };
+
+  case SET_ADMIN_USER_VERIFIED:
+   return {
+    ...state,
+    // Update state to reflect user's verified status
+    // and any other relevant state updates based on action.payload
+   };
+  case TOGGLE_IS_ADMIN:
+   return {
+    ...state,
+    isAdmin: true,
+   };
+  case TOGGLE_NOT_ADMIN:
+   return {
+    ...state,
+    isAdmin: false,
    };
   case EMAIL_LOADED:
    return {

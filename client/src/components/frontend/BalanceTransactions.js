@@ -82,7 +82,6 @@ const BalanceTransactions = () => {
 
   const targetValue = parseFloat(tooltipModel.dataPoints[0].raw.y);
 
-  console.log(tooltipModel);
   let startValue =
    tooltipModel.dataPoints[0].dataIndex > 0
     ? parseFloat(

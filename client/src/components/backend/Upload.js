@@ -1,19 +1,65 @@
 import React, { useContext, useState, useCallback } from "react";
 import ProfileContext from "../../context/profile/profileContext";
 import CSVReader from "react-csv-reader";
+import {
+ Card,
+ TextField,
+ Button,
+ Typography,
+ Box,
+ IconButton,
+ Tooltip,
+} from "@mui/material";
+import styled from "styled-components";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import CreateClientForm from "./CreateClientForm";
+const StyledCard = styled(Card)`
+ && {
+  margin: 20px;
+  padding: 20px;
+  // Light grey background
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); // Adds depth
+  transition: 0.3s;
+  &:hover {
+   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2); // Enhances depth on hover
+  }
+ }
+`;
+
+const CustomTextField = styled(TextField)`
+ && {
+  margin-bottom: 20px;
+ }
+`;
 
 const Upload = ({ putState }) => {
  const profileContext = useContext(ProfileContext);
-
- const toggleModal = useCallback(() => {
-  setModalState((prevState) => !prevState);
- }, []);
-
- const [showModal, setModalState] = useState(false);
+ const { uploadFile, putCanopy, profile } = profileContext;
  const [caseID, setCaseID] = useState("");
  const [file, setFile] = useState("");
- const { uploadFile, putCanopy, profile } = profileContext;
+ const [useLogics, setUseLogics] = useState(true);
+ const [formData, setFormData] = useState({
+  firstName: "",
+  lastName: "",
+  address: "",
+  email: "",
+  phone: "",
+  SSN: "",
+  city: "",
+  state: "",
+  zip: "",
+  addDate: new Date().toISOString().slice(0, 10),
+  logicsCaseId: "",
+ });
 
+ const handleChangeFormData = (e) => {
+  const { name, value } = e.target;
+  setFormData((prevFormData) => ({
+   ...prevFormData,
+   [name]: value,
+  }));
+ };
+ const toggleForm = () => setUseLogics(!useLogics);
  const papaparseOptions = {
   header: true,
   dynamicTyping: true,
@@ -81,53 +127,111 @@ const Upload = ({ putState }) => {
   return toCamelCase(words);
  }
 
- const [s, setS] = useState("");
-
  const onSubmit = (e) => {
   e.preventDefault();
-  uploadFile(caseID, file);
+
+  // If using Logics API, only upload the caseID and file
+  if (useLogics) {
+   const dataToUpload = {
+    caseID,
+    file,
+   };
+   console.log("Uploading with Logics Case ID:", dataToUpload);
+   uploadFile(dataToUpload, file);
+   setFormData({
+    firstName: "",
+    lastName: "",
+    address: "",
+    email: "",
+    phone: "",
+    SSN: "",
+    city: "",
+    state: "",
+    zip: "",
+    addDate: new Date().toISOString().slice(0, 10),
+    logicsCaseId: "",
+   });
+  } else {
+   // If not using Logics API, include all formData along with the file
+   const dataToUpload = {
+    ...formData,
+    file,
+   };
+   console.log("Uploading full client data:", dataToUpload);
+   // Assume uploadFile can handle formData as well, adjust accordingly
+   uploadFile(dataToUpload, file);
+  }
  };
+
  return (
-  <>
-   {putState === true ? (
-    <div>
-     {" "}
+  <StyledCard>
+   {putState ? (
+    <Box
+     sx={{
+      maxWidth: 800,
+      mx: "auto",
+      p: 2,
+      backgroundColor: "#e3f2fd",
+      boxShadow: 3,
+     }}>
+     <Typography variant='h5' gutterBottom>
+      Upload Account Transcripts
+     </Typography>
      <CSVReader
-      label='Upload Account Transcripts'
-      parserOptions={papaparseOptions}
+      cssClass='csv-input'
+      label=''
       onFileLoaded={(data, fileInfo) => putCanopy(data, profile)}
-      inpuId='profiles'
-      inputStyle={{ color: "red" }}
+      parserOptions={papaparseOptions}
+      inputId='profiles'
      />
-    </div>
+    </Box>
    ) : (
-    <div>
-     <h3>Create A New Client</h3>
-     <i>
+    <Box>
+     <Typography variant='h5' gutterBottom>
+      Create A New Client
+     </Typography>
+     <Tooltip
+      title={useLogics ? "Manual Client Entry" : "Automate Client With Logics"}>
+      <IconButton onClick={toggleForm} sx={{ mb: 2 }}>
+       <SwapHorizIcon />
+      </IconButton>
+     </Tooltip>
+     <Typography variant='subtitle1'>
       Please Attach The Account Transcripts CSV and include a Logics Case ID
-     </i>
+     </Typography>
      <form onSubmit={onSubmit}>
-      {" "}
-      <input
-       type='text'
-       name='caseID'
-       placeholder='Logics Case ID'
-       onChange={(e) => setCaseID(e.target.value)}
-      />{" "}
-      <div>
-       <CSVReader
-        label='Upload Account Transcripts'
-        parserOptions={papaparseOptions}
-        onFileLoaded={(data, fileInfo) => setFile(data)}
-        inpuId='profiles'
-        inputStyle={{ color: "red" }}
-       />
-      </div>
-      <input type='submit' value='Create Profile' />
+      {useLogics ? (
+       <>
+        {/* Optionally include a TextField for Logics Case ID here */}
+        <CustomTextField
+         fullWidth
+         label='Logics Case ID'
+         variant='outlined'
+         name='caseID'
+         value={caseID}
+         onChange={(e) => setCaseID(e.target.value)}
+        />{" "}
+       </>
+      ) : (
+       <CreateClientForm
+        formData={formData}
+        handleChangeFormData={handleChangeFormData}
+       /> // Render the form for manual client creation
+      )}
+      <CSVReader
+       label='Upload Account Transcripts'
+       parserOptions={papaparseOptions}
+       onFileLoaded={(data, fileInfo) => setFile(data)}
+       inpuId='profiles'
+       inputStyle={{ color: "red" }}
+      />
+      <Button type='submit' variant='contained' color='primary'>
+       Create Profile
+      </Button>
      </form>
-    </div>
+    </Box>
    )}
-  </>
+  </StyledCard>
  );
 };
 

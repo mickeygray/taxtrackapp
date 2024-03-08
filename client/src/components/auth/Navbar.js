@@ -1,150 +1,89 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
+import React, { useContext } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AuthContext from "../../context/auth/authContext";
-import AlertContext from "../../context/alert/alertContext";
+import Button from "@mui/material/Button";
+import { IconButton, Tooltip, Typography } from "@mui/material";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import LoginIcon from "@mui/icons-material/Login";
 
-import { useGoogleLogin } from "@react-oauth/google";
-import { useLocation } from "react-router-dom";
-import authContext from "../../context/auth/authContext";
-
-const Navbar = ({ toggleRegister }) => {
+const Navbar = () => {
+ const navigate = useNavigate();
  const location = useLocation();
  const {
-  clientId,
   profile,
-  logout,
   profileAuthenticated,
   userAuthenticated,
-  authenticateUser,
-  getGoogleClientId,
-  clearGoogleClientId,
+  logout,
+  toggleIsAdmin,
+  toggleNotAdmin,
  } = useContext(AuthContext);
- const { setAlert } = useContext(AlertContext);
- const [style, setStyle] = useState({});
- // Handle successful Google login
- const handleGoogleLoginSuccess = async (response) => {
-  try {
-   authenticateUser(response.access_token);
-  } catch (error) {
-   setAlert(error.message, "error");
-  }
- };
- const position = window.pageYOffset;
- // Handle Google login failure
- const handleGoogleLoginFailure = (error) => {
-  setAlert(error.message, "error");
+
+ const handleLogin = () => {
+  toggleNotAdmin();
+  navigate("/login");
  };
 
- // Handle successful Google logout
- const handleGoogleLogoutSuccess = () => {};
-
- // Handle Google logout failure
- const handleGoogleLogoutFailure = (error) => {
-  // Handle the error
-  // e.g., display an error message, redirect to an error page, etc.
-  // Example: show error message using setAlert
-  setAlert(error.message, "error");
- };
- const signIn = useGoogleLogin({
-  clientId: clientId,
-  onSuccess: handleGoogleLoginSuccess,
-  onFailure: handleGoogleLoginFailure,
-  scope: "openid",
-  responseType: "id_token",
-  accessType: "offline",
- });
-
- useEffect(() => {
-  if (clientId != null) {
-   signIn();
-   clearGoogleClientId();
-  }
- }, [clientId, authContext]);
-
- const [sticky, setSticky] = useState(false);
-
- const handleScroll = () => {
-  setStyle({
-   position: "sticky",
-   top: "0",
-   zIndex: "999999999999999",
-  });
-  setSticky(true);
+ const handleAdminAccess = () => {
+  toggleIsAdmin();
+  navigate("/admin/login");
  };
 
- useEffect(() => {
-  window.addEventListener("scroll", handleScroll);
-  setStyle({});
-  return () => {
-   window.removeEventListener("scroll", handleScroll);
-  };
- }, []);
+ const navBarStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "1rem",
+  backgroundColor: !userAuthenticated ? "#77d215" : "#b0c4de", // Specific color for admin
+  color: "white",
+ };
 
  return (
-  <div
-   className={`nav navbar grid-2 bg-primary `}
-   onScroll={handleScroll}
-   style={style}>
+  <div style={navBarStyle}>
+   <Link to='/' style={{ textDecoration: "none", color: "white" }}>
+    <h1>Tax Hub</h1>
+   </Link>
    <div>
-    <Link to='/'>
-     <img
-      src={process.env.PUBLIC_URL + "/images/logo.png"}
-      alt='Tax Track'
-      style={{
-       height: sticky ? "80px" : "50px",
-       width: sticky ? "80px" : "50px",
-      }}
-     />
-    </Link>
-
-    {!sticky ? (
-     <h5> Welcome To Tax Track {profileAuthenticated && profile.fullName} </h5>
+    {profileAuthenticated || userAuthenticated ? (
+     <div>
+      <Typography variant='body1' color='inherit' sx={{ mr: 2 }}>
+       Welcome, {userAuthenticated && "Admin"}{" "}
+       {profileAuthenticated && profile && profile.fullName}
+      </Typography>
+      <IconButton color='inherit' onClick={logout}>
+       <LoginIcon /> Logout
+      </IconButton>
+     </div>
     ) : (
-     ""
+     <>
+      <Button
+       variant='contained'
+       color='inherit'
+       onClick={handleLogin}
+       sx={{
+        mr: 2,
+        py: 1,
+        px: 3,
+        color: "primary.contrastText", // Ensure text color contrasts with the button
+        backgroundColor: "primary.main", // Set a specific background color if needed
+        "&:hover": {
+         backgroundColor: "primary.dark", // Darken button on hover
+         color: "secondary.contrastText", // Change text color on hover for visibility
+        },
+       }}>
+       <LoginIcon sx={{ mr: 1 }} /> Login
+      </Button>
+      {/* Hide admin access button if on admin login page or if any authentication is true */}
+      {location.pathname !== "/admin/login" &&
+       !profileAuthenticated &&
+       !userAuthenticated && (
+        <Tooltip title='Admin Access'>
+         <IconButton color='inherit' onClick={handleAdminAccess} size='large'>
+          <AdminPanelSettingsIcon />
+         </IconButton>
+        </Tooltip>
+       )}
+     </>
     )}
-   </div>
-   <div>
-    <span style={{ float: "right" }}>
-     {profileAuthenticated || userAuthenticated ? (
-      <a onClick={() => logout()}>
-       <img
-        src={process.env.PUBLIC_URL + "/images/goodbye.png"}
-        style={{ borderRadius: "50%", height: "100px", width: "100px" }}
-        alt='Logout'
-       />
-      </a>
-     ) : (
-      <>
-       {location.pathname === "/login" && (
-        <ul>
-         <li>
-          {" "}
-          <button className='btn btn-primary' onClick={toggleRegister}>
-           <i className='fa fa-user-plus' aria-hidden='true'></i> Register New
-           Account
-          </button>
-         </li>
-         <li>
-          <button
-           className='btn btn-primary'
-           onClick={() => getGoogleClientId()}>
-           <i className='fa fa-sign-in' aria-hidden='true'></i> Adminstrative
-           Login
-          </button>
-         </li>
-        </ul>
-       )}
-       {location.pathname === "/" && (
-        <Link to='/login' className='btn btn-primary'>
-         Login To Tax Track
-        </Link>
-       )}
-      </>
-     )}
-    </span>
-    <br />
-    <br />
    </div>
   </div>
  );

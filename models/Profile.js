@@ -24,6 +24,7 @@ const profileSchema = new Schema({
   required: true,
   unique: true,
  },
+ isVerified: { type: Boolean, default: false },
  status: { type: String },
  dob: { type: String },
  ssn: { type: String },

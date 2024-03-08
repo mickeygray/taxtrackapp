@@ -23,6 +23,7 @@ import {
  CLEAR_PROFILES,
  UPDATE_PROFILE,
  REQUEST_ORGANIZER,
+ DELETE_PROFILE,
 } from "../types";
 
 const ProfileState = (props) => {
@@ -47,6 +48,7 @@ const ProfileState = (props) => {
     "Content-Type": "application/json",
    },
   };
+
   const res = await axios.get(`/api/profiles?q=${text}`, config);
 
   dispatch({
@@ -89,7 +91,6 @@ const ProfileState = (props) => {
    config
   );
 
-  console.log(res.data);
   dispatch({
    type: SET_MILESTONES,
    payload: res.data,
@@ -117,14 +118,14 @@ const ProfileState = (props) => {
   getMessages(profile);
  };
 
- const uploadFile = async (caseID, data) => {
+ const uploadFile = async (dataToUpload, data) => {
   const config = {
    headers: {
     "Content-Type": "application/json",
    },
   };
 
-  const obj = { caseID, data };
+  const obj = { ...dataToUpload, data };
   const res = await axios.post(`/api/profiles`, obj, config);
 
   dispatch({
@@ -278,6 +279,14 @@ const ProfileState = (props) => {
   getMessages(profile);
  };
 
+ const deleteProfile = async (profile) => {
+  const res = await axios.delete(`/api/profiles/${profile._id}`);
+  dispatch({
+   type: DELETE_PROFILE,
+   payload: res.data,
+  });
+ };
+
  const setProfile = (profile) => {
   dispatch({
    type: SET_PROFILE,
@@ -313,6 +322,7 @@ const ProfileState = (props) => {
     setSettlementCalculation,
     clearSettlementCalculation,
     requestOrganizer,
+    deleteProfile,
     message: state.message,
     settlementCalculation: state.settlementCalculation,
     range: state.range,

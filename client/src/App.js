@@ -40,10 +40,11 @@ const App = () => {
         </div>
         <Routes>
          <Route exact path='/login' element={<Login />} />
+         <Route exact path='/admin/login' element={<Login />} />
          <Route exact path='/' element={<Landing />} />
          <Route path='/home' element={<PrivateRoute component={Home} />} />
          <Route
-          path='/backend'
+          path='/admin/home'
           element={<PrivateRoute component={TaxTrackBackEnd} />}
          />
         </Routes>

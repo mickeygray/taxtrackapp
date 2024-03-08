@@ -12,6 +12,7 @@ import { Navigate } from "react-router-dom";
 import AuthContext from "../../context/auth/authContext";
 import AlertContext from "../../context/alert/alertContext";
 import Base64 from "crypto-js/enc-base64";
+import OTPFlow from "./OTPFlow";
 
 const GridContainer = styled(Grid)`
  display: grid;
@@ -114,17 +115,21 @@ const CustomTextField = styled(TextField)`
 `;
 
 const Login = () => {
- const authContext = useContext(AuthContext);
+ const {
+  pinLogin,
+  adminLogin,
+  profileAuthenticated,
+  userAuthenticated,
+  rememberMe,
+  toggleIsAdmin,
+  isAdmin,
+ } = useContext(AuthContext);
+ const { setAlert } = useContext(AlertContext);
 
- const alertContext = useContext(AlertContext);
- const { setAlert } = alertContext;
- const { pinLogin, profileAuthenticated, rememberMe } = authContext;
-
- // State
  const [pin, setPin] = useState({ password: "", email: "" });
+ const [showOTPFlow, setShowOTPFlow] = useState(false);
 
  useEffect(() => {
-  // Load pin value from localStorage if rememberMe is enabled
   if (rememberMe) {
    const storedPin = localStorage.getItem("rememberedPin");
    if (storedPin) {
@@ -133,29 +138,19 @@ const Login = () => {
   }
  }, [rememberMe]);
 
- const onChangePin = (e) => {
-  setPin({ ...pin, [e.target.name]: e.target.value });
- };
+ const onChangePin = (e) => setPin({ ...pin, [e.target.name]: e.target.value });
 
- useEffect(() => {
-  // Store pin value in localStorage if rememberMe is enabled
-  if (rememberMe) {
-   const str = Base64.stringify(JSON.stringify(pin));
-   localStorage.setItem("rememberedPin", str);
-  }
- }, [rememberMe, pin]);
-
- // Login
  const onLogin = (e) => {
   e.preventDefault();
   if (pin.email === "" || pin.password === "") {
    setAlert("Please fill in all fields", "danger");
   } else {
-   pinLogin(pin);
+   isAdmin ? adminLogin(pin) : pinLogin(pin);
   }
  };
 
  if (profileAuthenticated) return <Navigate to='/home' />;
+ if (userAuthenticated) return <Navigate to='/admin/home' />;
  return (
   <GridContainer>
    <ContentArea>
@@ -164,32 +159,42 @@ const Login = () => {
       src={process.env.PUBLIC_URL + "/images/Chart1.png"}
       alt='Tax Track'
      />
-
-     <LoginFormWrapper>
-      <form style={{ background: "none" }} onSubmit={onLogin}>
-       <CustomTextField
-        label='Email'
-        variant='outlined'
-        name='email' // Ensure the name attribute is set correctly
-        fullWidth
-        margin='normal'
-        value={pin.email}
-        onChange={onChangePin}
-       />
-       <CustomTextField
-        label='Password'
-        variant='outlined'
-        name='password' // Ensure the name attribute is set correctly
-        fullWidth
-        margin='normal'
-        type='password'
-        value={pin.password}
-        onChange={onChangePin}
-       />
-
-       <SubmitButton type='submit' value='Log In' />
-      </form>
-     </LoginFormWrapper>
+     {!showOTPFlow ? (
+      <LoginFormWrapper>
+       <form style={{ background: "none" }} onSubmit={onLogin}>
+        <CustomTextField
+         label='Email'
+         variant='outlined'
+         name='email'
+         fullWidth
+         margin='normal'
+         value={pin.email}
+         onChange={onChangePin}
+        />
+        <CustomTextField
+         label='Password'
+         variant='outlined'
+         name='password'
+         fullWidth
+         margin='normal'
+         type='password'
+         value={pin.password}
+         onChange={onChangePin}
+        />
+        <SubmitButton
+         type='submit'
+         value={isAdmin ? "Admin Log In" : "Log In"}
+        />
+       </form>
+       <Button variant='contained' onClick={() => setShowOTPFlow(true)}>
+        {isAdmin ? "Register New Admin" : "Complete Tax Hub Profile"}
+       </Button>
+      </LoginFormWrapper>
+     ) : (
+      <OTPFlow isAdmin={isAdmin} />
+     )}
+    </ImageFormWrapper>
+    {!showOTPFlow && (
      <TextContent>
       <Typography variant='h4' gutterBottom>
        Welcome to Tax Track
@@ -198,7 +203,7 @@ const Login = () => {
        Track your IRS information, manage finances, and stay informed.
       </Typography>
      </TextContent>
-    </ImageFormWrapper>
+    )}
    </ContentArea>
   </GridContainer>
  );

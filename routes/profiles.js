@@ -11,32 +11,49 @@ var path = require("path");
 const fetch = require("node-fetch");
 const speakeasy = require("speakeasy");
 const auth = require("../middleware/auth");
+const sendWelcomeEmail = require("../utils/sendWelcomeEmail");
 
 router.get("/", auth, async (req, res) => {
  const regex = new RegExp(`${req.query.q}`, "gi");
 
- const profiles = await Profile.find({ fullName: regex });
+ // Search for profiles where fullName, email, or phone matches the regex
+ const profiles = await Profile.find({
+  $or: [{ fullName: regex }, { email: regex }, { phone: regex }],
+ });
 
  res.json(profiles);
 });
 
 router.post("/", auth, async (req, res) => {
- const rawResponse = await fetch(
-  `https://andersontax.irslogics.com/publicapi/2020-02-22/cases/casefile?CaseID=${req.body.caseID}`,
-  {
-   method: "GET",
-   headers: {
-    Authorization: process.env.LOGICSAPIKEY,
-    "Content-Type": "application/json",
-   },
-  }
- );
+ let profileData = {};
 
- const content = await rawResponse.json();
+ // Check if manual entry fields are present
+ if (req.body.name || req.body.email) {
+  // Manual client creation workflow
+  profileData = req.body; // Use the provided data directly
+ } else if (req.body.caseID) {
+  // Workflow for Logics API with caseID
+  const rawResponse = await fetch(
+   `https://andersontax.irslogics.com/publicapi/2020-02-22/cases/casefile?CaseID=${req.body.caseID}`,
+   {
+    method: "GET",
+    headers: {
+     Authorization: process.env.LOGICSAPIKEY,
+     "Content-Type": "application/json",
+    },
+   }
+  );
+  const content = await rawResponse.json();
+  const logicsData = content.data ? JSON.parse(content.data) : null;
+  profileData = { ...logicsData, ...req.body }; // Merge API data with any additional data from request
+ } else {
+  // Handle cases where neither manual fields nor caseID are adequately provided
+  return res
+   .status(400)
+   .json({ msg: "Insufficient data for profile creation." });
+ }
 
  const transactions = req.body.data;
-
- console.log(content);
 
  const secret = speakeasy.generateSecret();
  const token = speakeasy.totp({
@@ -44,14 +61,13 @@ router.post("/", auth, async (req, res) => {
   encoding: "base32",
  });
 
- const logicsData = content.data ? JSON.parse(content.data) : null;
  const salt = await bcrypt.genSalt(10);
 
- const ssn = await bcrypt.hash("6789", salt);
-
- //logicsData.SSN.slice(-4)
-
- const addDate = new Date("6/11/2021");
+ const ssn = await bcrypt.hash(profileData.SSN, salt);
+ if (!profileData.addDate) {
+  // If addDate is not provided, use the current date
+  profileData.addDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
+ }
 
  const includedStrings = [
   "lien",
@@ -60,7 +76,7 @@ router.post("/", auth, async (req, res) => {
   "collection due process",
   "payment",
  ];
- const zeroDate = new Date(addDate);
+ const zeroDate = new Date("1/1/2000");
  zeroDate.setDate(zeroDate.getDate() - 90);
 
  const zeroDateBalance = sumAmountBeforeDate(transactions, zeroDate);
@@ -105,21 +121,17 @@ router.post("/", auth, async (req, res) => {
  //
 
  const accountTransactions = transformedData.sort((a, b) => {
-  // Sort by period (year)
+  // Compare by period first
   if (a.tooltip2 < b.tooltip2) {
    return -1;
   } else if (a.tooltip2 > b.tooltip2) {
    return 1;
   }
 
-  // Sort by date chronologically within each period
-  if (a.date < b.date) {
-   return -1;
-  } else if (a.date > b.date) {
-   return 1;
-  }
-
-  return 0; // If period and date are the same for both objects
+  // If periods are the same, convert dates to comparable format and compare
+  const dateA = new Date(a.date);
+  const dateB = new Date(b.date);
+  return dateA - dateB; // Subtracting dates returns the difference in milliseconds
  });
 
  function capitalizeSentence(sentence) {
@@ -148,96 +160,33 @@ router.post("/", auth, async (req, res) => {
  }
 
  const newProfile = new Profile({
-  fullName:
-   logicsData != null
-    ? logicsData.FirstName + " " + logicsData.LastName
-    : `Logics Error: Case Id ${req.body.caseID} Full Name`,
-  email:
-   logicsData != null ? "mickeygray85@hotmail.com" : "mickeygray85@hotmail.com",
-  phone:
-   logicsData != null
-    ? logicsData.CellPhone
-    : `${parseInt(Math.random() * 1000000)}`,
-  firstName:
-   logicsData != null
-    ? logicsData.FirstName
-    : `Logics Error: Case Id ${req.body.caseID} First Name`,
-  lastName:
-   logicsData != null
-    ? logicsData.LastName
-    : `Logics Error: Case Id ${req.body.caseID} Last Name`,
-  ssn,
-  city:
-   logicsData != null
-    ? logicsData.City
-    : `Logics Error: Case Id ${req.body.caseID} city`,
-  state:
-   logicsData != null
-    ? logicsData.State
-    : `Logics Error: Case Id ${req.body.caseID} State`,
-  zip:
-   logicsData != null
-    ? logicsData.Zip
-    : `Logics Error: Case Id ${req.body.caseID} Zip`,
-  address:
-   logicsData != null
-    ? logicsData.Address
-    : `Logics Error: Case Id ${req.body.caseID} Address`,
-  aptNo:
-   logicsData != null
-    ? logicsData.AptNo
-    : `Logics Error: Case Id ${req.body.caseID} Apt No`,
-  caseID: req.body.caseID,
-  addDate: Intl.DateTimeFormat("fr-ca").format(new Date(addDate)),
-  temp_secret: secret,
-  token,
-  accountTransactions,
-  startingBalance: accountTransactions
-   .map((entry) => entry.y)
-   .reduce((a, b) => a + b),
+  fullName: `${profileData.firstName} ${profileData.lastName}`,
+  email: profileData.email,
+  phone: profileData.phone,
+  firstName: profileData.firstName,
+  lastName: profileData.lastName,
+  ssn: ssn,
+  city: profileData.city,
+  state: profileData.state,
+  zip: profileData.zip,
+  address: profileData.address,
+  aptNo: profileData.aptNo,
+  caseID: profileData.logicsCaseId || profileData.caseID, // Support both manual and Logics API case IDs
+  addDate: profileData.addDate,
+  temp_secret: secret.base32,
+  token: token,
+  accountTransactions: accountTransactions,
+  startingBalance: accountTransactions.reduce(
+   (total, transaction) => total + transaction.y,
+   0
+  ),
  });
 
  const profile = await newProfile.save();
 
- const welcomeEmail = await Email.findOne({ name: "welcome.html" });
+ const { email, fullName } = profile;
 
- const transporter = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 465,
-  secure: true,
-  auth: {
-   user: "apikey",
-   pass: process.env.SENDGRIDAPIKEY,
-  },
- });
-
- const options = {
-  viewEngine: {
-   extName: ".hbs",
-   partialsDir: path.join(__dirname, "views"),
-   layoutsDir: path.join(__dirname, "views"),
-   defaultLayout: false,
-  },
-  viewPath: "views",
-  extName: ".hbs",
- };
-
- fs.writeFile("./views/template.hbs", welcomeEmail.html, (err) => {
-  if (err) throw err;
- });
-
- transporter.use("compile", hbs(options));
-
- const mailer = {
-  title: `Welcome To Tax Track ${profile.fullName}`,
-  from: `onboarding@andersonbradshawtax.com`,
-  to: profile.email,
-  subject: `Welcome To Tax Track ${profile.fullName}`,
-  template: "template",
-  context: { token: token, fullName: profile.fullName },
- };
-
- transporter.sendMail(mailer);
+ await sendWelcomeEmail(fullName, email, token);
 
  res.json(profile);
 });
@@ -307,6 +256,19 @@ router.delete("/:id/messages/:id", auth, async (req, res) => {
   { safe: true, multi: false }
  );
  return res.status(200).json({ message: "Message Deleted Successfully" });
+});
+
+router.delete("/:id", auth, async (req, res) => {
+ try {
+  const deletedProfile = await Profile.findByIdAndDelete(req.params.id);
+  if (!deletedProfile) {
+   return res.status(404).json({ message: "Profile not found" });
+  }
+  res.status(200).json({ message: "Profile deleted successfully" });
+ } catch (error) {
+  console.error(error);
+  res.status(500).json({ message: "Server error" });
+ }
 });
 
 //update a message in the text thread

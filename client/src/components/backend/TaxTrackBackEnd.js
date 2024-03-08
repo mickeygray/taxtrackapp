@@ -5,6 +5,7 @@ import Pagination from "./Pagination";
 import Upload from "./Upload";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import ProfilePage from "./ProfilePage";
+import SearchComponent from "./SearchComponent";
 
 const TaxTrackBackEnd = () => {
  const [caseID, setCaseID] = useState("");
@@ -57,11 +58,10 @@ const TaxTrackBackEnd = () => {
   }
  }, [newProfile, profileContext]);
 
- console.log(profileList);
  return (
-  <div>
+  <div style={{ height: "100vh", backgroundColor: "#f5f5dc" }}>
    <div className='grid-2 all-center' style={{ width: "600px" }}>
-    <div className='card' style={{ width: "300px" }}>
+    <div>
      <Upload putState={putState} />
 
      {returnState === true && (
@@ -74,17 +74,7 @@ const TaxTrackBackEnd = () => {
      )}
     </div>
 
-    <div className='card' style={{ width: "300px", height: "274px" }}>
-     <h3>Search Clients By Name</h3>
-     <i>*An empty query returns all of the records </i>
-     <br />
-     <br />
-     <input type='text' name='text' onChange={(e) => setText(e.target.value)} />
-     <div className='grid-2'>
-      <button onClick={() => getProfiles(text)}>Search</button>
-      <button onClick={() => clearProfiles()}>Clear Results</button>
-     </div>
-    </div>
+    <SearchComponent />
    </div>
 
    <div className='container'>
