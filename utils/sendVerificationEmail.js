@@ -7,7 +7,7 @@ require("dotenv").config();
 
 async function sendVerificationEmail(email, token) {
  try {
-  // Generate a 2FA token
+  // Generate a 2FA toke n
   console.log("Current Environment is:", process.env.NODE_ENV);
   // Create a transporter for nodemailer
   const transporter = nodemailer.createTransport({
