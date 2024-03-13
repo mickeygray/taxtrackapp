@@ -256,6 +256,7 @@ const AuthState = (props) => {
 
  const loadProfile = async () => {
   try {
+   console.log("skeebeebles");
    const res = await axios.get("/api/auth");
 
    dispatch({
