@@ -411,7 +411,7 @@ router.post("/forget", async (req, res) => {
  }
 });
 
-router.get("/", auth, async (req, res) => {
+router.get("/", async (req, res) => {
  try {
   console.log("Skootpoodles");
   const profile = await Profile.findById(req.profile.id).select("-pin");

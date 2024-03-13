@@ -55,9 +55,6 @@ const AuthState = (props) => {
 
  const [state, dispatch] = useReducer(authReducer, initialState);
 
- useEffect(() => {
-  setAuthToken(state.token);
- }, [state.token]);
  const toggleIsAdmin = () => {
   dispatch({ type: TOGGLE_IS_ADMIN });
  };
