@@ -54,7 +54,6 @@ export default (state, action) => {
     ...state,
     profileAuthenticated: true,
     loading: false,
-    ...action.payload,
    };
   case SEND_OTP_SUCCESS:
    return {
