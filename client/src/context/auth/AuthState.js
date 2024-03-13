@@ -184,7 +184,7 @@ const AuthState = (props) => {
 
   try {
    const res = await axios.put(`/api/auth/pin`, obj, config);
-   console.log(res);
+
    dispatch({
     type: REGISTER_SUCCESS,
     payload: res.data,
@@ -257,7 +257,7 @@ const AuthState = (props) => {
  const loadProfile = async () => {
   try {
    const res = await axios.get("/api/auth");
-   console.log(res.data);
+
    dispatch({
     type: PROFILE_LOADED,
     payload: res.data,
@@ -294,11 +294,18 @@ const AuthState = (props) => {
     "Content-Type": "application/json",
    },
   };
+
   try {
+   // Clear any existing token before the login attempt
+   localStorage.removeItem("token");
+   setAuthToken(null); // Clear the token from axios defaults
+
    const res = await axios.post(`/api/auth/login`, pin, config);
 
-   console.log(res.data);
+   // Now set the new token
+   localStorage.setItem("token", res.data.token);
    setAuthToken(res.data.token);
+
    await loadProfile();
    dispatch({ type: LOGIN_SUCCESS, payload: res.data });
   } catch (err) {
@@ -318,7 +325,6 @@ const AuthState = (props) => {
   try {
    const res = await axios.post(`/api/auth/admin/login`, pin, config);
 
-   console.log(res.data);
    setAuthToken(res.data.token);
    await loadUser();
    dispatch({ type: ADMIN_LOGIN_SUCCESS, payload: res.data.token });
@@ -335,7 +341,6 @@ const AuthState = (props) => {
  };
 
  const loadUser = async (res) => {
-  console.log(res);
   try {
    dispatch({
     type: USER_LOADED,
