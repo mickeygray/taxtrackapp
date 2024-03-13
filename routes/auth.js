@@ -414,7 +414,7 @@ router.post("/forget", async (req, res) => {
 router.get("/", auth, async (req, res) => {
  try {
   const profile = await Profile.findById(req.profile.id).select("-pin");
-
+  console.log(profile.fullName, "currently loaded profile");
   res.json(profile);
  } catch (err) {
   console.error(err.message);
