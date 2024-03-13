@@ -302,6 +302,7 @@ const AuthState = (props) => {
 
    const res = await axios.post(`/api/auth/login`, pin, config);
 
+   console.log(res.data);
    // Now set the new token
    localStorage.setItem("token", res.data.token);
    setAuthToken(res.data.token);
