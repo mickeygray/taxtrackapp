@@ -2,24 +2,30 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 module.exports = function (req, res, next) {
- //Get Token from heaver
+ // Get token from header
  const token = req.header("x-auth-token");
- //console.log(req);
- //check if not token
 
+ // Check if not token
  if (!token) {
-  return res.status(401).json({ msg: "no token auth denied" });
+  return res.status(401).json({ msg: "No token, authorization denied" });
  }
 
  try {
   const decoded = jwt.verify(token, config.get("jwtSecret"));
 
-  req.profile = decoded.profile;
-
-  req.user = decoded.user;
+  // Check for profile or user in the decoded token and set accordingly
+  if (decoded.profile) {
+   req.profile = decoded.profile;
+  } else if (decoded.user) {
+   req.user = decoded.user;
+  } else {
+   // If neither profile nor user are present, throw an error or handle it as needed
+   return res.status(401).json({ msg: "Token is not valid" });
+  }
 
   next();
  } catch (err) {
-  res.status(401).json({ msg: "Token is not valid " });
+  console.error(err.message);
+  res.status(401).json({ msg: "Token is not valid" });
  }
 };
