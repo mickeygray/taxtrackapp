@@ -437,9 +437,8 @@ router.get("/env", async (req, res) => {
 router.post("/login", async (req, res) => {
  const emailRegex = new RegExp(`^${req.body.email}$`, "i");
 
- console.log(req.body, "req body");
  const profile = await Profile.findOne({ email: emailRegex });
- console.log(profile, "profile");
+
  const isMatch = await bcrypt.compare(req.body.password, profile.pin);
 
  if (!isMatch) {
@@ -451,6 +450,8 @@ router.post("/login", async (req, res) => {
    id: profile.id,
   },
  };
+
+ console.log(config.get("jwtSecret"));
 
  jwt.sign(
   payload,

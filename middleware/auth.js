@@ -12,7 +12,7 @@ module.exports = function (req, res, next) {
 
  try {
   const decoded = jwt.verify(token, config.get("jwtSecret"));
-
+  console.log(decoded);
   // Check for profile or user in the decoded token and set accordingly
   if (decoded.profile) {
    req.profile = decoded.profile;
