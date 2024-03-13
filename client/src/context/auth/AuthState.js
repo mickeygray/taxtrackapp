@@ -337,6 +337,7 @@ const AuthState = (props) => {
  };
 
  const logout = () => {
+  setAuthToken(null);
   dispatch({ type: LOGOUT });
  };
 
