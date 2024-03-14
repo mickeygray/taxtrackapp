@@ -302,11 +302,14 @@ const AuthState = (props) => {
 
    console.log(res.data);
    // Now set the new token
-   localStorage.setItem("token", res.data.token);
-   setAuthToken(res.data.token);
+   //localStorage.setItem("token", res.data.token);
+   //setAuthToken(res.data.token);
 
-   await loadProfile();
-   dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+   //await loadProfile();
+   dispatch({
+    type: PROFILE_LOADED,
+    payload: res.data,
+   });
   } catch (err) {
    dispatch({
     type: LOGIN_FAIL,

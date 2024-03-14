@@ -436,35 +436,28 @@ router.get("/env", async (req, res) => {
 router.post("/login", async (req, res) => {
  const emailRegex = new RegExp(`^${req.body.email}$`, "i");
 
- const profile = await Profile.findOne({ email: emailRegex });
+ try {
+  const profile = await Profile.findOne({ email: emailRegex });
 
- const isMatch = await bcrypt.compare(req.body.password, profile.pin);
-
- if (!isMatch) {
-  return res.status(400).json({ msg: "Invalid Credentials" });
- }
-
- const payload = {
-  profile: {
-   id: profile.id,
-  },
- };
-
- console.log(config.get("jwtSecret"));
-
- jwt.sign(
-  payload,
-  config.get("jwtSecret"),
-  {
-   expiresIn: 360000,
-  },
-  (err, token) => {
-   if (err) throw err;
-   res.json({ token });
+  if (!profile) {
+   return res.status(404).json({ msg: "Profile not found" });
   }
- );
-});
 
+  const isMatch = await bcrypt.compare(req.body.password, profile.pin);
+
+  if (!isMatch) {
+   return res.status(400).json({ msg: "Invalid Credentials" });
+  }
+
+  // Exclude sensitive information such as the pin when returning the profile
+  const { pin, ...profileWithoutPin } = profile.toObject();
+
+  res.json(profileWithoutPin);
+ } catch (err) {
+  console.error(err.message);
+  res.status(500).json({ msg: "Server error" });
+ }
+});
 router.post("/admin/login", async (req, res) => {
  const user = await User.findOne({ email: req.body.email });
 
