@@ -167,8 +167,6 @@ router.post("/", auth, async (req, res) => {
   aptNo: profileData.aptNo,
   caseID: profileData.logicsCaseId || profileData.caseID, // Support both manual and Logics API case IDs
   addDate: profileData.addDate,
-  temp_secret: secret.base32,
-  token: token,
   accountTransactions: accountTransactions,
   startingBalance: accountTransactions.reduce(
    (total, transaction) => total + transaction.y,
