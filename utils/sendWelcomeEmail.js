@@ -4,7 +4,8 @@ const fs = require("fs");
 const path = require("path");
 const hbs = require("nodemailer-express-handlebars");
 require("dotenv").config();
-
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 async function sendWelcomeEmail(fullName, email) {
  try {
   // Generate a 2FA token
