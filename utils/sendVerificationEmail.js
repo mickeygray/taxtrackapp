@@ -16,7 +16,7 @@ async function sendVerificationEmail(email, token) {
    secure: true,
    auth: {
     user: "apikey",
-    pass: process.env.SENDGRIDAPIKEY,
+    pass: process.env.SENDGRID_API_KEY,
    },
   });
 

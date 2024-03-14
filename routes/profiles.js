@@ -55,12 +55,6 @@ router.post("/", auth, async (req, res) => {
 
  const transactions = req.body.data;
 
- const secret = speakeasy.generateSecret();
- const token = speakeasy.totp({
-  secret: secret.base32,
-  encoding: "base32",
- });
-
  const salt = await bcrypt.genSalt(10);
 
  const ssn = await bcrypt.hash(profileData.SSN, salt);
@@ -186,7 +180,7 @@ router.post("/", auth, async (req, res) => {
 
  const { email, fullName } = profile;
 
- await sendWelcomeEmail(fullName, email, token);
+ await sendWelcomeEmail(fullName, email);
 
  res.json(profile);
 });

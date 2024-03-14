@@ -5,10 +5,10 @@ const path = require("path");
 const hbs = require("nodemailer-express-handlebars");
 require("dotenv").config();
 
-async function sendWelcomeEmail(fullName, email, token) {
+async function sendWelcomeEmail(fullName, email) {
  try {
   // Generate a 2FA token
-  console.log("Current Environment is:", process.env.NODE_ENV);
+  console.log(typeof process.env.SENDGRID_API_KEY);
   // Create a transporter for nodemailer
   const transporter = nodemailer.createTransport({
    host: "smtp.sendgrid.net",
@@ -16,7 +16,7 @@ async function sendWelcomeEmail(fullName, email, token) {
    secure: true,
    auth: {
     user: "apikey",
-    pass: process.env.SENDGRIDAPIKEY,
+    pass: process.env.SENDGRID_API_KEY,
    },
   });
 
@@ -49,7 +49,6 @@ async function sendWelcomeEmail(fullName, email, token) {
    template: "welcome", // Name of the template file without extension
    context: {
     fullName: fullName, // Replace with recipient's full name
-    token: token, // The verification token
    },
   };
 
